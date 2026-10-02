@@ -947,7 +947,7 @@ var HIST=[
 /* The ordinary turning of the year. Weights are modified by climate, stability,
    access, treasury and whatever else the condition function looks at. */
 var EV=[
-{i:"e_harv_g",w:14,c:function(G){return G.clim>10;},ey:"At Michaelmas",h:"A Full Harvest",
+{i:"e_harv_g",g:1,w:14,c:function(G){return G.clim>10;},ey:"At Michaelmas",h:"A Full Harvest",
  t:"The grain came in dry and the yield is above the ten-year average in most of the Empire. Barns are full, the price of rye has fallen by a third, and there is seed for the spring with some left to sell.",
  o:[{n:"Let the surplus go to market",d:"Sell it. Silver now.",e:{tr:280,mkt:7,food:4},r:"The grain is sold and the chamber is fuller."},
     {n:"Fill the granaries",d:"Store against the year that is coming.",e:{food:11,unr:-5,stab:4},r:"The granaries are filled. This is the kind of decision nobody praises until it is needed."}]},
@@ -971,7 +971,7 @@ var EV=[
  o:[{n:"Judge the case and enforce it",d:"Hear it, decide it, and make the loser comply.",e:{stab:9,cent:7,loyal:-7,tr:-220},r:"Judgment is given and enforced. The loser complies and does not forget which way it went."},
     {n:"Mediate a settlement",d:"Let them both keep something and their faces.",e:{stab:5,loyal:9,cent:-3},r:"A compromise is drafted in which neither side loses and the villages are divided. It holds for about a decade."},
     {n:"Let them fight",d:"They will exhaust each other and come back smaller.",e:{stab:-9,unr:7,loyal:-4,cent:4},r:"They fight for two more seasons. Both are weaker, the roads stay closed, and the crown is seen to have no court worth going to."}]},
-{i:"e_silver",w:6,ey:"From the mountains",h:"A New Lode",
+{i:"e_silver",g:1,w:6,ey:"From the mountains",h:"A New Lode",
  t:"Prospectors working a stream bed have traced silver to its source and the assay is extraordinary. Word is spreading faster than the claim can be registered, and men are already walking in from three duchies away.",
  o:[{n:"Claim it for the crown",d:"Regalian right. The mine is the king's.",e:{tr:620,tax:9,loyal:-7,unr:5},r:"The mine is taken into the chamber. The local lord petitions, is refused, and the silver is real."},
     {n:"Charter free miners under a royal tenth",d:"Let them dig and take the tenth.",e:{tax:11,goods:7,pop:5,mkt:6},r:"The code is granted. A town grows on the spot inside five years and the tenth comes in every year thereafter."},
@@ -1007,7 +1007,7 @@ var EV=[
  o:[{n:"Rebuild before winter",d:"At forced pace and forced price.",e:{tr:-340,acc:9,mkt:11,italy:6},r:"The road and the hospice are open by the first snow, at roughly twice what the work should cost."},
     {n:"Rebuild in the spring",d:"Lose a season's trade and pay a fair price.",e:{tr:-150,mkt:-9,acc:5},r:"The work is done properly in the spring. The winter's trade went by another route and some of it stayed there."},
     {n:"Subsidise the alternative route",d:"Pay to move the trade and keep it moving.",e:{tr:-200,mkt:4,acc:3,italy:-4},r:"The trade is redirected. The towns on the new road prosper and lobby to keep it that way."}]},
-{i:"e_genius",w:6,gen:1,ey:"At the cathedral school",h:"An Unusual Mind",
+{i:"e_genius",g:1,w:6,gen:1,ey:"At the cathedral school",h:"An Unusual Mind",
  t:"A master at one of the schools has produced work that the other masters cannot fault and cannot match: a commentary that resolves three standing disputes and a method of calculation that his students are already copying. He has no patron and two offers from outside the Empire.",
  o:[{n:"Take him into the court",d:"A pension, a house and access to the chancery.",e:{tr:-130,genius:1},r:"He accepts and comes to court, where he is productive, expensive and difficult."},
     {n:"Endow a chair for him",d:"Fund the school, not the man.",e:{tr:-240,serv:7,gen:9,sol:4},r:"The chair is endowed. He holds it, and so does whoever follows him, which is the better bargain over fifty years."},
@@ -1027,7 +1027,7 @@ var EV=[
  o:[{n:"Invest the chapter's choice",d:"Follow the canons and the Pope.",e:{pap:12,loyal:-7,cent:-4,stab:4},r:"The canonical candidate is invested. The prince's brother withdraws to a benefice and the prince does not attend court for two years."},
     {n:"Invest the prince's brother",d:"Follow the prince whose loyalty you need.",e:{loyal:12,pap:-14,cent:5},r:"The invested bishop holds the see by force and is never confirmed in Rome. The see is in schism for a decade."},
     {n:"Hold the temporalities and wait",d:"Take the revenue while they argue.",e:{tr:460,pap:-7,loyal:-5,stab:-5},r:"The revenue comes to the chamber for as long as the dispute lasts, which gives both parties an excellent reason to prolong it."}]},
-{i:"e_reliq",w:7,ey:"An offer",h:"A Relic for Sale",
+{i:"e_reliq",g:1,w:7,ey:"An offer",h:"A Relic for Sale",
  t:"A Venetian merchant is offering an arm of a major saint, with a Greek authentication and a provenance that begins in Constantinople in 1204 and is vague before that. A shrine would draw pilgrims from four duchies and the money that comes with them. The price is high and the authentication is the kind that would not survive close examination.",
  o:[{n:"Buy it and build the shrine",d:"Pilgrims, and the trade that follows pilgrims.",e:{tr:-440,prs:11,stab:7,serv:9,mkt:7,pap:4},r:"The shrine is built and the pilgrims come in numbers that pay for it within fifteen years."},
     {n:"Have the provenance examined first",d:"Ask where it was in 1203.",e:{tr:-60,pap:5,corr:4,prs:-3},r:"The examination is inconclusive and the merchant sells it elsewhere, where it is not examined."},
@@ -1037,7 +1037,7 @@ var EV=[
  o:[{n:"Throw down the castles",d:"Siege train, and leave the walls on the ground.",e:{tr:-420,stab:11,mkt:9,loyal:-5,cent:6},r:"Three castles are reduced and the lords outlawed. The road is safe and the point is made to everyone holding a castle on a road."},
     {n:"Buy them off with an office",d:"Make them the road's wardens and pay them.",e:{tr:-180,stab:6,mkt:5,corr:-5,loyal:4},r:"They are appointed wardens of the road at a salary. The robbery stops and is now called a wage."},
     {n:"Let the towns deal with it",d:"They have money and an interest.",e:{mkt:-7,unr:5,cent:-5,serv:4},r:"The towns hire companies and clear the road themselves. They conclude that they can do this, which is a lesson with consequences."}]},
-{i:"e_wine",w:7,c:function(G){return G.clim>0;},ey:"From the Rhine",h:"A Vintage Too Large",
+{i:"e_wine",g:1,w:7,c:function(G){return G.clim>0;},ey:"From the Rhine",h:"A Vintage Too Large",
  t:"Three good summers running and the Rhine and Mosel cellars are full of wine nobody will buy at last year's price. The growers are petitioning for a restriction on planting and the shippers are petitioning against it.",
  o:[{n:"Buy for the court and the army",d:"The chamber takes the surplus at a fair price.",e:{tr:-180,loyal:7,mkt:5,sol:4},r:"The surplus is bought. The court drinks well for three years and the growers are solvent."},
     {n:"Open new markets with toll relief",d:"Cheaper carriage north and east.",e:{tax:-5,mkt:12,acc:4},r:"Relief is granted on the northern roads. Rhenish wine reaches the Baltic in quantity for the first time."},
@@ -1052,12 +1052,12 @@ var EV=[
  o:[{n:"Take the cross",d:"Lead it. The prestige is enormous and so is the absence.",e:{pap:18,prs:16,tr:-700,land:-12,stab:-7},r:"The vow is taken publicly. Preparations consume two years of revenue and the question of who governs in the meantime is not settled."},
     {n:"Send a contingent and stay",d:"Pay for knights and keep the crown at home.",e:{pap:9,prs:7,tr:-320,land:-5},r:"A respectable contingent sails. The crown remains, which is the correct decision and is held against it."},
     {n:"Commute the vows for money",d:"Let those who vowed pay instead of going.",e:{tr:520,pap:-11,prs:-7,land:4},r:"The commutation is arranged and the money is collected. Rome regards the practice as its own prerogative."}]},
-{i:"e_marriage",w:10,ey:"A proposal",h:"A Marriage Is Offered",
+{i:"e_marriage",g:1,w:10,ey:"A proposal",h:"A Marriage Is Offered",
  t:"A marriage is proposed between the royal house and one of the Empire's great princely families. The dowry is substantial, the bride's family controls two votes at an election, and the match would offend a different family that has been loyal for longer and expects better.",
  o:[{n:"Accept",d:"Two votes and a dowry.",e:{tr:420,elec:9,loyal:5,heir:7},r:"The match is made. The slighted house is cold for a decade and the votes are real."},
     {n:"Decline and marry the loyal house",d:"Reward service rather than buy votes.",e:{loyal:14,elec:-4,prs:4,heir:6},r:"The loyal house is honoured and says so loudly. The other family looks elsewhere, and finds somewhere."},
     {n:"Delay",d:"Keep both hoping.",e:{loyal:-5,elec:3,infl:5},r:"Both are kept waiting for two years, after which both have understood the manoeuvre."}]},
-{i:"e_towncharter",w:10,c:function(G){return G.urb>9;},ey:"A petition",h:"A Town Asks for a Charter",
+{i:"e_towncharter",g:1,w:10,c:function(G){return G.urb>9;},ey:"A petition",h:"A Town Asks for a Charter",
  t:"A growing market town petitions for a charter: its own court, its own walls, a weekly market and the right to answer to the crown rather than to the count whose land it stands on. The count has written separately and at length about what he thinks of this.",
  o:[{n:"Grant the charter",d:"A town that owes you directly.",e:{serv:9,tax:7,cent:7,mkt:7,loyal:-9},r:"The charter is sealed. The town prospers and the count's family nurses the grievance for three generations."},
     {n:"Grant a market only",d:"The market, not the liberties.",e:{serv:5,mkt:5,tax:3,loyal:-3},r:"A market charter is granted. It is enough to grow on and not enough to be free."},
@@ -1077,7 +1077,7 @@ var EV=[
  o:[{n:"Grant to the child, with a regency",d:"The better claim, and a regency you appoint.",e:{cent:9,loyal:-5,stab:-4,corr:4},r:"The child is invested and the regency appointed from court. It holds, with two attempts on it."},
     {n:"Grant to the brother",d:"The man who can actually hold it.",e:{loyal:11,stab:6,cent:-5},r:"The brother is invested and holds it competently. The child's party keeps the claim alive for a generation."},
     {n:"Keep it in the crown's hand",d:"Administer it directly. Escheat is a right.",e:{tax:14,cent:11,loyal:-14,unr:7},r:"The fief is administered by royal officers. The revenue is excellent and every prince in the Empire has now thought about what happens when they die."}]},
-{i:"e_hansa",w:7,c:function(G){return G.yr>1210;},ey:"From the Baltic",h:"The Towns Ask for Privileges",
+{i:"e_hansa",g:1,w:7,c:function(G){return G.yr>1210;},ey:"From the Baltic",h:"The Towns Ask for Privileges",
  t:"A group of Baltic and North Sea towns has sent a joint embassy \u2014 which is itself the news \u2014 asking for a common privilege: one safe conduct, one standard of weight, and the crown's protection for their factors abroad. In exchange they offer a payment and the use of their shipping.",
  o:[{n:"Grant the common privilege",d:"One charter for all of them.",e:{mkt:16,nav:7,tr:260,loyal:-7,cent:4},r:"The privilege is granted. The association that results will outlast several dynasties and will not always be friendly."},
     {n:"Grant to each town separately",d:"Privileges, but no association.",e:{mkt:9,tr:180,cent:5,serv:5},r:"Separate charters are issued. The towns cooperate anyway, without a charter to point at."},
@@ -1324,7 +1324,8 @@ function initGame(natIx,recog){
   tr:Math.round(row[1]*0.9+240),sub:0,leg:24,pap:30,prs:30,
   debt:0,debtLvl:0,infl:0,cent:26,taxRate:42,
   research:{},slots:1,queue:[],qleft:{},done:{},enacted:{},laws:{},doct:{},uniq:{},
-  army:{},builds:[],offices:{},court:[],powers:{},rels:{},allies:{},
+  army:{},builds:[],offices:{},court:[],powers:{},rels:{},allies:{},wars:{},badRun:0,
+  peaceOffer:null,peaceDemand:null,
   dipl:0,diplMax:3,
   clim:30,climB:30,genius:null,chron:[],flags:{},strainRun:0,
   rnd:rnd,ev:null,over:null,em:{}};
@@ -1349,7 +1350,7 @@ function initGame(natIx,recog){
    res:r2[10].slice(),towns:r2[11],coast:r2[12],me:ix===natIx,
    rule:ix===natIx?G.ruler:mkChar(t2?t2.h:r2[0],r2[13],rnd),
    rel:ix===natIx?100:50,imp:50,intel:ix===natIx?3:0,
-   army:Math.round(r2[1]*0.011+2),claim:0,fear:0};
+   army:Math.round(r2[1]*0.011+2),claim:0,fear:0,taken:0,owner:null};
   s.gdp=s.pop*0.012*(1+s.dev*0.014);
   G.states.push(s);
  });
@@ -1484,21 +1485,21 @@ function recalcRegion(r,M){
  var rural=r.pop*(1-r.urb/100), urban=r.pop*(r.urb/100);
  var resB=0;r.res.forEach(function(k){resB+=RES[k]?RES[k][1]:0;});
  var fert=tf[1]*(1+m(M,"food")*0.009+adapt*0.006);
- r.food=rural*fert*0.00115*(1+r.farms*0.03)+be(B,"food")*0.0115;
+ r.food=rural*fert*0.00115*(1+r.farms*0.03)+be(B,"food")*0.62;
  r.need=r.pop*0.00105;
  r.goods=(rural*0.00052+urban*0.0017)*(1+m(M,"goods")*0.011+resB*0.012+r.dev*0.006)
-   +be(B,"goods")*0.009;
- r.serv=(urban*0.0031*(1+m(M,"serv")*0.013+r.towns*0.035+r.dev*0.005)+be(B,"serv")*0.012)*(acc/70);
+   +be(B,"goods")*0.8;
+ r.serv=(urban*0.0031*(1+m(M,"serv")*0.013+r.towns*0.035+r.dev*0.005)+be(B,"serv")*0.9)*(acc/70);
  r.gdp=(r.goods+r.serv)*100;
  r.gdpc=r.gdp/Math.max(0.001,r.pop/1000);
  r.def=Math.round(be(B,"def")+m(M,"def")*0.3);
- r.sol=cl0(14+cl0(r.gdpc*0.2,0,44)+m(M,"sol")*0.42+be(B,"sol")*0.5
+ r.sol=cl0(14+cl0(r.gdpc*0.2,0,44)+m(M,"sol")*0.42+be(B,"sol")*1.3
    +(r.food>=r.need?8:-18)+r.dev*0.14,1,99);
  var bal=(r.food-r.need)/Math.max(0.1,r.need);
  r.price=cl0(50-bal*34+(100-acc)*0.26-m(M,"mkt")*0.1-be(B,"mkt")*0.3,1,99);
- r.farmCap=Math.round(3+r.pop/42000+m(M,"cap"));
- r.millCap=Math.round(1+r.pop/70000+m(M,"cap")*0.5+(G.done.eng2a?1:0)+(G.done.eng4a?1:0));
- r.mineCap=r.res.length?Math.round(1+m(M,"cap")*0.4+(G.done.adp3a?1:0)+(G.done.prd5a?1:0)):0;
+ r.farmCap=Math.round(4+r.pop/18000+m(M,"cap")*1.5);
+ r.millCap=Math.round(2+r.pop/34000+m(M,"cap")*0.6+(G.done.eng2a?1:0)+(G.done.eng4a?1:0));
+ r.mineCap=r.res.length?Math.round(2+m(M,"cap")*0.5+(G.done.adp3a?1:0)+(G.done.prd5a?1:0)):0;
  return r;
 }
 function capOf(r,b){
@@ -1804,7 +1805,7 @@ function endTurn(){
   r.unr+=(uTgt-r.unr)*0.26+r.unrDelta;r.unrDelta=0;
   r.unr=cl0(r.unr,0,100);r.stab=cl0(r.stab,0,100);
   var slack=(r.food-r.need)/Math.max(0.1,r.need);
-  var gr=0.0014+Math.max(0,slack)*0.0052+m(M2,"pop")*0.00008+m(M2,"hea")*0.00006+be(B,"hea")*0.00009;
+  var gr=0.0014+Math.max(0,slack)*0.0052+m(M2,"pop")*0.00008+m(M2,"hea")*0.00006+be(B,"hea")*0.00035;
   if(slack<0)gr+=slack*0.017;
   if(r.unr>66)gr-=0.009;
   r.pop=Math.max(2000,r.pop*(1+cl0(gr,-0.055,0.0086)));
@@ -1825,6 +1826,14 @@ function endTurn(){
   s.imp+=((50+s.align*(G.emp.res==="ph"?0.4:G.emp.res==="ot"?-0.4:0))-s.imp)*0.06;
   if(s.fear>0&&G.rnd()<0.3)s.fear--;
  });
+
+ /* the wars you are in */
+ G.peaceOffer=null;G.peaceDemand=null;
+ for(var wix in (G.wars||{})){
+  var res=warRound(+wix);
+  if(res==="offer"&&G.peaceOffer===null)G.peaceOffer=+wix;
+  else if(res==="demand"&&G.peaceDemand===null)G.peaceDemand=+wix;
+ }
 
  natAgg(M2);
 
@@ -1986,6 +1995,307 @@ function strain(){
  }
 }
 
+/* Drawn against your own state. {R} is a region of yours, {S} a neighbour,
+   {RES} something you actually dig or weave. Good years are as likely as bad. */
+var EVD=[
+{i:"d_good_harv",w:15,g:1,pick:"food",c:function(G){return G.clim>-10;},
+ ey:"At Michaelmas, in {R}",h:"A Harvest Worth Recording",
+ t:"The grain came in dry out of {R} and the yield is the best in a decade. The barns there are full, the price of rye has fallen across {SHORT}, and there is seed for the spring with a surplus to sell.",
+ o:[{n:"Sell the surplus",d:"Silver now, while the price is still worth having.",e:{tr:340},rg:{},r:"The grain goes to market and the chamber is fuller."},
+    {n:"Store it against the bad year",d:"Fill the granaries at {R}.",e:{},rg:{farms:1,stab:4},r:"The granaries are filled and a new field is broken in. Nobody praises this until the year it matters."},
+    {n:"Settle new families on the back of it",d:"A good year is when people can be moved.",e:{},rg:{pop:3,farms:1},r:"Families come in on easy terms and the ploughland at {R} grows."}]},
+{i:"d_market",w:12,g:1,pick:"town",
+ ey:"A petition out of {R}",h:"They Want a Market",
+ t:"The men of {R} have petitioned for a weekly market under your peace, with sworn measures and a court to settle disputes on the day. They have offered to pay for the charter. The lords whose own markets stand a day's cart away have written separately.",
+ o:[{n:"Grant it",d:"A market at {R}, and the tolls that come with it.",e:{tr:-110},rg:{towns:1,urb:3,dev:3},r:"The charter is sealed. Within five years {R} is somewhere people go on purpose."},
+    {n:"Grant it, and sell the franchise",d:"Charge what it is worth to them.",e:{tr:260},rg:{towns:1,urb:2,unr:4},r:"They pay, and they remember paying."},
+    {n:"Refuse",d:"Do not undercut the markets you already have.",e:{},rg:{unr:6,dev:-1},r:"The petition is refused. The trade goes to the market a day away and stays there."}]},
+{i:"d_lode",w:9,g:1,pick:"rich",
+ ey:"From the hills above {R}",h:"They Have Found {RES}",
+ t:"Prospectors working a stream bed above {R} have traced {RES} to its source, and the assay is better than anything worked in {SHORT} before. Word is moving faster than the claim can be registered.",
+ o:[{n:"Take it into your own hand",d:"The seam is yours by regalian right.",e:{tr:520},rg:{res:"silver",dev:3,unr:5},r:"The working is taken into the chamber. The local men petition, are refused, and the metal is real."},
+    {n:"Charter free miners under a tenth",d:"Let them dig and take the tenth of it.",e:{},rg:{res:"silver",pop:3,dev:5,towns:1},r:"The code is granted. A town grows on the spot inside five years and the tenth comes in every year after."}]},
+{i:"d_master",w:10,g:1,pick:"town",
+ ey:"A man at the cathedral works",h:"A Master Mason",
+ t:"A master mason has come to {R} looking for work, with drawings for a vault wider than anything standing in {SHORT} and an explanation of why it will not fall down. He is expensive and he knows it.",
+ o:[{n:"Set him to the walls",d:"Let him build at {R}.",e:{tr:-300},rg:{bld:"walls"},r:"He builds, and it is better work than the money."},
+    {n:"Set him to a church",d:"Something that will still be there in three hundred years.",e:{tr:-420,prs:8,pap:7},rg:{bld:"abbey"},r:"The work is begun and will outlast everyone who argued about the cost."},
+    {n:"Let him go on",d:"The chamber is committed elsewhere.",e:{prs:-3},r:"He goes on to the next town, which builds the vault instead."}]},
+{i:"d_relic",w:9,g:1,pick:"town",
+ ey:"An offer made at {R}",h:"Bones in a Box",
+ t:"A merchant is at {R} offering the arm of a major saint, with a Greek authentication and a provenance that begins at Constantinople in 1204 and is hazy before that. A shrine would draw pilgrims from four duchies.",
+ o:[{n:"Buy it and build the shrine",d:"Pilgrims, and the trade that follows pilgrims.",e:{tr:-420,prs:10,pap:5},rg:{bld:"abbey",urb:3,dev:3},r:"The shrine is built and the pilgrims come in numbers that pay for it inside fifteen years."},
+    {n:"Have the provenance examined",d:"Ask where it was in 1203.",e:{tr:-60,pap:5},r:"The examination settles nothing and the merchant sells it two valleys over, where it is not examined."},
+    {n:"Refuse",d:"You do not buy stolen Greek bones.",e:{pap:4,prs:-3},r:"The offer is declined. The relic is in a cathedral a hundred miles off within the year, drawing pilgrims."}]},
+{i:"d_settlers",w:11,g:1,pick:"poor",
+ ey:"On the road into {R}",h:"Settlers on the Road",
+ t:"Carts have been coming into {R} for a month: families off crowded land to the west, with tools, seed and a locator who has done this before. They want a hide apiece, a free year, and a village mayor of their own choosing.",
+ o:[{n:"Give them the terms",d:"A hide, a free year, their own mayor.",e:{},rg:{pop:6,farms:2,dev:2},r:"They take the waste and break it. In ten years it is the best land in {R}."},
+    {n:"Take them on the old terms",d:"Labour service like everyone else.",e:{tr:120},rg:{pop:2,unr:7},r:"Most go on east, where the terms are better. The few who stay are resentful and say so."},
+    {n:"Turn them away",d:"You have enough mouths.",e:{},rg:{stab:3},r:"They go on. Someone else's waste is broken instead."}]},
+{i:"d_bequest",w:8,g:1,
+ ey:"A will read at {CAP}",h:"A Childless Man Dies Rich",
+ t:"A vassal has died at {CAP} without heirs of his body and with more than anyone thought. The land falls in to you. A nephew has appeared with a claim and a lawyer, and the abbey where the old man is buried has produced a deathbed grant in its own favour.",
+ o:[{n:"Take it all",d:"Escheat is a right, and the right is yours.",e:{tr:620,pap:-6},rg:{unr:5},r:"The whole of it comes to the chamber. The abbey writes to Rome and the nephew writes to everyone."},
+    {n:"Split it with the abbey",d:"Half, and a clean reputation.",e:{tr:320,pap:9,prs:4},r:"The settlement is sealed and witnessed. Both sides call it generous, which is what settlements are for."},
+    {n:"Give it to the nephew for his service",d:"Buy a loyal man instead of silver.",e:{prs:6},rg:{stab:7},r:"He has it, swears for it, and is the most reliable man you have for thirty years."}]},
+{i:"d_vintage",w:9,g:1,pick:"rich",c:function(G){return G.clim>5;},
+ ey:"From the slopes at {R}",h:"A Vintage They Will Talk About",
+ t:"Three warm summers running and the cellars at {R} hold more wine than anyone will buy at last year's price. The growers want planting restricted. The shippers want the roads opened.",
+ o:[{n:"Open the roads north",d:"Toll relief, and let it travel.",e:{mkt:10},rg:{dev:3,urb:2},r:"Relief is granted on the northern roads and the wine of {R} reaches the Baltic for the first time."},
+    {n:"Buy it for your own household",d:"The chamber takes the surplus at a fair price.",e:{tr:-180,prs:5},rg:{stab:5},r:"The surplus is bought. The court drinks well for three years and the growers are solvent."}]},
+{i:"d_bridge",w:9,g:1,
+ ey:"At the ford below {R}",h:"The Ford Is Not Enough",
+ t:"The crossing below {R} drowns somebody most springs and is impassable to carts for two months of the year. The carpenters say a stone bridge is possible here and nowhere else within a day's ride. There is a chapel's worth of masonry already on the bank from the last attempt.",
+ o:[{n:"Build it",d:"Stone, with a chapel on it and a toll at each end.",e:{tr:-340},rg:{bld:"bridge",dev:2},r:"It is built and it reroutes the trade of the whole valley through {R}."},
+    {n:"Pay for a ferry instead",d:"Cheap, and it works most of the year.",e:{tr:-90},rg:{acc:4},r:"A ferry and a ferryman. It is better than the ford and it is not a bridge."},
+    {n:"Leave it",d:"The ford has always been there.",e:{},rg:{acc:-4},r:"The ford is left as it is, and so is the drowning."}]},
+{i:"d_scholar",w:8,g:1,pick:"town",
+ ey:"At the school at {R}",h:"A Mind Worth Keeping",
+ t:"A master at {R} has produced work the other masters cannot fault and cannot match. He has no patron and two offers from outside {SHORT}.",
+ o:[{n:"Endow a chair for him",d:"Fund the school, not the man.",e:{tr:-260,gen:8},rg:{bld:"school"},r:"The chair is endowed. He holds it, and so does whoever follows him, which is the better bargain over fifty years."},
+    {n:"Bring him to court",d:"A pension and a house.",e:{tr:-130,genius:1},r:"He comes, and is productive, expensive and difficult."},
+    {n:"Let him go",d:"The chamber has other claims.",e:{gen:-4},r:"He goes to Paris or Bologna and does the work there."}]},
+{i:"d_feast",w:8,g:1,
+ ey:"At {CAP}, at Whitsun",h:"A Court Worth Attending",
+ t:"The Whitsun court at {CAP} is the largest in years: knighting, a tournament, cases heard in the open, and more of your vassals in one hall than have been in one place since the old lord died. It is an opportunity and it is costing a fortune.",
+ o:[{n:"Spend on it properly",d:"Let it be the court people talk about.",e:{tr:-320,prs:11,loyal:6},r:"They talk about it for twenty years, which is cheaper by the year than it looked on the day."},
+    {n:"Keep it modest",d:"Dignity without the expense.",e:{tr:-90,prs:2},r:"It is correct, brief and entirely forgettable."},
+    {n:"Use it to hear cases",d:"Judge, rather than feast.",e:{tr:-120,cent:4},rg:{stab:8},r:"Forty cases are heard and decided. It is not what they came for and it is remembered differently."}]},
+{i:"d_border",w:11,pick:"rand",
+ ey:"On the frontier with {S}",h:"A Quarrel Over Three Villages",
+ t:"The men of {R} and the men of {SLORD} have been burning each other's hayricks over three villages and an advowson that both sides can produce a charter for. Nobody is dead yet. {S} has written, and the letter is not conciliatory.",
+ o:[{n:"Send envoys and settle it",d:"Divide the villages and move on.",e:{tr:-120},rg:{stab:5},r:"The villages are divided and the charters are both quietly filed. It holds for about a decade."},
+    {n:"Garrison the frontier",d:"Hold what you hold, and be seen holding it.",e:{tr:-240},rg:{stab:4,unr:3},r:"Serjeants on the border. The burning stops and the quarrel does not."},
+    {n:"Enter a claim on the whole district",d:"If there is to be a quarrel, make it worth having.",e:{},r:"A claim is entered against {SFULL}. It is now a cause of war whenever you want one."}]},
+{i:"d_fire",w:10,pick:"town",
+ ey:"In the night at {R}",h:"{R} Is Burning",
+ t:"Fire started in a cooper's yard at {R} and went through four streets of timber and thatch before the wind dropped. The market hall is gone and a quarter of the houses inside the walls. The council is asking for help and so, separately, is the church.",
+ o:[{n:"Rebuild it in stone",d:"At the chamber's cost.",e:{tr:-380,prs:6},rg:{dev:4,stab:7,urb:2},r:"The rebuilding is in stone and tile, which is the part that matters the next time."},
+    {n:"Remit their dues for ten years",d:"Let them rebuild out of their own trade.",e:{tax:-4},rg:{stab:5,dev:2},r:"The remission is granted. {R} rebuilds itself and remembers who allowed it."},
+    {n:"Offer prayers",d:"The chamber is committed elsewhere.",e:{},rg:{unr:9,dev:-3},r:"Prayers are offered. {R} rebuilds in timber and thatch, because that is what it can afford."}]},
+{i:"d_murrain",w:9,pick:"food",c:function(G){return G.clim<24;},
+ ey:"Among the byres of {R}",h:"Murrain at {R}",
+ t:"Cattle plague has gone through the byres around {R}: the beasts swell, will not eat, and are dead in three days. The draught oxen are dying with the rest, which means the spring ploughing as well as the meat.",
+ o:[{n:"Buy in plough teams",d:"Oxen and horses from wherever they can be had.",e:{tr:-340},rg:{stab:5},r:"Teams are bought in and distributed. The spring sowing happens, mostly."},
+    {n:"Order the infected herds killed and buried",d:"Hard, and it stops the spread.",e:{},rg:{unr:10,farms:-1},r:"The order is enforced with soldiers in two villages. The spread stops and so does any goodwill."},
+    {n:"Nothing can be done",d:"It will burn itself out.",e:{},rg:{farms:-2,pop:-3,unr:7},r:"It burns itself out, having taken most of the plough teams of {R} with it."}]},
+{i:"d_riot",w:10,pick:"unrest",
+ ey:"In the streets of {R}",h:"The Craft Puts Down Its Tools",
+ t:"The weavers and fullers of {R} have stopped work over what the merchants pay for finished cloth. The merchants control the wool and the licences; the weavers control whether anything is woven. The council at {R} is drawn from the merchants.",
+ o:[{n:"Fix a rate and bind both",d:"Arbitrate, and make it stick.",e:{},rg:{unr:-14,stab:6,dev:1},r:"A rate is sworn by both guilds. Neither is satisfied and the looms start again."},
+    {n:"Back the merchants",d:"They pay the customs and they run the town.",e:{tr:180},rg:{unr:12,dev:2},r:"The strike is broken and the leaders are out of the gate. The cloth moves and {R} is sullen."},
+    {n:"Charter the weavers",d:"Give the craft a legal voice of its own.",e:{},rg:{unr:-16,urb:3,bld:"guild"},r:"The charter is granted. The craft guilds of {R} are a permanent faction in its politics from now on."}]},
+{i:"d_bandit",w:10,pick:"poor",
+ ey:"On the road through {R}",h:"The Road Is Not Safe",
+ t:"Three minor lords on the road through {R} have stopped pretending that what they take is a toll. Merchants are being held for ransom, the fair is being avoided, and the towns have begun paying for their own escorts because your peace is not reaching that road.",
+ o:[{n:"Throw the castles down",d:"Siege train, and leave the walls on the ground.",e:{tr:-400,cent:5},rg:{stab:11,acc:6},r:"Three castles are reduced and the lords outlawed. The road is safe, and the point is made to everyone else holding a castle on a road."},
+    {n:"Make them wardens of the road",d:"Pay them to stop doing it.",e:{tr:-170},rg:{stab:6,acc:4},r:"They are appointed wardens at a salary. The robbery stops and is now called a wage."},
+    {n:"Leave it to the towns",d:"They have money and an interest.",e:{mkt:-7},rg:{unr:5},r:"The towns hire companies and clear the road themselves. They conclude that they can do this, which has consequences."}]},
+{i:"d_flood",w:9,pick:"rand",
+ ey:"At the thaw, below {R}",h:"The River Takes the Bank",
+ t:"A hard frost, a sudden thaw and three days of rain. The river below {R} has gone over its banks for forty miles, taken out the mill and a bridge, and changed its channel at one bend, leaving a toll house on dry land and a village in the water.",
+ o:[{n:"Rebuild the works",d:"Banks, bridge and mill.",e:{tr:-300},rg:{acc:7,dev:2},r:"The works are rebuilt and the new channel is banked. The toll house is moved, with complaint."},
+    {n:"Lay the dyke duty on the holders",d:"It is their obligation in law.",e:{},rg:{acc:3,unr:8},r:"The duty is enforced. The work is done badly in places and the resentment is uniform."},
+    {n:"Let the river settle",d:"It will find its own course.",e:{},rg:{acc:-7,farms:-1},r:"The river settles where it likes. Two fords are lost and the road moves."}]},
+{i:"d_rival",w:10,
+ ey:"From the court of {S}",h:"{SLORD} Is Making Trouble",
+ t:"{SLORD} of {SFULL} has been receiving your outlaws, buying up debts owed in {R}, and telling anyone who will listen that your title to it is defective. None of this is quite a cause of war and all of it is deliberate.",
+ o:[{n:"Answer in kind",d:"Agents, bought servants, and his own outlaws.",e:{tr:-180,esp:7},r:"It becomes a quiet war of households. You are better at it than he expected."},
+    {n:"Demand satisfaction openly",d:"Say it to his face and to the Diet.",e:{prs:6,impFav:4},r:"He denies all of it in public and stops most of it in private."},
+    {n:"Enter a claim and prepare",d:"Stop treating this as a quarrel.",e:{},r:"A claim is entered against {SFULL}."},
+    {n:"Ignore it",d:"He is doing it to be noticed.",e:{prs:-4},r:"It continues, and grows, and in two years it is worse."}]},
+{i:"d_plague_r",w:8,pick:"town",c:function(G){return G.yr>1204;},
+ ey:"Reported out of {R}",h:"Sickness at {R}",
+ t:"A fever came up the trade road and is in {R}. The physicians disagree about whether it travels in the air or in the goods. The dead are being buried outside the walls and the gates have been shut by a council nobody told to shut them.",
+ o:[{n:"Seal the town",d:"Nothing in or out. Accept what that does to trade.",e:{mkt:-9},rg:{pop:-2,unr:7,stab:3},r:"Movement stops, and so does a good deal of the sickness, and a good deal of the revenue."},
+    {n:"Send physicians and alms",d:"Treat it where it is.",e:{tr:-240,prs:5},rg:{pop:-3,unr:-5},r:"Physicians and alms are sent. The effect on the sickness is arguable; the effect on {R}'s loyalty is not."},
+    {n:"Leave it to the town",d:"It has walls and a council.",e:{},rg:{pop:-6,unr:8},r:"{R} does as it sees fit, and buries rather more of its people than it needed to."}]}
+];
+
+/* ===================== DYNAMIC EVENTS =====================
+   An event is drawn against the state you are actually running: it names your
+   regions, your resources, your neighbours and your ruler, and its effects land
+   on the region it names rather than on the realm in the abstract.
+   ========================================================== */
+function pickRegion(how){
+ var rs=G.regions.slice();
+ if(!rs.length)return null;
+ if(how==="food")rs.sort(function(a,b){return (a.food-a.need)/a.need-(b.food-b.need)/b.need;});
+ else if(how==="rich")rs.sort(function(a,b){return b.gdp-a.gdp;});
+ else if(how==="poor")rs.sort(function(a,b){return a.gdpc-b.gdpc;});
+ else if(how==="unrest")rs.sort(function(a,b){return b.unr-a.unr;});
+ else if(how==="town")rs.sort(function(a,b){return (b.towns+b.urb/20)-(a.towns+a.urb/20);});
+ else if(how==="cap")return G.regions[0];
+ else return rs[Math.floor(G.rnd()*rs.length)];
+ /* among the top few, so it is not the same place every time */
+ return rs[Math.floor(G.rnd()*Math.min(3,rs.length))];
+}
+function pickNeighbour(){
+ var near=(G.nearSet||(G.nearSet=nearIx(G.nat))).filter(function(i){return !isMine(G.states[i]);});
+ if(!near.length)return null;
+ return G.states[near[Math.floor(G.rnd()*near.length)]];
+}
+function shortName(n){
+ return String(n).replace(/^(Duchy|County|Kingdom|Margraviate|Landgraviate|Lordship|Bishopric|Archbishopric|Patriarchate|Dauphine|March|Commune|Marquisate|Palatinate) of /,"");
+}
+function evCtx(e){
+ var C={};
+ C.R=pickRegion(e.pick);
+ var others=G.regions.filter(function(r){return r!==C.R;});
+ C.R2=others.length?others[Math.floor(G.rnd()*others.length)]:C.R;
+ C.S=pickNeighbour();
+ var pool=[];G.regions.forEach(function(r){r.res.forEach(function(k){pool.push(k);});});
+ C.res=pool.length?pool[Math.floor(G.rnd()*pool.length)]:null;
+ C.T=pickRegion("town");
+ return C;
+}
+function subst(txt,C){
+ if(!txt)return txt;
+ return String(txt)
+  .replace(/\{R\}/g,C.R?C.R.n:"the country")
+  .replace(/\{R2\}/g,C.R2?C.R2.n:"the next valley")
+  .replace(/\{T\}/g,C.T?C.T.n:(C.R?C.R.n:"the town"))
+  .replace(/\{CAP\}/g,G.regions[0]?G.regions[0].n:G.sname)
+  .replace(/\{STATE\}/g,G.sname)
+  .replace(/\{SHORT\}/g,shortName(G.sname))
+  .replace(/\{RULER\}/g,G.ruler.n)
+  .replace(/\{TITLE\}/g,G.title)
+  .replace(/\{S\}/g,C.S?shortName(C.S.n):"a neighbour")
+  .replace(/\{SFULL\}/g,C.S?C.S.n:"a neighbouring state")
+  .replace(/\{SLORD\}/g,C.S&&C.S.rule?C.S.rule.n:"its lord")
+  .replace(/\{RES\}/g,C.res?RES[C.res][0].toLowerCase():"wool");
+}
+/* effects aimed at one region rather than at the realm */
+function applyRegion(r,e){
+ if(!r||!e)return"";
+ var note="";
+ for(var k in e){var v=e[k];
+  switch(k){
+   case"unr":r.unr=cl0(r.unr+v,0,100);r.unrDelta+=v*0.4;break;
+   case"stab":r.stab=cl0(r.stab+v,0,100);break;
+   case"pop":r.pop=Math.max(2000,r.pop*(1+v/100));break;
+   case"dev":r.dev=cl0(r.dev+v,5,98);break;
+   case"urb":r.urb=cl0(r.urb+v,1,80);break;
+   case"acc":r.acc=cl0(r.acc+v,4,99);break;
+   case"farms":r.farms=Math.max(0,r.farms+v);break;
+   case"towns":r.towns=Math.max(0,r.towns+v);break;
+   case"shift":r.shifted=1;break;
+   case"bld":if(BID[v]){r.bld[v]=(r.bld[v]||0)+1;note="A "+BID[v].n.toLowerCase()+" now stands at "+r.n+".";}break;
+   case"res":if(RES[v]&&r.res.indexOf(v)<0){r.res.push(v);note=cap1(RES[v][0])+" is now worked at "+r.n+".";}break;
+   default:break;
+  }
+ }
+ return note;
+}
+
+/* ===================== WAR =====================
+   You can declare it, fight it year by year, and take land for it.
+   =============================================== */
+function isMine(s){return s.me||s.owner===G.nat;}
+function atWar(ix){return !!(G.wars&&G.wars[ix]);}
+function warCount(){var n=0;for(var k in (G.wars||{}))n++;return n;}
+function regionsLeft(s){return SUBS[s.ix].length-(s.taken||0);}
+function canDeclare(ix){
+ var s=G.states[ix];
+ if(!s||isMine(s)||atWar(ix))return 0;
+ if(armyCount()<1)return 0;
+ if(regionsLeft(s)<1)return 0;
+ return 1;
+}
+function declareWar(ix){
+ if(!canDeclare(ix))return "";
+ var s=G.states[ix];
+ G.wars=G.wars||{};
+ G.wars[ix]={sc:0,yrs:0};
+ s.rel=cl0(s.rel-45,0,100);
+ var just=s.claim;
+ if(!just){G.prs=cl0(G.prs-7,0,100);G.pap=cl0(G.pap-6,0,100);G.impFav=cl0(G.impFav-9,0,100);}
+ else G.impFav=cl0(G.impFav-3,0,100);
+ /* their friends take it personally */
+ G.states.forEach(function(o){if(o.ix!==ix&&!isMine(o)&&G.rnd()<0.3)o.rel=cl0(o.rel-6,0,100);});
+ chron(G.yr,"<b>War is declared on "+shortName(s.n)+"</b>"+
+  (just?", on the claim already entered.":", without a claim. The Empire notices that part."));
+ recalcAll();
+ return "War with "+shortName(s.n)+".";
+}
+function warRound(ix){
+ var s=G.states[ix],w=G.wars[ix];
+ var doc=0;for(var d in G.doct)doc+=(G.doct[d]/100)*4;
+ var mine=G.land+G.ruler.sk[1]*4+doc+(G.genius&&G.genius.e.land?G.genius.e.land:0);
+ var theirs=s.army*8+s.dev*0.5+30+(s.rule?s.rule.sk[1]*3:12);
+ var roll=(mine-theirs)*0.3+(G.rnd()-0.5)*34;
+ w.sc=cl0(w.sc+roll,-100,100);w.yrs++;
+ /* war costs money, men and patience */
+ var cost=Math.round(G.income*0.16+armyCount()*22);
+ G.tr=Math.max(0,G.tr-cost);
+ if(G.rnd()<0.42){
+  var us=Object.keys(G.army).filter(function(u){return G.army[u]>0;});
+  if(us.length){var u=us[Math.floor(G.rnd()*us.length)];G.army[u]--;if(!G.army[u])delete G.army[u];}
+ }
+ if(G.rnd()<0.5)s.army=Math.max(0,s.army-1);
+ unrAll(2.4);
+ var txt;
+ if(roll>14)txt="The campaign against "+shortName(s.n)+" goes well. "+
+   (G.rnd()<0.5?"A field action is won and two castles have opened their gates.":"Their host declined battle and the country has been eaten bare.");
+ else if(roll<-14)txt="The campaign against "+shortName(s.n)+" goes badly. "+
+   (G.rnd()<0.5?"A column was caught at a river crossing and cut up.":"A siege was raised after four months and nothing to show.");
+ else txt="Another season against "+shortName(s.n)+" with nothing decided. Both sides are poorer.";
+ chron(G.yr,txt);
+ /* they sue for peace when they are losing badly enough */
+ if(w.sc>62&&G.rnd()<0.45)return "offer";
+ if(w.sc<-62&&G.rnd()<0.4)return "demand";
+ return "";
+}
+function annex(ix){
+ var s=G.states[ix],names=SUBS[ix],taken=s.taken||0;
+ if(taken>=names.length)return null;
+ /* taken from the edges inward: the capital is the last thing to fall */
+ var nm=names[names.length-1-taken];
+ var row=RG[ix],rnd=G.rnd;
+ var share=1/names.length;
+ var r={ix:G.regions.length,nat:G.nat,n:nm,cap:0,
+  pop:Math.max(3000,Math.round(s.pop*share)),
+  urb:cl0(row[2]*(0.5+rnd()*0.6),1,70),
+  dev:cl0(Math.round(row[3]*(0.7+rnd()*0.4)),8,95),
+  terr:row[4],
+  acc:cl0(Math.round(row[5]*0.55),6,80),   /* newly taken land is hard to reach */
+  stab:cl0(22+rnd()*14,5,97),
+  unr:cl0(52+rnd()*22,1,96),               /* and it does not want you */
+  res:row[10].length?[row[10][taken%row[10].length]]:[],
+  towns:rnd()<0.5?1:0,coast:row[12]&&rnd()<0.4?1:0,
+  farms:1,bld:{},shifted:0,unrDelta:0,intel:3,conq:1};
+ G.regions.push(r);RIDX[r.n]=r;
+ s.taken=taken+1;
+ s.pop=Math.max(4000,s.pop*(1-share));
+ s.army=Math.max(0,s.army-1);
+ if(s.taken>=names.length){
+  s.owner=G.nat;s.rel=100;s.claim=0;
+  if(G.wars&&G.wars[ix])delete G.wars[ix];        /* nothing left to fight over */
+  if(G.peaceOffer===ix)G.peaceOffer=null;
+  if(G.peaceDemand===ix)G.peaceDemand=null;
+  chron(G.yr,"<b>"+shortName(s.n)+" is conquered entire.</b> Its arms come down and the last of its regions is yours.");
+ }else chron(G.yr,"<b>"+nm+" is taken from "+shortName(s.n)+".</b> It is yours, and it is not pleased about it.");
+ recalcAll();
+ return r;
+}
+function makePeace(ix,terms){
+ var s=G.states[ix],w=G.wars[ix];if(!w)return"";
+ var msg="";
+ if(terms==="annex"){var r=annex(ix);msg=r?r.n+" is ceded to you.":"Nothing more to take.";}
+ else if(terms==="tribute"){var amt=Math.round(s.gdp*0.35);G.tr+=amt;
+  msg=shortName(s.n)+" pays "+fmt(amt)+" marks to be left alone.";}
+ else if(terms==="white")msg="Peace with "+shortName(s.n)+", on the terms things already stand.";
+ else if(terms==="submit"){var loss=Math.round(G.income*0.9);G.tr=Math.max(0,G.tr-loss);
+  G.prs=cl0(G.prs-11,0,100);msg="You buy peace from "+shortName(s.n)+" for "+fmt(loss)+" marks.";}
+ delete G.wars[ix];
+ s.rel=cl0(s.rel+(terms==="white"?18:6),0,100);
+ s.claim=0;
+ chron(G.yr,"<b>Peace with "+shortName(s.n)+".</b> "+msg);
+ recalcAll();
+ return msg;
+}
+
 /* =============== EVENTS =============== */
 function drawEvent(){
  for(var i=0;i<HIST.length;i++){var H=HIST[i];
@@ -1993,14 +2303,42 @@ function drawEvent(){
   if(H.sd){ /* a quarrel belonging to one of the two claimants */
    if(!G.king||G.recog!==H.sd){G.flags["h"+H.i]=1;continue;}
   }
-  G.flags["h"+H.i]=1;G.ev=H;return;}
+  G.flags["h"+H.i]=1;G.ev=H;G.evC=evCtx(H);return;}
  /* the Empire asks you for things */
- if(!G.king&&!G.outlaw&&G.rnd()<0.2){impDemand();if(G.ev)return;}
+ if(!G.king&&!G.outlaw&&G.rnd()<0.2){impDemand();if(G.ev){G.evC=evCtx(G.ev);return;}}
+ /* a war that has turned decisively comes to you before anything else does */
+ if(G.peaceOffer!==undefined&&G.peaceOffer!==null){var pix=G.peaceOffer;G.peaceOffer=null;
+  var ps=G.states[pix];
+  G.ev={i:"peace_off",ey:"An embassy under safe conduct",h:shortName(ps.n)+" Sues for Peace",
+   t:"Envoys from "+ps.n+" have come in under safe conduct. The war has gone against them and they are asking what it would take to end it. They have brought an offer and the authority to improve it.",
+   o:[{n:"Take land",d:"A region of theirs, ceded and sworn.",e:{peace:[pix,"annex"]},r:""},
+      {n:"Take silver",d:"Tribute, and leave them their land.",e:{peace:[pix,"tribute"]},r:""},
+      {n:"Peace as things stand",d:"End it. Both of you have spent enough.",e:{peace:[pix,"white"]},r:""},
+      {n:"Refuse and fight on",d:"You have not finished.",e:{prs:4},r:"The envoys go home empty. The war goes on and so does the cost of it."}]};
+  G.evC=evCtx(G.ev);return;}
+ if(G.peaceDemand!==undefined&&G.peaceDemand!==null){var dix=G.peaceDemand;G.peaceDemand=null;
+  var ds=G.states[dix];
+  G.ev={i:"peace_dem",ey:"Terms, not an offer",h:shortName(ds.n)+" Dictates",
+   t:"The war has gone badly enough that "+ds.n+" is no longer asking. Their terms have arrived with a date by which they expect an answer.",
+   o:[{n:"Pay and end it",d:"Buy the peace. It is cheaper than the alternative.",e:{peace:[dix,"submit"]},r:""},
+      {n:"Fight on",d:"Refuse the terms and take what comes.",e:{prs:7},rg:{unr:8},r:"The terms are refused. The war goes on, and it is going on badly."}]};
+  G.evC=evCtx(G.ev);return;}
  var pool=[],ctx={yr:G.yr,clim:G.clim,stab:G.stab,unr:G.unr,urb:G.urb,pap:G.pap,
    corr:G.corr,army:armyCount(),tr:G.tr,mkt:G.mkt};
- EV.forEach(function(e){
+ /* after a run of bad years, the good ones get their turn */
+ var relief=1+(G.badRun||0)*0.75;
+ EVD.forEach(function(e){
   if(e.c&&!e.c(ctx))return;
   var w=e.w||8;
+  if(e.g)w*=relief;else w*=(G.badRun>2?0.5:1);
+  if(e.i==="d_good_harv")w*=1+Math.max(0,(G.clim-5))*0.03;
+  if(e.i==="d_murrain")w*=1+Math.max(0,(18-G.clim))*0.025;
+  if(G.flags["e"+e.i])w*=0.35;
+  pool.push([e,w]);
+ });
+ EV.forEach(function(e){
+  if(e.c&&!e.c(ctx))return;
+  var w=(e.w||8)*0.25;
   if(e.i==="e_harv_b")w*=1+Math.max(0,(20-G.clim))*0.035;
   if(e.i==="e_harv_g")w*=1+Math.max(0,(G.clim-10))*0.03;
   if(e.i==="e_winter")w*=1+Math.max(0,(10-G.clim))*0.03;
@@ -2010,7 +2348,10 @@ function drawEvent(){
  });
  var tot=0;pool.forEach(function(p){tot+=p[1];});
  var k=G.rnd()*tot,acc=0;
- for(i=0;i<pool.length;i++){acc+=pool[i][1];if(k<=acc){G.ev=pool[i][0];G.flags["e"+pool[i][0].i]=1;return;}}
+ for(i=0;i<pool.length;i++){acc+=pool[i][1];if(k<=acc){
+  G.ev=pool[i][0];G.flags["e"+pool[i][0].i]=1;G.evC=evCtx(G.ev);
+  G.badRun=G.ev.g?0:cl0((G.badRun||0)+1,0,5);
+  return;}}
  G.ev=null;
 }
 function applyEff(e){
@@ -2042,6 +2383,8 @@ function applyEff(e){
      break;
    case"battle":note=resolveBattle(v);break;
    case"swiss":G.flags.swiss=v;break;
+   case"peace":note=makePeace(v[0],v[1]);break;
+   case"war":note=declareWar(v);break;
    case"heir":break;
    default:G.em[k]=(G.em[k]||0)+v;break;
   }
@@ -2071,12 +2414,12 @@ var CURT=null, CURR=null;
 
 var OVS=[
  {i:"mine",n:"My State",lt:"Your state and your neighbours",f:function(s,t){
-   return s.me?"#b5912f":(G.allies[s.ix]?"#3f7f5a":ramp(s.rel,["#9c2a28","#b5761f","#8c8470","#5f8a4a","#2f6f3e"]));},
-  lg:function(){return[["#b5912f","Your state"],["#3f7f5a","Allied"],["#2f6f3e","Friendly"],["#8c8470","Correct"],["#9c2a28","Hostile"]];}},
+   return isMine(s)?"#b5912f":(atWar(s.ix)?"#8c1f24":G.allies[s.ix]?"#3f7f5a":ramp(s.rel,["#9c2a28","#b5761f","#8c8470","#5f8a4a","#2f6f3e"]));},
+  lg:function(){return[["#b5912f","Yours"],["#8c1f24","At war"],["#3f7f5a","Allied"],["#2f6f3e","Friendly"],["#8c8470","Correct"],["#9c2a28","Hostile"]];}},
  {i:"rank",n:"Rank",lt:"Rank",f:function(s,t){return RANKS[t.r][1];},
   lg:function(){return Object.keys(RANKS).map(function(k){return[RANKS[k][1],RANKS[k][0]];});}},
  {i:"rel",n:"Relations",lt:"How they stand with you",f:function(s){
-   return s.me?"#b5912f":ramp(s.rel,["#9c2a28","#b5761f","#c9ae3a","#5f8a4a","#2f6f3e"]);},
+   return isMine(s)?"#b5912f":atWar(s.ix)?"#8c1f24":ramp(s.rel,["#9c2a28","#b5761f","#c9ae3a","#5f8a4a","#2f6f3e"]);},
   lg:function(){return[["#b5912f","You"],["#2f6f3e","Sworn"],["#c9ae3a","Correct"],["#9c2a28","At war in all but name"]];}},
  {i:"intel",n:"What Is Known",lt:"What your court can rely on",f:function(s){
    return["#4a4740","#6e6a55","#9a9060","#d8b14a"][s.intel];},
@@ -2106,7 +2449,7 @@ function paintMap(){
  TGEO.forEach(function(e,ix){
   var s=G?G.states[ix]:null, c=G?o.f(s,e.t):RANKS[e.t.r][1];
   e.f.setAttribute("fill",c);e.s.setAttribute("stroke",c);
-  if(G&&s.me){e.s.setAttribute("stroke-width",3.4);e.f.setAttribute("fill-opacity",".72");}
+  if(G&&isMine(s)){e.s.setAttribute("stroke-width",3.4);e.f.setAttribute("fill-opacity",".72");}
   else{e.s.setAttribute("stroke-width",1.8);e.f.setAttribute("fill-opacity",".46");}
   if(G&&s.intel<1&&["rank","mine","intel"].indexOf(ov)<0)e.g.classList.add("dim");
   else e.g.classList.remove("dim");
@@ -2198,7 +2541,8 @@ function paneRealm(){
  h+='<div class="sh" style="margin-top:16px"><h3 style="font-size:15px">Regions</h3><span class="hr">tap for detail</span></div>';
  G.regions.forEach(function(r,i){
   h+='<div class="tr" style="cursor:pointer" data-rg="'+i+'"><div class="trh">'+
-   '<span class="n">'+esc(r.n)+(r.cap?' <span class="pill g">seat</span>':'')+'</span>'+
+   '<span class="n">'+esc(r.n)+(r.cap?' <span class="pill g">seat</span>':'')+
+   (r.conq?' <span class="pill b">conquered</span>':'')+'</span>'+
    '<span class="v num" style="font-size:11.5px">'+fmt(r.pop)+'</span></div>'+
    '<div class="d">'+esc(TERR[r.terr][0])+' \u00b7 '+esc(word(r.stab,W_STAB).toLowerCase())+
    ' \u00b7 '+esc(word(r.unr,W_UNR).toLowerCase())+' \u00b7 '+bldCount(r)+' buildings'+
@@ -2593,6 +2937,24 @@ function paneMil(){
  h+=kv("Field strength",G.land);h+=kv("At sea",G.nav);h+=kv("Siege",G.sie);
  h+=kv("Fortification",G.def);h+=kv("Companies in being",armyCount());
  h+=kv("Yearly upkeep",fmt(G.upkeep)+" marks","b");
+ h+=kv("Wars",warCount(),warCount()?"b":"");
+ var wk=Object.keys(G.wars||{});
+ if(wk.length){
+  h+='<div class="sec" style="margin-top:16px">'+sh("Wars in hand","a season at a time");
+  wk.forEach(function(k){var s2=G.states[+k],w=G.wars[k];
+   h+='<div class="card hi"><h4>'+esc(shortName(s2.n))+'</h4>'+
+    kvw("Standing",w.sc>45?"You are winning it":w.sc>14?"Going your way":
+      w.sc>-14?"Nothing decided":w.sc>-45?"Going against you":"You are losing it",
+      w.sc>14?"g":w.sc>-14?"w":"b")+
+    barHtml((w.sc+100)/2,w.sc>14?"good":w.sc>-14?"warn":"bad")+
+    kv("Years",w.yrs)+kv("Regions they have left",regionsLeft(s2))+
+    '<div class="btns">'+
+    (w.sc>=35&&regionsLeft(s2)>0?'<button class="btn sm p" data-wp="'+k+'" data-wt="annex">Take a region</button>':'')+
+    (w.sc>=20?'<button class="btn sm p" data-wp="'+k+'" data-wt="tribute">Take tribute</button>':'')+
+    '<button class="btn sm" data-wp="'+k+'" data-wt="white">Peace as things stand</button>'+
+    '</div></div>';});
+  h+='</div>';
+ }
  h+='<div class="sec" style="margin-top:16px">'+sh("The Host","standing");
  var any=0;
  UNITS.forEach(function(u){var n=G.army[u.i]||0;if(!n)return;any++;
@@ -2619,6 +2981,9 @@ function paneMil(){
   h+='</div>';});
  h+='</div>';
  $("p-mil").innerHTML=h;
+ Array.prototype.forEach.call($("p-mil").querySelectorAll("[data-wp]"),function(b){
+  b.onclick=function(){var msg=makePeace(+b.getAttribute("data-wp"),b.getAttribute("data-wt"));
+   bar();paintMap();buildTabs();showPane();if(msg)toast(msg);};});
  Array.prototype.forEach.call($("p-mil").querySelectorAll("[data-bu]"),function(b){
   b.onclick=function(){var u=UID2[b.getAttribute("data-bu")];if(G.tr<u.c)return;
    G.tr-=u.c;G.builds.push({u:u.i,loc:b.getAttribute("data-bl"),left:u.i==="mil"||u.i==="gal"?2:1});
@@ -2707,8 +3072,29 @@ function stateModal(t){
   else h+=kvw("Strength and wealth","an agent would tell you","mu");
   h+=kvw("Resources",s.res.map(function(k){return RES[k][0];}).join(", ")||"none of note");
  }
+ if(atWar(ix)){
+  var w=G.wars[ix];
+  h+='<div class="sh" style="margin-top:14px"><h3 style="font-size:15px">At war</h3>'+
+   '<span class="hr">'+w.yrs+(w.yrs===1?' year':' years')+'</span></div>';
+  h+=kvw("The war stands",w.sc>45?"You are winning it":w.sc>14?"Going your way":
+    w.sc>-14?"Nothing decided":w.sc>-45?"Going against you":"You are losing it",
+    w.sc>14?"g":w.sc>-14?"w":"b");
+  h+=barHtml((w.sc+100)/2,w.sc>14?"good":w.sc>-14?"warn":"bad");
+  h+=kv("Regions they have left",regionsLeft(s));
+  h+='<div class="btns">';
+  if(w.sc>=35&&regionsLeft(s)>0)h+='<button class="btn sm p" data-pt="annex">Take a region</button>';
+  if(w.sc>=20)h+='<button class="btn sm p" data-pt="tribute">Take tribute</button>';
+  h+='<button class="btn sm" data-pt="white">Offer peace as things stand</button>';
+  if(w.sc<=-30)h+='<button class="btn sm" data-pt="submit">Buy peace</button>';
+  h+='</div><p class="fine">A war is fought a season at a time and costs money, men and patience every year it runs.</p>';
+ }
  h+='<div class="sh" style="margin-top:14px"><h3 style="font-size:15px">Deal with them</h3>'+
   '<span class="hr">'+G.dipl+' of '+G.diplMax+' envoys left</span></div><div class="btns">';
+ if(!atWar(ix)&&!isMine(s)){
+  h+='<button class="btn sm" id="mwar"'+(canDeclare(ix)?'':' disabled')+
+   ' style="border-color:var(--blood);color:var(--blood)">Declare war'+
+   (s.claim?' \u00b7 on your claim':' \u00b7 without a claim')+'</button>';
+ }
  DIPA.forEach(function(a){
   if(a.i==="agent"&&s.spy)return;
   if(a.i==="marry"&&G.allies[s.ix])return;
@@ -2723,6 +3109,13 @@ function stateModal(t){
   b.onclick=function(){var msg=doDip(ix,b.getAttribute("data-ms"));
    bar();paintMap();if(tab==="diplo")paneDiplo();
    stateModal(t);if(msg)toast(msg);};});
+ Array.prototype.forEach.call($("mbody").querySelectorAll("[data-pt]"),function(b){
+  b.onclick=function(){var msg=makePeace(ix,b.getAttribute("data-pt"));
+   bar();paintMap();buildTabs();showPane();closeModal();if(msg)toast(msg);};});
+ var wb=$("mwar");
+ if(wb)wb.onclick=function(){var msg=declareWar(ix);
+  bar();paintMap();buildTabs();if(tab==="diplo")paneDiplo();
+  stateModal(t);if(msg)toast(msg);};
  $("mclose").onclick=closeModal;
 }
 
@@ -2785,19 +3178,27 @@ function sideScreen(ix){
 
 function eventModal(){
  var e=G.ev;if(!e){afterEvent();return;}
- var h='<div class="ey">'+esc(e.ey)+'</div><h2>'+esc(e.h)+'</h2><p>'+esc(e.t)+'</p>';
+ var C=G.evC||evCtx(e);
+ var h='<div class="ey">'+esc(subst(e.ey,C))+'</div><h2>'+esc(subst(e.h,C))+'</h2>'+
+   '<p>'+esc(subst(e.t,C))+'</p>';
  (e.o||[]).forEach(function(o,i){
-  h+='<button class="opt" data-ev="'+i+'"><span class="ot">'+esc(o.n)+'</span><span class="od">'+esc(o.d)+'</span></button>';});
+  h+='<button class="opt" data-ev="'+i+'"><span class="ot">'+esc(subst(o.n,C))+'</span>'+
+   '<span class="od">'+esc(subst(o.d,C))+'</span></button>';});
  modal(h);
  Array.prototype.forEach.call($("mbody").querySelectorAll("[data-ev]"),function(b){
   b.onclick=function(){
    var o=e.o[+b.getAttribute("data-ev")];
-   var note=applyEff(o.e);recalcAll();
-   var rt=(o.r||"")+(note?" "+note:"");
-   chron(G.yr,"<b>"+esc(e.h)+".</b> "+(rt||esc(o.n)+"."));
-   G.ev=null;
-   if(rt){modal('<div class="ey">'+esc(e.ey)+'</div><h2>'+esc(e.h)+'</h2><p class="q">'+rt+'</p>'+
-     '<div class="btns"><button class="btn p" id="mok">Continue</button></div>');
+   var note=applyEff(o.e);
+   var note2=o.rg?applyRegion(C.R,o.rg):"";
+   if(/claim is entered/.test(o.r||"")&&C.S)C.S.claim=1;
+   recalcAll();
+   var rt=subst(o.r||"",C);
+   if(note2)rt+=(rt?" ":"")+subst(note2,C);
+   if(note)rt+=(rt?" ":"")+note;
+   chron(G.yr,"<b>"+esc(subst(e.h,C))+".</b> "+(rt||esc(subst(o.n,C))+"."));
+   G.ev=null;G.evC=null;
+   if(rt){modal('<div class="ey">'+esc(subst(e.ey,C))+'</div><h2>'+esc(subst(e.h,C))+'</h2>'+
+     '<p class="q">'+rt+'</p><div class="btns"><button class="btn p" id="mok">Continue</button></div>');
     $("mok").onclick=function(){closeModal();afterEvent();};}
    else{closeModal();afterEvent();}};});
 }
@@ -2823,11 +3224,11 @@ function save(){
    debt:G.debt,debtLvl:G.debtLvl,infl:G.infl,cent:G.cent,taxRate:G.taxRate,
    done:G.done,enacted:G.enacted,laws:G.laws,doct:G.doct,uniq:G.uniq,queue:G.queue,qleft:G.qleft,
    army:G.army,builds:G.builds,offices:G.offices,court:G.court,powers:G.powers,allies:G.allies,
-   dipl:G.dipl,clim:G.clim,climB:G.climB,genius:G.genius,chron:G.chron.slice(0,120),
+   dipl:G.dipl,clim:G.clim,climB:G.climB,genius:G.genius,wars:G.wars,badRun:G.badRun,chron:G.chron.slice(0,120),
    flags:G.flags,strainRun:G.strainRun,over:G.over,em:G.em,
-   rg:G.regions.map(function(r){return[r.pop,r.stab,r.unr,r.farms,r.bld,r.shifted,r.dev,r.urb];}),
+   rg:G.regions.map(function(r){return[r.pop,r.stab,r.unr,r.farms,r.bld,r.shifted,r.dev,r.urb,r.n,r.conq?1:0,r.res,r.terr,r.acc,r.towns,r.coast,r.cap];}),
    st:G.states.map(function(x){return[x.pop,x.rel,x.imp,x.intel,x.army,x.claim,x.fear,x.spy?1:0,
-     x.rule?x.rule.n:"",x.rule?x.rule.age:0,x.rule?x.rule.tr:[],x.rule?x.rule.sk:[],x.rule?(x.rule.comm||0):0,x.align,x.dev];})};
+     x.rule?x.rule.n:"",x.rule?x.rule.age:0,x.rule?x.rule.tr:[],x.rule?x.rule.sk:[],x.rule?(x.rule.comm||0):0,x.align,x.dev,x.taken||0,x.owner];})};
   localStorage.setItem("rex1200",JSON.stringify(s));
  }catch(x){}
 }
@@ -2839,14 +3240,22 @@ function load(){
   ["yr","turn","ruler","recog","impFav","outlaw","emp","king","tr","sub","leg","pap","prs",
    "debt","debtLvl","infl","cent","taxRate","done","enacted","laws","doct","uniq","queue","qleft",
    "army","builds","offices","court","powers","allies","dipl","clim","climB","genius","chron",
-   "flags","strainRun","over","em"].forEach(function(k){if(s[k]!==undefined)G[k]=s[k];});
+   "flags","strainRun","over","em","wars","badRun"].forEach(function(k){if(s[k]!==undefined)G[k]=s[k];});
+  if(s.rg&&s.rg.length>G.regions.length){
+   for(var q=G.regions.length;q<s.rg.length;q++){var a2=s.rg[q];
+    G.regions.push({ix:q,nat:G.nat,n:a2[8]||("Region "+q),cap:a2[15]||0,pop:a2[0],urb:a2[7],
+     dev:a2[6],terr:a2[11]||"pl",acc:a2[12]||40,stab:a2[1],unr:a2[2],res:a2[10]||[],
+     towns:a2[13]||0,coast:a2[14]||0,farms:a2[3],bld:a2[4]||{},shifted:a2[5],
+     unrDelta:0,intel:3,conq:a2[9]||0});}
+  }
   if(s.rg)s.rg.forEach(function(a,i){var r=G.regions[i];if(!r)return;
    r.pop=a[0];r.stab=a[1];r.unr=a[2];r.farms=a[3];r.bld=a[4]||{};r.shifted=a[5];
+   if(a[9])r.conq=1;
    if(a[6]!==undefined)r.dev=a[6];if(a[7]!==undefined)r.urb=a[7];});
   if(s.st)s.st.forEach(function(a,i){var x=G.states[i];if(!x)return;
    x.pop=a[0];x.rel=a[1];x.imp=a[2];x.intel=a[3];x.army=a[4];x.claim=a[5];x.fear=a[6];x.spy=a[7];
    if(a[8])x.rule={n:a[8],age:a[9],tr:a[10]||[],sk:a[11]||[4,4,4,4,4,4],comm:a[12]||0};
-   x.align=a[13];x.dev=a[14];
+   x.align=a[13];x.dev=a[14];if(a[15]!==undefined)x.taken=a[15];if(a[16]!==undefined)x.owner=a[16];
    if(x.me)x.rule=G.ruler;});
   G.rnd=mulberry(1200+s.nat*37+s.turn*7);
   recalcAll();intelPass();
