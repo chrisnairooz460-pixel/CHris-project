@@ -1325,6 +1325,7 @@ function initGame(natIx,recog){
   debt:0,debtLvl:0,infl:0,cent:26,taxRate:42,
   research:{},slots:1,queue:[],qleft:{},done:{},enacted:{},laws:{},doct:{},uniq:{},
   army:{},builds:[],offices:{},court:[],powers:{},rels:{},allies:{},wars:{},badRun:0,
+  awars:[],aallies:{},news:[],pendingAttack:null,
   peaceOffer:null,peaceDemand:null,
   dipl:0,diplMax:3,
   clim:30,climB:30,genius:null,chron:[],flags:{},strainRun:0,
@@ -1350,7 +1351,7 @@ function initGame(natIx,recog){
    res:r2[10].slice(),towns:r2[11],coast:r2[12],me:ix===natIx,
    rule:ix===natIx?G.ruler:mkChar(t2?t2.h:r2[0],r2[13],rnd),
    rel:ix===natIx?100:50,imp:50,intel:ix===natIx?3:0,
-   army:Math.round(r2[1]*0.011+2),claim:0,fear:0,taken:0,owner:null};
+   army:Math.round(r2[1]*0.011+2),claim:0,fear:0,taken:0,ownerIx:null};
   s.gdp=s.pop*0.012*(1+s.dev*0.014);
   G.states.push(s);
  });
@@ -1366,6 +1367,7 @@ function initGame(natIx,recog){
 
  buildCourt(rnd);
  recalcAll();
+ aiInit();
  G.dipl=G.diplMax;
  intelPass();
 
@@ -1813,19 +1815,22 @@ function endTurn(){
    chron(G.yr,"There is open disorder in <b>"+r.n+"</b>.");}
  });
 
- /* the other states go on without you */
+ /* the other states go on without you, and act */
  G.states.forEach(function(s){
   if(s.me)return;
   s.pop*=1+0.0012+G.rnd()*0.0024;
-  if(G.rnd()<0.1)s.dev=cl0(s.dev+1,8,96);
-  if(G.rnd()<0.08)s.army=Math.max(1,s.army+(G.rnd()<0.6?1:-1));
-  /* relations drift back toward what the two of you actually are to each other */
+  s.gdp=s.pop*0.012*(1+s.dev*0.014);
   var base=50+(G.allies[s.ix]?26:0)-(s.claim?16:0)
-    +(G.recog&&s.imp>55?5:0)-(s.fear*4);
+    +(G.recog&&s.imp>55?5:0)-(s.fear*4)-(atWar(s.ix)?30:0);
   s.rel+=(cl0(base,0,100)-s.rel)*0.07;
   s.imp+=((50+s.align*(G.emp.res==="ph"?0.4:G.emp.res==="ot"?-0.4:0))-s.imp)*0.06;
   if(s.fear>0&&G.rnd()<0.3)s.fear--;
+  /* resentment that eventually turns into an army on your border */
+  var grud=(s.claim?7:0)+(50-s.rel)*0.09+(atWar(s.ix)?0:0)
+    +((G.nearSet||[]).indexOf(s.ix)>=0?2:0);
+  s.hostile=cl0((s.hostile||0)*0.9+grud*0.35,0,100);
  });
+ aiTurn();
 
  /* the wars you are in */
  G.peaceOffer=null;G.peaceDemand=null;
@@ -1833,6 +1838,11 @@ function endTurn(){
   var res=warRound(+wix);
   if(res==="offer"&&G.peaceOffer===null)G.peaceOffer=+wix;
   else if(res==="demand"&&G.peaceDemand===null)G.peaceDemand=+wix;
+  /* losing badly enough costs you a region, not just prestige */
+  var w2=G.wars[wix];
+  if(w2&&w2.sc<=-52&&G.yr-(w2.lastLoss||0)>=3){
+   loseRegion(+wix);w2.sc=-8;w2.lastLoss=G.yr;w2.took=(w2.took||0)+1;
+   if(G.over)return G;}
  }
 
  natAgg(M2);
@@ -2113,6 +2123,252 @@ var EVD=[
     {n:"Leave it to the town",d:"It has walls and a council.",e:{},rg:{pop:-6,unr:8},r:"{R} does as it sees fit, and buries rather more of its people than it needed to."}]}
 ];
 
+/* ===================== AUTONOMOUS STATES =====================
+   Every state on the map runs itself: it develops, researches, arms, makes
+   friends, enters claims, declares war, takes land and loses it. None of this
+   waits on the player, and most of it happens whether the player can see it
+   or not.
+   ============================================================= */
+var AIP={
+ warlike:{n:"warlike",aggr:1.55,dev:0.85,guile:0.9,arm:1.4,
+   d:"Takes what is next to it and explains afterwards."},
+ dynastic:{n:"dynastic",aggr:1.05,dev:1.0,guile:1.25,arm:1.0,
+   d:"Marries, inherits, and goes to war over the result."},
+ mercantile:{n:"mercantile",aggr:0.55,dev:1.45,guile:1.1,arm:0.75,
+   d:"Would rather buy the road than take it."},
+ pious:{n:"pious",aggr:0.45,dev:1.1,guile:0.85,arm:0.7,
+   d:"Fights reluctantly and litigates enthusiastically."},
+ cautious:{n:"cautious",aggr:0.55,dev:1.0,guile:1.0,arm:0.9,
+   d:"Small, and intends to still be here in a century."}
+};
+function aiPersona(ix){
+ var rank=T[ix]?T[ix].r:"C", pop=RG[ix][1], h=(ix*2654435761)>>>0, roll=(h%100)/100;
+ if(rank==="E")return roll<0.78?"pious":"dynastic";
+ if(rank==="T")return roll<0.76?"mercantile":"dynastic";
+ if(rank==="M")return roll<0.72?"warlike":"dynastic";
+ if(rank==="K")return roll<0.5?"warlike":"dynastic";
+ if(rank==="D")return roll<0.42?"warlike":(roll<0.8?"dynastic":"cautious");
+ if(pop<120)return roll<0.7?"cautious":"dynastic";
+ return roll<0.34?"warlike":(roll<0.76?"dynastic":"cautious");
+}
+function aiInit(){
+ G.awars=[];G.aallies={};G.news=[];
+ G.states.forEach(function(s){
+  s.ai=aiPersona(s.ix);
+  var P=AIP[s.ai];
+  s.tech=2.20+((s.ix*7919)%40)/4000;          /* nobody starts level */
+  s.trs=Math.round(s.gdp*0.3+200);
+  s.claims=[];
+  s.hostile=0;
+  s.nbr=nearIx(s.ix);
+  s.armT=Math.max(1,Math.round(s.pop/60000*P.arm)+1);
+ });
+}
+function aiNbr(s){return s.nbr||(s.nbr=nearIx(s.ix));}
+/* a state that has been conquered acts through whoever holds it */
+function ownerOf(s){return (s.ownerIx!==null&&s.ownerIx!==undefined)?s.ownerIx:s.ix;}
+function indep(s){return s.ownerIx===null||s.ownerIx===undefined;}
+function stName(ix){return shortName(G.states[ix].n);}
+function pairKey(a,b){return a<b?a+"_"+b:b+"_"+a;}
+function aiAllied(a,b){return !!G.aallies[pairKey(a,b)];}
+
+/* news the player hears only if they could plausibly hear it */
+function news(txt,ixs,force){
+ var see=force?1:0;
+ (ixs||[]).forEach(function(i){var s=G.states[i];if(s&&(isMine(s)||s.intel>=1||s.spy))see=1;});
+ G.news.unshift({y:G.yr,t:txt,seen:see});
+ if(G.news.length>160)G.news.pop();
+ if(see)chron(G.yr,txt);
+}
+
+/* --------- a state's year --------- */
+function aiTurn(){
+ var order=G.states.slice().filter(function(s){return !s.me&&indep(s);});
+ order.forEach(function(s){
+  var P=AIP[s.ai]||AIP.cautious;
+  /* economy */
+  var inc=s.gdp*0.05*(1+s.dev*0.004);
+  var up=s.army*14+s.gdp*0.022;
+  s.trs=Math.max(0,s.trs+inc-up);
+  /* development, paid for */
+  if(s.trs>s.gdp*0.35&&G.rnd()<0.22*P.dev){s.dev=cl0(s.dev+1,8,97);s.trs-=s.gdp*0.2;}
+  /* research: slow, and the rich move faster */
+  s.tech=Math.min(2.299,s.tech+0.00032*(0.5+s.dev*0.016)*P.dev*(0.6+G.rnd()*0.9));
+  /* arming, against what the neighbourhood looks like */
+  var threat=0;
+  aiNbr(s).forEach(function(j){var o=G.states[j];if(!o||aiAllied(s.ix,j))return;
+   if(atWarPair(s.ix,j))threat+=o.army*1.5;else threat+=o.army*0.4;});
+  s.armT=Math.max(1,Math.round((s.pop/60000)*P.arm+threat*0.22));
+  if(s.army<s.armT&&s.trs>260){s.army++;s.trs-=240;}
+  else if(s.army>s.armT+2&&G.rnd()<0.4)s.army--;
+  /* diplomacy between themselves */
+  if(G.rnd()<0.1*P.guile)aiDiplo(s);
+  /* and the decision to fight */
+  if(G.rnd()<0.058*P.aggr)aiWarDecide(s);
+  /* where they stand on the crown */
+  if(G.rnd()<0.05)s.imp=cl0(s.imp+(G.rnd()-0.5)*18,0,100);
+ });
+ aiWarsResolve();
+}
+function aiDiplo(s){
+ var nb=aiNbr(s).filter(function(j){return G.states[j]&&indep(G.states[j])&&j!==G.nat;});
+ if(!nb.length)return;
+ var j=nb[Math.floor(G.rnd()*nb.length)], o=G.states[j];
+ if(atWarPair(s.ix,j))return;
+ var k=pairKey(s.ix,j);
+ var biggest2=0;G.states.forEach(function(x){if(indep(x)&&x.pop>biggest2)biggest2=x.pop;});
+ var affin=60-Math.abs(s.align-o.align)*0.25+(s.cult===o.cult?14:0)-(o.pop>biggest2*0.72?22:0);
+ if(G.rnd()*100<affin*0.4&&!G.aallies[k]){
+  G.aallies[k]=1;
+  news("<b>"+stName(s.ix)+" and "+stName(j)+"</b> have sworn a mutual defence.",[s.ix,j]);
+ }else if(G.rnd()<0.22&&s.claims.indexOf(j)<0&&affin<48){
+  s.claims.push(j);
+  news("<b>"+stName(s.ix)+"</b> has entered a claim against "+stName(j)+".",[s.ix,j]);
+ }
+}
+function atWarPair(a,b){
+ if(a===G.nat)return atWar(b);
+ if(b===G.nat)return atWar(a);
+ for(var i=0;i<G.awars.length;i++){var w=G.awars[i];
+  if((w.a===a&&w.b===b)||(w.a===b&&w.b===a))return 1;}
+ return 0;
+}
+function aiWarCount(ix){var n=0;G.awars.forEach(function(w){if(w.a===ix||w.b===ix)n++;});
+ if(atWar(ix))n++;return n;}
+
+function aiWarDecide(s){
+ if(aiWarCount(s.ix)>0)return;                 /* one war at a time is plenty */
+ if(G.awars.length>=6)return;
+ if(s.army<2)return;
+ var P=AIP[s.ai];
+ var cands=aiNbr(s).filter(function(j){
+  var o=G.states[j];
+  if(!o||!indep(o)||aiAllied(s.ix,j)||atWarPair(s.ix,j))return 0;
+  if(j===G.nat)return 1;
+  return 1;});
+ if(!cands.length)return;
+ var best=null,bestScore=0;
+ var biggest=0;G.states.forEach(function(x){if(indep(x)&&x.pop>biggest)biggest=x.pop;});
+ cands.forEach(function(j){
+  var o=G.states[j];
+  var over=o.pop>biggest*0.72?16:0;        /* a coalition forms against whoever is winning */
+  var theirs=(j===G.nat)?(G.land/9+G.def/14):(o.army+o.dev*0.05);
+  var mine=s.army+s.dev*0.05+(s.tech-2.2)*30;
+  var ratio=mine/Math.max(0.8,theirs);
+  var want=(ratio-1)*60;
+  if(s.claims.indexOf(j)>=0)want+=34;
+  if(j===G.nat)want+=s.hostile*0.6-(G.states[s.ix].rel-50)*0.5;
+  else want+=(50-((o.align-s.align)>0?0:12));
+  want+=over;
+  want+=regionsLeft(o)>0?0:-999;
+  /* the Empire frowns on it, and a strong emperor frowns harder */
+  if(G.laws&&G.laws.lland)want-=14;
+  want*=P.aggr;
+  want+=(G.rnd()-0.5)*26;
+  if(want>bestScore){bestScore=want;best=j;}
+ });
+ if(best===null||bestScore<37)return;
+ aiDeclare(s.ix,best);
+}
+function aiDeclare(a,b){
+ var A=G.states[a],B=G.states[b];
+ if(b===G.nat){
+  G.wars=G.wars||{};
+  if(G.wars[a])return;
+  G.wars[a]={sc:0,yrs:0,def:1};
+  A.rel=cl0(A.rel-40,0,100);
+  G.pendingAttack=a;
+  return;
+ }
+ if(a===G.nat)return;
+ G.awars.push({a:a,b:b,sc:0,yrs:0});
+ news("<b>"+stName(a)+" has declared war on "+stName(b)+".</b>"+
+  (A.claims.indexOf(b)>=0?" The claim has been hanging over them for years.":""),[a,b]);
+ /* allies are dragged in, which is the point of having them */
+ Object.keys(G.aallies).forEach(function(k){
+  var p=k.split("_").map(Number);
+  if(p.indexOf(b)<0)return;
+  var ally=p[0]===b?p[1]:p[0];
+  if(ally===a||ally===G.nat||atWarPair(ally,a))return;
+  if(G.rnd()<0.5){G.awars.push({a:ally,b:a,sc:0,yrs:0});
+   news("<b>"+stName(ally)+"</b> comes in on the side of "+stName(b)+".",[ally,a,b]);}
+ });
+}
+function aiWarsResolve(){
+ /* the king, when there is one who can be obeyed, imposes the peace of the land */
+ var impPower=(G.emp&&G.emp.res?0.1:0.03)+(G.laws&&G.laws.lland?0.06:0);
+ G.awars.slice().forEach(function(w){
+  var A=G.states[w.a],B=G.states[w.b];
+  if(!A||!B||!indep(A)||!indep(B)){drop(w);return;}
+  if(w.yrs>1&&G.rnd()<impPower){drop(w);
+   news("<b>The king imposes a peace</b> between "+stName(w.a)+" and "+stName(w.b)+
+    ". Both are bound over and neither is satisfied.",[w.a,w.b]);return;}
+  var am=A.army*8+A.dev*0.5+(A.tech-2.2)*160+(A.rule?A.rule.sk[1]*3:12);
+  var bm=B.army*8+B.dev*0.5+(B.tech-2.2)*160+(B.rule?B.rule.sk[1]*3:12)+28;
+  w.sc=cl0(w.sc+((am-bm)*0.28+(G.rnd()-0.5)*32),-100,100);
+  w.yrs++;
+  if(G.rnd()<0.4)A.army=Math.max(0,A.army-1);
+  if(G.rnd()<0.45)B.army=Math.max(0,B.army-1);
+  A.trs=Math.max(0,A.trs-A.gdp*0.06);B.trs=Math.max(0,B.trs-B.gdp*0.06);
+  /* the winner takes something */
+  if(w.sc>=57&&regionsLeft(B)>0){aiAnnexFrom(w.a,w.b);w.sc=14;}
+  else if(w.sc<=-57&&regionsLeft(A)>0){aiAnnexFrom(w.b,w.a);w.sc=-14;}
+  /* and sooner or later both sides have had enough */
+  var tired=w.yrs>3+Math.floor(G.rnd()*6);
+  if(tired||Math.abs(w.sc)<6&&w.yrs>5){
+   if(G.rnd()<0.5||w.yrs>11){drop(w);
+    news("<b>"+stName(w.a)+" and "+stName(w.b)+"</b> have made peace after "+w.yrs+
+     (w.yrs===1?" year":" years")+".",[w.a,w.b]);}
+  }
+ });
+ function drop(w){var i=G.awars.indexOf(w);if(i>=0)G.awars.splice(i,1);}
+}
+function aiAnnexFrom(aIx,bIx){
+ var A=G.states[aIx],B=G.states[bIx];
+ B.taken=(B.taken||0)+1;
+ var share=1/SUBS[bIx].length;
+ var movedPop=B.pop*share;
+ B.pop=Math.max(4000,B.pop-movedPop);
+ A.pop+=movedPop*0.9;
+ A.army=Math.max(0,A.army);
+ B.army=Math.max(0,B.army-1);
+ A.gdp=A.pop*0.012*(1+A.dev*0.014);
+ B.gdp=B.pop*0.012*(1+B.dev*0.014);
+ var nm=SUBS[bIx][SUBS[bIx].length-B.taken]||"a district";
+ if(regionsLeft(B)<=0){
+  B.ownerIx=aIx;
+  var ci=A.claims.indexOf(bIx);if(ci>=0)A.claims.splice(ci,1);
+  G.awars.slice().forEach(function(w){
+   if((w.a===bIx||w.b===bIx)){var i=G.awars.indexOf(w);if(i>=0)G.awars.splice(i,1);}});
+  news("<b>"+stName(bIx)+" has been conquered entire by "+stName(aIx)+".</b> Its arms come down.",[aIx,bIx],1);
+ }else{
+  news("<b>"+stName(aIx)+" has taken "+nm+"</b> from "+stName(bIx)+".",[aIx,bIx]);
+ }
+}
+
+/* --------- the player can lose land too --------- */
+function loseRegion(toIx){
+ if(G.regions.length<=1){
+  G.over={k:"partition",h:"The State Is Partitioned",
+   t:"The last of it is gone. What was left of "+G.sname+" has been divided between the neighbours who were waiting for it, the title survives in somebody's charter, and the family keeps a castle it is allowed to keep."};
+  return null;
+ }
+ /* they take the weakest thing on the edge, never the seat while anything else stands */
+ var cands=G.regions.filter(function(r){return !r.cap;});
+ if(!cands.length)cands=G.regions.slice();
+ cands.sort(function(a,b){return (a.stab-a.unr*0.6)-(b.stab-b.unr*0.6);});
+ var r=cands[0];
+ var i=G.regions.indexOf(r);G.regions.splice(i,1);
+ delete RIDX[r.n];
+ var S=G.states[toIx];
+ S.pop+=r.pop*0.9;S.taken=Math.max(0,(S.taken||0)-1);
+ G.prs=cl0(G.prs-9,0,100);
+ unrAll(5);
+ chron(G.yr,"<b>"+r.n+" is lost to "+stName(toIx)+".</b> The garrison marched out under terms and the oaths were taken again, to somebody else.");
+ recalcAll();
+ return r;
+}
+
 /* ===================== DYNAMIC EVENTS =====================
    An event is drawn against the state you are actually running: it names your
    regions, your resources, your neighbours and your ruler, and its effects land
@@ -2192,7 +2448,7 @@ function applyRegion(r,e){
 /* ===================== WAR =====================
    You can declare it, fight it year by year, and take land for it.
    =============================================== */
-function isMine(s){return s.me||s.owner===G.nat;}
+function isMine(s){return !!(s&&(s.me||s.ownerIx===G.nat));}
 function atWar(ix){return !!(G.wars&&G.wars[ix]);}
 function warCount(){var n=0;for(var k in (G.wars||{}))n++;return n;}
 function regionsLeft(s){return SUBS[s.ix].length-(s.taken||0);}
@@ -2223,7 +2479,9 @@ function warRound(ix){
  var s=G.states[ix],w=G.wars[ix];
  var doc=0;for(var d in G.doct)doc+=(G.doct[d]/100)*4;
  var mine=G.land+G.ruler.sk[1]*4+doc+(G.genius&&G.genius.e.land?G.genius.e.land:0);
- var theirs=s.army*8+s.dev*0.5+30+(s.rule?s.rule.sk[1]*3:12);
+ var theirs=s.army*8+s.dev*0.5+(s.rule?s.rule.sk[1]*3:12);
+ /* whoever is defending is fighting on their own castles and their own roads */
+ if(w.def)mine+=G.def*0.9+30; else theirs+=30;
  var roll=(mine-theirs)*0.3+(G.rnd()-0.5)*34;
  w.sc=cl0(w.sc+roll,-100,100);w.yrs++;
  /* war costs money, men and patience */
@@ -2242,9 +2500,13 @@ function warRound(ix){
    (G.rnd()<0.5?"A column was caught at a river crossing and cut up.":"A siege was raised after four months and nothing to show.");
  else txt="Another season against "+shortName(s.n)+" with nothing decided. Both sides are poorer.";
  chron(G.yr,txt);
+ /* nobody is annihilated in a single war: after two provinces they take terms */
+ if((w.took||0)>=2&&G.rnd()<0.55)return "demand";
  /* they sue for peace when they are losing badly enough */
  if(w.sc>62&&G.rnd()<0.45)return "offer";
- if(w.sc<-62&&G.rnd()<0.4)return "demand";
+ if(w.sc<-55&&G.rnd()<(0.35+(w.took||0)*0.3))return "demand";
+ /* a long war neither side is winning simply stops */
+ if(w.yrs>7&&Math.abs(w.sc)<22&&G.rnd()<0.3)return "demand";
  return "";
 }
 function annex(ix){
@@ -2270,7 +2532,7 @@ function annex(ix){
  s.pop=Math.max(4000,s.pop*(1-share));
  s.army=Math.max(0,s.army-1);
  if(s.taken>=names.length){
-  s.owner=G.nat;s.rel=100;s.claim=0;
+  s.ownerIx=G.nat;s.rel=100;s.claim=0;
   if(G.wars&&G.wars[ix])delete G.wars[ix];        /* nothing left to fight over */
   if(G.peaceOffer===ix)G.peaceOffer=null;
   if(G.peaceDemand===ix)G.peaceDemand=null;
@@ -2288,6 +2550,8 @@ function makePeace(ix,terms){
  else if(terms==="white")msg="Peace with "+shortName(s.n)+", on the terms things already stand.";
  else if(terms==="submit"){var loss=Math.round(G.income*0.9);G.tr=Math.max(0,G.tr-loss);
   G.prs=cl0(G.prs-11,0,100);msg="You buy peace from "+shortName(s.n)+" for "+fmt(loss)+" marks.";}
+ else if(terms==="cede"){var gone=loseRegion(ix);
+  msg=gone?gone.n+" is ceded and the war ends.":"There was nothing left to cede.";}
  delete G.wars[ix];
  s.rel=cl0(s.rel+(terms==="white"?18:6),0,100);
  s.claim=0;
@@ -2306,6 +2570,21 @@ function drawEvent(){
   G.flags["h"+H.i]=1;G.ev=H;G.evC=evCtx(H);return;}
  /* the Empire asks you for things */
  if(!G.king&&!G.outlaw&&G.rnd()<0.2){impDemand();if(G.ev){G.evC=evCtx(G.ev);return;}}
+ /* someone has invaded you. That comes before everything. */
+ if(G.pendingAttack!==null&&G.pendingAttack!==undefined){
+  var aix=G.pendingAttack;G.pendingAttack=null;
+  var ast=G.states[aix];
+  G.ev={i:"invaded",ey:"A herald at the gate",h:stName(aix)+" Declares War",
+   t:"A herald from "+ast.n+" has read out a defiance in the hall at "+(G.regions[0]?G.regions[0].n:G.sname)+
+     ". "+(ast.claims&&ast.claims.indexOf(G.nat)>=0?"The claim they have been keeping alive is the stated cause. ":"")+
+     "They have "+ast.army+(ast.army===1?" company":" companies")+" in the field and their border castles were provisioned over the winter, which nobody mentioned at the time.",
+   o:[{n:"Call out the host",d:"Meet them. Whatever it costs.",e:{prs:5},rg:{unr:5},
+      r:"The muster goes out. The war is on their terms until you can make it yours."},
+    {n:"Stand on the defensive",d:"Hold the castles and let them come onto your walls.",e:{},rg:{stab:5,unr:3},
+      r:"The country is brought inside the walls and the castles are victualled. It is cheaper than a field army and it concedes the countryside."},
+    {n:"Appeal to the king",d:"This is a breach of the peace of the land. Say so loudly.",e:{impFav:9,pap:4},
+      r:"The appeal is lodged. Whether anything comes of it depends on whether the crown has anyone to send."}]};
+  G.evC=evCtx(G.ev);return;}
  /* a war that has turned decisively comes to you before anything else does */
  if(G.peaceOffer!==undefined&&G.peaceOffer!==null){var pix=G.peaceOffer;G.peaceOffer=null;
   var ps=G.states[pix];
@@ -2321,6 +2600,7 @@ function drawEvent(){
   G.ev={i:"peace_dem",ey:"Terms, not an offer",h:shortName(ds.n)+" Dictates",
    t:"The war has gone badly enough that "+ds.n+" is no longer asking. Their terms have arrived with a date by which they expect an answer.",
    o:[{n:"Pay and end it",d:"Buy the peace. It is cheaper than the alternative.",e:{peace:[dix,"submit"]},r:""},
+      {n:"Cede a region and end it",d:"Give them one and keep the rest.",e:{peace:[dix,"cede"]},r:""},
       {n:"Fight on",d:"Refuse the terms and take what comes.",e:{prs:7},rg:{unr:8},r:"The terms are refused. The war goes on, and it is going on badly."}]};
   G.evC=evCtx(G.ev);return;}
  var pool=[],ctx={yr:G.yr,clim:G.clim,stab:G.stab,unr:G.unr,urb:G.urb,pap:G.pap,
@@ -2415,7 +2695,7 @@ var CURT=null, CURR=null;
 var OVS=[
  {i:"mine",n:"My State",lt:"Your state and your neighbours",f:function(s,t){
    return isMine(s)?"#b5912f":(atWar(s.ix)?"#8c1f24":G.allies[s.ix]?"#3f7f5a":ramp(s.rel,["#9c2a28","#b5761f","#8c8470","#5f8a4a","#2f6f3e"]));},
-  lg:function(){return[["#b5912f","Yours"],["#8c1f24","At war"],["#3f7f5a","Allied"],["#2f6f3e","Friendly"],["#8c8470","Correct"],["#9c2a28","Hostile"]];}},
+  lg:function(){return[["#b5912f","Yours"],["#8c1f24","At war with you"],["#6b5a7a","Held by another state"],["#3f7f5a","Allied"],["#2f6f3e","Friendly"],["#8c8470","Correct"],["#9c2a28","Hostile"]];}},
  {i:"rank",n:"Rank",lt:"Rank",f:function(s,t){return RANKS[t.r][1];},
   lg:function(){return Object.keys(RANKS).map(function(k){return[RANKS[k][1],RANKS[k][0]];});}},
  {i:"rel",n:"Relations",lt:"How they stand with you",f:function(s){
@@ -2447,7 +2727,10 @@ function ramp(v,cs){return cs[Math.round(cl0(v,0,99.9)/100*(cs.length-1))];}
 function paintMap(){
  var o=OVS.filter(function(x){return x.i===ov;})[0];
  TGEO.forEach(function(e,ix){
-  var s=G?G.states[ix]:null, c=G?o.f(s,e.t):RANKS[e.t.r][1];
+  var s=G?G.states[ix]:null;
+  var c=G?o.f(s,e.t):RANKS[e.t.r][1];
+  /* a conquered territory flies whoever's arms now hold it */
+  if(G&&s&&!indep(s)&&!isMine(s)&&ov!=="rank"&&ov!=="intel")c="#6b5a7a";
   e.f.setAttribute("fill",c);e.s.setAttribute("stroke",c);
   if(G&&isMine(s)){e.s.setAttribute("stroke-width",3.4);e.f.setAttribute("fill-opacity",".72");}
   else{e.s.setAttribute("stroke-width",1.8);e.f.setAttribute("fill-opacity",".46");}
@@ -2692,9 +2975,41 @@ function paneDiplo(){
   h+='</div><p class="fine">Changing sides is normal in this Empire and costs favour every time.</p></div>';
  }
 
- h+='<div style="display:flex;gap:5px;margin:12px 0 10px">'+
+ h+='<div style="display:flex;gap:5px;margin:12px 0 10px;flex-wrap:wrap">'+
   '<button class="btn sm'+(dipMode==="states"?" p":"")+'" data-dm="states">States of the Empire</button>'+
-  '<button class="btn sm'+(dipMode==="powers"?" p":"")+'" data-dm="powers">Beyond the frontier</button></div>';
+  '<button class="btn sm'+(dipMode==="powers"?" p":"")+'" data-dm="powers">Beyond the frontier</button>'+
+  '<button class="btn sm'+(dipMode==="news"?" p":"")+'" data-dm="news">What is reported</button></div>';
+ if(dipMode==="news"){
+  h+=sh("The World","as far as you hear of it");
+  var wl=(G.awars||[]).filter(function(w){
+   return G.states[w.a].intel>=1||G.states[w.b].intel>=1||G.states[w.a].spy||G.states[w.b].spy;});
+  if(wl.length){
+   h+='<div class="sh" style="margin-top:4px"><h3 style="font-size:15px">Wars you know of</h3></div>';
+   wl.forEach(function(w){
+    h+='<div class="tr"><div class="trh"><span class="n">'+esc(stName(w.a))+' against '+esc(stName(w.b))+'</span>'+
+     '<span class="pill '+(Math.abs(w.sc)<18?"w":"b")+'">'+
+     (w.sc>18?stName(w.a)+" ahead":w.sc<-18?stName(w.b)+" ahead":"undecided")+'</span></div>'+
+     '<div class="d">In its '+w.yrs+(w.yrs===1?" year":" years")+'.</div></div>';});
+  }else h+='<p class="empty">No war you have any reliable word of.</p>';
+  var big=G.states.slice().filter(function(x){return indep(x)&&!x.me&&x.intel>=1;})
+    .sort(function(a,b){return b.pop-a.pop;}).slice(0,8);
+  if(big.length){
+   h+='<div class="sh" style="margin-top:14px"><h3 style="font-size:15px">The great states</h3>'+
+    '<span class="hr">of those you have word of</span></div>';
+   big.forEach(function(x){
+    h+='<div class="tr"><div class="trh"><span class="n">'+esc(stName(x.ix))+'</span>'+
+     '<span class="v num" style="font-size:11.5px">'+fmt(x.pop)+'</span></div>'+
+     '<div class="d">'+(x.intel>=2?x.army+' companies \u00b7 tech '+(x.tech||2.2).toFixed(3)+
+      ' \u00b7 '+esc(AIP[x.ai]?AIP[x.ai].n:"")
+      :'strength unknown without an agent')+'</div></div>';});
+  }
+  var seen=(G.news||[]).filter(function(x){return x.seen;}).slice(0,40);
+  h+='<div class="sh" style="margin-top:14px"><h3 style="font-size:15px">Reported</h3></div>';
+  if(!seen.length)h+='<p class="empty">Nothing has reached you worth writing down.</p>';
+  seen.forEach(function(x){
+   h+='<div class="ent"><div class="yr">'+x.y+'</div><div class="tx">'+x.t+'</div></div>';});
+  h+='<p class="fine">The Empire does not stop for you. What is listed here is what your couriers, factors and agents have actually brought in; a great deal more than this is happening.</p>';
+ }
 
  if(dipMode==="powers"){
   POWERS.forEach(function(p){
@@ -2709,8 +3024,8 @@ function paneDiplo(){
      ' title="'+esc(a.d)+'">'+esc(a.n)+(a.c?' \u00b7 '+a.c+'m':'')+'</button>';});
    h+='</div></div>';
   });
- }else{
-  var list=G.states.slice().filter(function(s){return !s.me;})
+ }else if(dipMode==="states"){
+  var list=G.states.slice().filter(function(s){return !isMine(s);})
    .sort(function(a,b){return b.rel-a.rel;});
   h+='<p class="fine" style="margin-bottom:8px">Fifty-eight states. Tap one to deal with it. What you can see of each depends on whether you have anyone there.</p>';
   list.forEach(function(s){
@@ -3056,6 +3371,11 @@ function stateModal(t){
   $("mgo").onclick=function(){closeModal();tab="realm";buildTabs();showPane();};
   $("mclose").onclick=closeModal;return;
  }
+ if(!indep(s)){
+  h+='<div class="card hi"><h4>Held by '+esc(stName(s.ownerIx))+'</h4>'+
+   '<p style="margin:0;font-size:12.5px;line-height:1.6;color:var(--ink-2)">'+
+   'This state no longer rules itself. It was conquered, and its arms are flown by somebody else.</p></div>';
+ }
  if(s.intel<1){
   h+='<div class="card"><h4>Rumour only</h4><p style="margin:0;font-size:12.5px;line-height:1.6;color:var(--ink-2)">'+
    'What reaches your chancery about this place is hearsay carried by merchants and repeated by clerks. '+
@@ -3068,8 +3388,20 @@ function stateModal(t){
   h+=kvw("Development",word(s.dev,W_DEV));
   h+=kvw("Country",CULT[s.cult]);
   h+=kvw("On the crown",s.imp>58?"For the Staufen":s.imp<42?"For the Welf":"Uncommitted");
-  if(s.intel>=2){h+=kv("Gross product",fmt(s.gdp)+" marks");h+=kv("Companies in the field",s.army);}
+  if(s.intel>=2){h+=kv("Gross product",fmt(s.gdp)+" marks");h+=kv("Companies in the field",s.army);
+   h+=kv("Their tech level",(s.tech||2.2).toFixed(3),(s.tech||2.2)>G.lvl?"b":"g");
+   h+=kvw("Character",AIP[s.ai]?cap1(AIP[s.ai].n):"unknown");
+   h+='<p class="fine">'+esc(AIP[s.ai]?AIP[s.ai].d:"")+'</p>';
+   if(s.claims&&s.claims.indexOf(G.nat)>=0)
+    h+='<p style="margin:6px 0 0"><span class="pill b">They hold a claim on you</span></p>';
+   if((s.hostile||0)>42)h+='<p style="margin:6px 0 0"><span class="pill b">Arming against you</span></p>';
+  }
   else h+=kvw("Strength and wealth","an agent would tell you","mu");
+  var aw=[];G.awars.forEach(function(w){if(w.a===s.ix)aw.push(stName(w.b));else if(w.b===s.ix)aw.push(stName(w.a));});
+  if(aw.length)h+=kvw("At war with",aw.join(", "),"b");
+  var als=[];Object.keys(G.aallies).forEach(function(k){var pp=k.split("_").map(Number);
+   if(pp.indexOf(s.ix)>=0)als.push(stName(pp[0]===s.ix?pp[1]:pp[0]));});
+  if(als.length)h+=kvw("Sworn to",als.join(", "));
   h+=kvw("Resources",s.res.map(function(k){return RES[k][0];}).join(", ")||"none of note");
  }
  if(atWar(ix)){
@@ -3224,11 +3556,12 @@ function save(){
    debt:G.debt,debtLvl:G.debtLvl,infl:G.infl,cent:G.cent,taxRate:G.taxRate,
    done:G.done,enacted:G.enacted,laws:G.laws,doct:G.doct,uniq:G.uniq,queue:G.queue,qleft:G.qleft,
    army:G.army,builds:G.builds,offices:G.offices,court:G.court,powers:G.powers,allies:G.allies,
-   dipl:G.dipl,clim:G.clim,climB:G.climB,genius:G.genius,wars:G.wars,badRun:G.badRun,chron:G.chron.slice(0,120),
+   dipl:G.dipl,clim:G.clim,climB:G.climB,genius:G.genius,wars:G.wars,badRun:G.badRun,
+   awars:G.awars,aallies:G.aallies,news:(G.news||[]).slice(0,80),pendingAttack:G.pendingAttack,chron:G.chron.slice(0,120),
    flags:G.flags,strainRun:G.strainRun,over:G.over,em:G.em,
    rg:G.regions.map(function(r){return[r.pop,r.stab,r.unr,r.farms,r.bld,r.shifted,r.dev,r.urb,r.n,r.conq?1:0,r.res,r.terr,r.acc,r.towns,r.coast,r.cap];}),
    st:G.states.map(function(x){return[x.pop,x.rel,x.imp,x.intel,x.army,x.claim,x.fear,x.spy?1:0,
-     x.rule?x.rule.n:"",x.rule?x.rule.age:0,x.rule?x.rule.tr:[],x.rule?x.rule.sk:[],x.rule?(x.rule.comm||0):0,x.align,x.dev,x.taken||0,x.owner];})};
+     x.rule?x.rule.n:"",x.rule?x.rule.age:0,x.rule?x.rule.tr:[],x.rule?x.rule.sk:[],x.rule?(x.rule.comm||0):0,x.align,x.dev,x.taken||0,x.ownerIx,x.ai,x.tech,x.claims,x.hostile,Math.round(x.trs||0)];})};
   localStorage.setItem("rex1200",JSON.stringify(s));
  }catch(x){}
 }
@@ -3240,7 +3573,7 @@ function load(){
   ["yr","turn","ruler","recog","impFav","outlaw","emp","king","tr","sub","leg","pap","prs",
    "debt","debtLvl","infl","cent","taxRate","done","enacted","laws","doct","uniq","queue","qleft",
    "army","builds","offices","court","powers","allies","dipl","clim","climB","genius","chron",
-   "flags","strainRun","over","em","wars","badRun"].forEach(function(k){if(s[k]!==undefined)G[k]=s[k];});
+   "flags","strainRun","over","em","wars","badRun","awars","aallies","news","pendingAttack"].forEach(function(k){if(s[k]!==undefined)G[k]=s[k];});
   if(s.rg&&s.rg.length>G.regions.length){
    for(var q=G.regions.length;q<s.rg.length;q++){var a2=s.rg[q];
     G.regions.push({ix:q,nat:G.nat,n:a2[8]||("Region "+q),cap:a2[15]||0,pop:a2[0],urb:a2[7],
@@ -3255,7 +3588,9 @@ function load(){
   if(s.st)s.st.forEach(function(a,i){var x=G.states[i];if(!x)return;
    x.pop=a[0];x.rel=a[1];x.imp=a[2];x.intel=a[3];x.army=a[4];x.claim=a[5];x.fear=a[6];x.spy=a[7];
    if(a[8])x.rule={n:a[8],age:a[9],tr:a[10]||[],sk:a[11]||[4,4,4,4,4,4],comm:a[12]||0};
-   x.align=a[13];x.dev=a[14];if(a[15]!==undefined)x.taken=a[15];if(a[16]!==undefined)x.owner=a[16];
+   x.align=a[13];x.dev=a[14];if(a[15]!==undefined)x.taken=a[15];if(a[16]!==undefined)x.ownerIx=a[16];
+   if(a[17]!==undefined)x.ai=a[17];if(a[18]!==undefined)x.tech=a[18];
+   if(a[19]!==undefined)x.claims=a[19]||[];if(a[20]!==undefined)x.hostile=a[20];if(a[21]!==undefined)x.trs=a[21];
    if(x.me)x.rule=G.ruler;});
   G.rnd=mulberry(1200+s.nat*37+s.turn*7);
   recalcAll();intelPass();
