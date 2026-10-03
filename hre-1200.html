@@ -155,6 +155,10 @@ textarea{width:100%;font-family:Inter,sans-serif;font-size:13px;background:var(-
  #modal h2{font-size:22px}
  #ovbtns{max-width:58vw}
 }
+.effs{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+.eff{font-size:10.5px;line-height:1.35;padding:2px 6px;border-radius:3px;border:1px solid currentColor;white-space:nowrap}
+.eff.g{color:var(--good)}.eff.b{color:var(--bad)}
+.eff.u{color:var(--gold);border-color:var(--gold);font-weight:600}
 body.sel #tabs{display:none}
 body.sel #ovbtns{display:none}
 body.sel #side{width:430px;flex:0 0 430px}
@@ -1239,11 +1243,11 @@ var BLD=[
  {i:"farm",n:"Farmstead",c:150,u:3,cap:"farm",d:"Open field, a plough team and the villeins who work it.",e:{food:5}},
  {i:"mill",n:"Watermill",c:230,u:5,cap:"mill",req:"eng1a",d:"A wheel in the current, grinding for the whole valley.",e:{food:4,goods:4}},
  {i:"wind",n:"Windmill",c:260,u:5,cap:"mill",req:"eng3a",d:"Swings on its post to face the wind. Power where there is no fall of water.",e:{food:4,goods:5}},
- {i:"vine",n:"Vineyard",c:280,u:5,cap:"farm",res:"wine",d:"Terraced slopes. Wine pays several times what rye pays.",e:{goods:7,mkt:5}},
- {i:"mine",n:"Mine",c:340,u:8,cap:"mine",resAny:["silver","iron","copper","lead"],d:"Adits, props and a free miners' court.",e:{goods:8,tax:6}},
- {i:"salt",n:"Saltworks",c:320,u:7,cap:"mine",res:"salt",d:"Brine pans and the boiling houses. Salt is how the winter is survived.",e:{goods:7,tax:7}},
- {i:"full",n:"Fulling Mill",c:260,u:5,cap:"mill",res:"wool",d:"Water hammers beating the cloth. Twenty men's work.",e:{goods:9,mkt:4}},
- {i:"smith",n:"Smithy",c:190,u:4,cap:"mill",d:"Nails, hinges, horseshoes and, when asked, mail.",e:{goods:5,land:3}},
+ {i:"vine",n:"Vineyard",c:280,u:5,cap:"farm",res:"wine",req:"agr4b",d:"Terraced slopes. Wine pays several times what rye pays.",e:{goods:7,mkt:5}},
+ {i:"mine",n:"Mine",c:340,u:8,cap:"mine",resAny:["silver","iron","copper","lead"],req:"adp3a",d:"Adits, props and a free miners' court.",e:{goods:8,tax:6}},
+ {i:"salt",n:"Saltworks",c:320,u:7,cap:"mine",res:"salt",req:"adp3a",d:"Brine pans and the boiling houses. Salt is how the winter is survived.",e:{goods:7,tax:7}},
+ {i:"full",n:"Fulling Mill",c:260,u:5,cap:"mill",res:"wool",req:"prd1b",d:"Water hammers beating the cloth. Twenty men's work.",e:{goods:9,mkt:4}},
+ {i:"smith",n:"Smithy",c:190,u:4,cap:"mill",req:"prd2a",d:"Nails, hinges, horseshoes and, when asked, mail.",e:{goods:5,land:3}},
  {i:"market",n:"Market Hall",c:300,u:6,req:"srv1a",d:"A roofed place with sworn measures and the crown's peace over it.",e:{serv:8,mkt:7}},
  {i:"staple",n:"Staple House",c:380,u:7,req:"inf2b",d:"Cargo must be unloaded and offered here before it may go on.",e:{serv:7,tax:8,mkt:-3}},
  {i:"guild",n:"Guild Hall",c:340,u:6,req:"prd1a",d:"Masters, ordinances and a chest. The craft governs itself.",e:{serv:7,goods:5,stab:3}},
@@ -1253,7 +1257,7 @@ var BLD=[
  {i:"walls",n:"Town Walls",c:480,u:7,req:"inf2a",d:"A walled town is a different place in law as well as in war.",e:{def:11,stab:5,serv:3}},
  {i:"castle",n:"Castle",c:560,u:11,d:"Keep, bailey and a garrison. It is how a region is actually held.",e:{def:14,stab:7,acc:5,cent:3}},
  {i:"abbey",n:"Abbey",c:420,u:6,d:"Choir, scriptorium, infirmary and a great deal of land.",e:{stab:7,pap:6,sol:4,gen:3}},
- {i:"cath",n:"Cathedral",c:900,u:13,d:"A century of work, and the most visible thing the region will ever build.",e:{prs:9,stab:8,pap:9,sol:6,serv:4}},
+ {i:"cath",n:"Cathedral",c:900,u:13,req:"soc4a",d:"A century of work, and the most visible thing the region will ever build.",e:{prs:9,stab:8,pap:9,sol:6,serv:4}},
  {i:"school",n:"Cathedral School",c:400,u:7,req:"thk1a",d:"Grammar, logic and the clerks who come out of it.",e:{gen:9,serv:5,sol:3}},
  {i:"hosp",n:"Hospital",c:440,u:8,req:"med4b",d:"Beds, an endowment and a rule, inside the town rather than the cloister.",e:{hea:10,stab:4,sol:5}}
 ];
@@ -1553,7 +1557,11 @@ function natAgg(M){
 
  var inc=0;
  G.regions.forEach(function(r){
-  var reach=(r.accEff/100)*(G.taxRate/100)*(1+m(M,"tax")*0.009+be(r.B,"tax")*0.012);
+  var cultR=RG[G.nat][9];
+  var regional=(["ita","tus"].indexOf(cultR)>=0?m(M,"italy"):0)
+             +(cultR==="bur"?m(M,"burg"):0)
+             +(["wnd","cze","slv"].indexOf(cultR)>=0?m(M,"east")*0.6:0);
+  var reach=(r.accEff/100)*(G.taxRate/100)*(1+m(M,"tax")*0.009+be(r.B,"tax")*0.012+regional*0.006);
   inc+=r.gdp*reach*0.30;
  });
  if(G.king)inc+=3100*(G.leg/100)*(1+m(M,"tax")*0.006);   /* the Reichsgut, if you wear the crown */
@@ -1815,7 +1823,8 @@ function endTurn(){
   r.unr+=(uTgt-r.unr)*0.26+r.unrDelta;r.unrDelta=0;
   r.unr=cl0(r.unr,0,100);r.stab=cl0(r.stab,0,100);
   var slack=(r.food-r.need)/Math.max(0.1,r.need);
-  var gr=0.0014+Math.max(0,slack)*0.0052+m(M2,"pop")*0.00008+m(M2,"hea")*0.00006+be(B,"hea")*0.00035;
+  var gr=0.0014+Math.max(0,slack)*0.0052+m(M2,"pop")*0.00008+m(M2,"hea")*0.00006+be(B,"hea")*0.00035
+    +(["wnd","cze","slv"].indexOf(r.cultR||RG[G.nat][9])>=0?m(M2,"east")*0.00012:0);
   if(slack<0)gr+=slack*0.017;
   if(r.unr>66)gr-=0.009;
   r.pop=Math.max(2000,r.pop*(1+cl0(gr,-0.055,0.0086)));
@@ -1829,7 +1838,8 @@ function endTurn(){
   s.pop*=1+0.0012+G.rnd()*0.0024;
   s.gdp=s.pop*0.012*(1+s.dev*0.014);
   var base=50+(G.allies[s.ix]?26:0)-(s.claim?16:0)
-    +(G.recog&&s.imp>55?5:0)-(s.fear*4)-(atWar(s.ix)?30:0);
+    +(G.recog&&s.imp>55?5:0)-(s.fear*4)-(atWar(s.ix)?30:0)
+    +m(M2,"loyal")*0.35+m(M2,"prs")*0.05;
   s.rel+=(cl0(base,0,100)-s.rel)*0.07;
   s.imp+=((50+s.align*(G.emp.res==="ph"?0.4:G.emp.res==="ot"?-0.4:0))-s.imp)*0.06;
   if(s.fear>0&&G.rnd()<0.3)s.fear--;
@@ -2485,17 +2495,23 @@ function declareWar(ix){
 }
 function warRound(ix){
  var s=G.states[ix],w=G.wars[ix];
- var doc=0;for(var d in G.doct)doc+=(G.doct[d]/100)*4;
+ /* doctrines finally decide how a campaign is fought, not just how strong it is */
+ var dk={shock:0,attr:0,camp:0,raid:0,sieg:0},doc=0;
+ DOCT.forEach(function(D){var a=(G.doct[D.i]||0)/100;if(!a)return;doc+=a*4;
+  for(var kk in dk)dk[kk]+=(D.e[kk]||0)*a;});
  var mine=G.land+G.ruler.sk[1]*4+doc+(G.genius&&G.genius.e.land?G.genius.e.land:0);
  var theirs=s.army*8+s.dev*0.5+(s.rule?s.rule.sk[1]*3:12);
  /* whoever is defending is fighting on their own castles and their own roads */
  if(w.def)mine+=G.def*0.9+30; else theirs+=30;
- var roll=(mine-theirs)*0.3+(G.rnd()-0.5)*34;
+ /* shock swings a battle hard either way; siegecraft tells against their works */
+ var swing=34+dk.shock*0.8;
+ var roll=(mine-theirs)*0.3+dk.sieg*0.35+(G.rnd()-0.5)*swing;
+ if(roll>0)roll+=dk.raid*0.22;
  w.sc=cl0(w.sc+roll,-100,100);w.yrs++;
  /* war costs money, men and patience */
- var cost=Math.round(G.income*0.16+armyCount()*22);
+ var cost=Math.round((G.income*0.16+armyCount()*22)*cl0(1+dk.camp*0.012,0.5,2));
  G.tr=Math.max(0,G.tr-cost);
- if(G.rnd()<0.42){
+ if(G.rnd()<cl0(0.42-dk.attr*0.012,0.1,0.7)){
   var us=Object.keys(G.army).filter(function(u){return G.army[u]>0;});
   if(us.length){var u=us[Math.floor(G.rnd()*us.length)];G.army[u]--;if(!G.army[u])delete G.army[u];}
  }
@@ -2656,7 +2672,8 @@ function applyEff(e){
    case"unr":unrAll(v);break;
    case"stab":G.regions.forEach(function(r){r.stab=cl0(r.stab+v,0,100);});break;
    case"loyal":G.states.forEach(function(s){if(!s.me)s.rel=cl0(s.rel+v,0,100);});break;
-   case"pop":G.regions.forEach(function(r){r.pop=Math.max(2000,r.pop*(1+v/100));});break;
+   case"pop":var mit=v<0?cl0(1-m(G.M||{},"plg")*0.01,0.3,1):1;
+     G.regions.forEach(function(r){r.pop=Math.max(2000,r.pop*(1+v*mit/100));});break;
    case"food":G.em.food=(G.em.food||0)+v;
      if(v>=7)G.regions.forEach(function(r){r.farms=Math.min(r.farmCap,r.farms+1);});break;
    case"law":if(LAWS.filter(function(l){return l.i===v;})[0])G.laws[v]=1;break;
@@ -2664,7 +2681,8 @@ function applyEff(e){
    case"genius":var gx=GENII[Math.floor(G.rnd()*GENII.length)];
      G.genius={n:gx.n,d:gx.d,e:gx.e,left:7+Math.floor(G.rnd()*12)};
      note="<b>"+cap1(G.genius.n)+"</b> enters your service.";break;
-   case"plg":G.regions.forEach(function(r){r.pop=Math.max(2000,r.pop*0.97);});break;
+   case"plg":var res=cl0(1-m(G.M||{},"plg")*0.012,0.25,1);
+     G.regions.forEach(function(r){r.pop=Math.max(2000,r.pop*(1-0.03*res));});break;
    case"assassin":
      if(G.rnd()*100<cl0(60+v,0,100)){rulerDies();note="The attempt succeeds.";}
      else note="The attempt is made and fails.";
@@ -3097,7 +3115,7 @@ function paneResearch(){
  if(G.queue.length){
   G.queue.forEach(function(id){var t=TID[id];
    h+='<div class="card"><h4>'+esc(t.n)+'</h4><p style="margin:0 0 6px;font-size:11.5px;color:var(--ink-3);line-height:1.5">'+
-    esc(t.d)+'</p>'+kv("Years remaining",G.qleft[id])+'</div>';});
+    esc(t.d)+'</p>'+effHtml(t.e,t.i)+kv("Years remaining",G.qleft[id])+'</div>';});
  }else h+='<p class="empty">No research under way. A slot is standing idle.</p>';
  h+='<div style="display:flex;flex-wrap:wrap;gap:4px;margin:14px 0 12px">';
  TECH.forEach(function(c){
@@ -3117,7 +3135,7 @@ function paneResearch(){
      '<span class="pill '+(st==="spread"?"g":st==="out of reach"?"mu":"w")+'">'+st+'</span></div>'+
      '<div class="d">'+esc(u.d)+(u.src?' <i style="opacity:.8">Reaches you by '+esc(u.src)+'.</i>':'')+
      (u.req&&u.req.res?' <i style="opacity:.8">Needs '+esc(RES[u.req.res][0].toLowerCase())+' in your regions.</i>':'')+
-     (u.req&&u.req.coast?' <i style="opacity:.8">Needs a coastal region.</i>':'')+'</div>';
+     (u.req&&u.req.coast?' <i style="opacity:.8">Needs a coastal region.</i>':'')+'</div>'+effHtml(u.e,u.i);
     if(!G.done[u.i]&&G.queue.indexOf(u.i)<0)
      h+='<div class="btns"><button class="btn sm" data-st="'+u.i+'"'+(canStart(u)?'':' disabled')+'>Research \u00b7 '+u.t+'yr</button></div>';
     h+='</div>';});
@@ -3135,7 +3153,7 @@ function paneResearch(){
     var dn=G.done[t.i],q=G.queue.indexOf(t.i)>=0;
     h+='<div class="tr"><div class="trh"><span class="n">'+esc(t.n)+'</span>'+
      (dn?'<span class="pill g">understood</span>':q?'<span class="pill w">'+G.qleft[t.i]+'yr left</span>':'')+'</div>'+
-     '<div class="d">'+esc(t.d)+'</div>';
+     '<div class="d">'+esc(t.d)+'</div>'+effHtml(t.e,t.i);
     if(!dn&&!q)h+='<div class="btns"><button class="btn sm" data-st="'+t.i+'"'+(canStart(t)?'':' disabled')+'>Research \u00b7 '+t.t+'yr</button></div>';
     h+='</div>';});
   });
@@ -3157,7 +3175,7 @@ function paneLaws(){
    var on=G.laws[l.i],gat=l.req&&!G.done[l.req];
    h+='<div class="tr"><div class="trh"><span class="n">'+esc(l.n)+'</span>'+
     (on?'<span class="pill g">in force</span>':gat?'<span class="pill mu">needs '+esc(TID[l.req]?TID[l.req].n:l.req)+'</span>':'<span class="pill w">available</span>')+'</div>'+
-    '<div class="d">'+esc(l.d)+'</div>';
+    '<div class="d">'+esc(l.d)+'</div>'+effHtml(l.e,l.i);
    if(!gat&&!l.lock)h+='<div class="btns"><button class="btn sm" data-lw="'+l.i+'">'+(on?"Repeal":"Enact")+'</button></div>';
    else if(l.lock&&on)h+='<div class="d" style="opacity:.7"><i>The princes will not give this up without a Golden Bull.</i></div>';
    h+='</div>';});
@@ -3165,9 +3183,14 @@ function paneLaws(){
  $("p-laws").innerHTML=h;
  Array.prototype.forEach.call($("p-laws").querySelectorAll("[data-lw]"),function(b){
   b.onclick=function(){var id=b.getAttribute("data-lw"),l=LAWS.filter(function(x){return x.i===id;})[0];
-   if(G.laws[id]){delete G.laws[id];chron(G.yr,"<b>"+l.n+"</b> is repealed.");}
-   else{(l.ex||[]).forEach(function(e){delete G.laws[e];});G.laws[id]=1;chron(G.yr,"<b>"+l.n+"</b> is proclaimed.");}
-   recalcAll();bar();paneLaws();};});
+   var before=snapshot();
+   if(G.laws[id]){delete G.laws[id];recalcAll();
+    chron(G.yr,"<b>"+l.n+"</b> is repealed. "+(diffText(before,snapshot())||""));}
+   else{(l.ex||[]).forEach(function(e){delete G.laws[e];});G.laws[id]=1;recalcAll();
+    var d2=diffText(before,snapshot());
+    chron(G.yr,"<b>"+l.n+"</b> is proclaimed. "+(d2||""));
+    if(d2)toast(l.n+" \u00b7 "+d2);}
+   bar();paneLaws();};});
 }
 
 /* ================= GOVERNMENT ================= */
@@ -3211,6 +3234,7 @@ function paneGov(){
   var t=TID[id];if(!t||t.k)return;
   if(G.enacted[id]===undefined){any++;
    h+='<div class="tr"><div class="trh"><span class="n">'+esc(t.n)+'</span><span class="pill mu">inert</span></div>'+
+    effHtml(t.e,t.i)+
     '<div class="btns"><button class="btn sm p" data-en="'+id+'">Enact</button></div></div>';}});
  if(!any)h+='<p class="empty">Everything understood has been enacted.</p>';
  var sp=Object.keys(G.enacted);
@@ -3218,7 +3242,8 @@ function paneGov(){
   h+='<div class="sh" style="margin-top:14px"><h3 style="font-size:15px">Spreading</h3></div>';
   sp.forEach(function(id){var t=TID[id];if(!t)return;
    h+='<div class="tr"><div class="trh"><span class="n">'+esc(t.n)+'</span>'+
-    '<span class="v num" style="font-size:12px">'+pc(G.enacted[id])+'</span></div>'+barHtml(G.enacted[id],"good")+'</div>';});
+    '<span class="v num" style="font-size:12px">'+pc(G.enacted[id])+'</span></div>'+
+    effHtml(t.e,t.i)+barHtml(G.enacted[id],"good")+'</div>';});
  }
  h+='</div>';
 
@@ -3227,12 +3252,22 @@ function paneGov(){
  DOCT.forEach(function(d){if(G.doct[d.i]===undefined)return;dany++;
   h+='<div class="tr"><div class="trh"><span class="n">'+esc(d.n)+'</span>'+
    '<span class="v num" style="font-size:12px">'+pc(G.doct[d.i])+'</span></div>'+
-   '<div class="d">'+esc(d.d)+'</div>'+barHtml(G.doct[d.i],"good")+'</div>';});
+   '<div class="d">'+esc(d.d)+'</div>'+effHtml(d.e,d.i)+barHtml(G.doct[d.i],"good")+'</div>';});
  if(!dany)h+='<p class="empty">No doctrine unlocked. Military research opens them.</p>';
  h+='</div>';
  $("p-gov").innerHTML=h;
  Array.prototype.forEach.call($("p-gov").querySelectorAll("[data-en]"),function(b){
-  b.onclick=function(){enact(b.getAttribute("data-en"));recalcAll();bar();paneGov();};});
+  b.onclick=function(){
+   var id=b.getAttribute("data-en"),t=TID[id];
+   var before=snapshot();
+   enact(id);
+   /* show it at the ceiling it will actually reach, so the figure means something */
+   var keep=G.enacted[id];G.enacted[id]=adoptCeil();recalcAll();
+   var d=diffText(before,snapshot());
+   G.enacted[id]=keep;recalcAll();
+   chron(G.yr,"<b>"+esc(t.n)+"</b> is enacted. As it spreads: "+(d||"a change too small to measure at once")+".");
+   toast(t.n+" enacted"+(d?" \u00b7 "+d:""));
+   bar();paneGov();};});
  Array.prototype.forEach.call($("p-gov").querySelectorAll("[data-ofc]"),function(b){
   b.onclick=function(){delete G.offices[b.getAttribute("data-ofc")];recalcAll();bar();paneGov();};});
  Array.prototype.forEach.call($("p-gov").querySelectorAll("[data-of]"),function(b){
@@ -3647,6 +3682,74 @@ function selStart(){
   var claim=(selIx===CLAIMS.ph.ix?"ph":selIx===CLAIMS.ot.ix?"ot":null);
   selBegin(selIx,claim||selRecog);
  };
+}
+
+/* ===================== WHAT A TECH ACTUALLY DOES =====================
+   Every effect a tech, law or doctrine carries is named in plain words and
+   shown on the card, so nothing is adopted blind.
+   ===================================================================== */
+var EFFL={
+ food:"Food",goods:"Goods",serv:"Services",mkt:"Market",tax:"Tax reach",acc:"Access",
+ corr:"Against corruption",stab:"Stability",unr:"Unrest",sol:"Standard of living",
+ pop:"Population growth",hea:"Health",cap:"Build caps",land:"Field strength",nav:"At sea",
+ sie:"Siege",def:"Fortification",esp:"Espionage",infl:"Influence",coin:"Coin stability",
+ slot:"Research slots",gen:"Learning",prs:"Prestige",pap:"Standing at Rome",leg:"Standing",
+ cent:"Centralization",elec:"At an election",upk:"Army upkeep",loyal:"Relations abroad",
+ plg:"Against plague",alp:"In the mountains",mrs:"In the marsh",frs:"In the forest",
+ mtn:"Mining country",hil:"In the hills",east:"Settlement eastward",
+ italy:"Reach into Italy",burg:"Reach into Burgundy",shock:"Shock",attr:"Against attrition",
+ camp:"Campaign cost",raid:"Raiding",sieg:"Against walls",tr:"Treasury"
+};
+function bldsFrom(id){
+ return BLD.filter(function(b){return b.req===id;}).map(function(b){return b.n;});
+}
+function effList(e,id){
+ var out=[];
+ if(e){
+  if(e.doct)(e.doct||[]).forEach(function(d){
+   var D=DOCT.filter(function(x){return x.i===d;})[0];
+   if(D)out.push(["u","Doctrine: "+D.n]);});
+  if(e.law)(e.law||[]).forEach(function(l){
+   var L=LAWS.filter(function(x){return x.i===l;})[0];
+   if(L)out.push(["u","Law: "+L.n]);});
+  if(e.unit)(e.unit||[]).forEach(function(u){
+   if(UID2[u])out.push(["u","Raise "+UID2[u].n]);});
+  if(e.debt)out.push(["u","The chamber may borrow"]);
+  if(e.slot)out.push(["u","+"+e.slot+" research slot"]);
+ }
+ bldsFrom(id).forEach(function(nm){out.push(["u","Build: "+nm]);});
+ if(e)for(var k in e){
+  var v=e[k];
+  if(typeof v!=="number")continue;
+  if(k==="slot"||k==="debt")continue;
+  if(!EFFL[k])continue;
+  out.push([v>0?"g":"b",EFFL[k]+" "+(v>0?"+":"")+v]);
+ }
+ return out;
+}
+function effHtml(e,id){
+ var l=effList(e,id);
+ if(!l.length)return"";
+ return '<div class="effs">'+l.map(function(x){
+  return '<span class="eff '+x[0]+'">'+esc(x[1])+'</span>';}).join("")+'</div>';
+}
+/* what changed, measured rather than asserted */
+function snapshot(){
+ var g=0,s2=0,f=0;
+ G.regions.forEach(function(r){g+=r.goods;s2+=r.serv;f+=r.food;});
+ return {inc:G.income,gdp:G.gdp,food:f,goods:g,serv:s2,land:G.land,def:G.def,
+  acc:G.accN,mkt:G.mkt,corr:G.corr,sol:G.regions.reduce(function(a,r){return a+r.sol;},0)/G.regions.length};
+}
+function diffText(a,b){
+ var parts=[], names={inc:"income",gdp:"product",food:"food",goods:"goods",serv:"services",
+  land:"field strength",def:"fortification",acc:"access",mkt:"the market",sol:"living standards"};
+ ["inc","food","goods","serv","mkt","land","def","acc","sol"].forEach(function(k){
+  var d=b[k]-a[k];
+  if(!a[k]||Math.abs(d/a[k])<0.012)return;
+  parts.push(names[k]+" "+(d>0?"up":"down")+" "+Math.abs(Math.round(d/a[k]*100))+"%");
+ });
+ if(b.corr<a.corr-0.4)parts.push("corruption down "+Math.round(a.corr-b.corr)+" points");
+ return parts.length?parts.slice(0,4).join(", "):"";
 }
 
 /* ================= MODAL ================= */
