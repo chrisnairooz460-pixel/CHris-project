@@ -237,6 +237,8 @@ var GLYPH={
  nettle:"M50 18L63 44L88 48L68 63L75 92L50 77L25 92L32 63L12 48L37 44Z",
  bull:"M24 42C16 31 19 19 30 24C35 15 65 15 70 24C81 19 84 31 76 42C76 72 64 86 50 86C36 86 24 72 24 42Z",
  dolphin:"M18 70C18 40 46 22 76 28C67 35 62 44 62 52C78 53 86 64 83 77C74 68 66 70 59 77C46 90 27 86 18 70Z",
+ tower:"M26 106V48H20V28H33V36H44V28H56V36H67V28H80V48H74V106Z",
+ rose:"M65.5 39.0A15.5 15.5 0 1 1 34.5 39.0A15.5 15.5 0 1 1 65.5 39.0ZM83.6 52.1A15.5 15.5 0 1 1 52.6 52.1A15.5 15.5 0 1 1 83.6 52.1ZM76.7 73.4A15.5 15.5 0 1 1 45.7 73.4A15.5 15.5 0 1 1 76.7 73.4ZM54.3 73.4A15.5 15.5 0 1 1 23.3 73.4A15.5 15.5 0 1 1 54.3 73.4ZM47.4 52.1A15.5 15.5 0 1 1 16.4 52.1A15.5 15.5 0 1 1 47.4 52.1ZM62 58A12 12 0 1 1 38 58A12 12 0 1 1 62 58Z",
  lily:"M50 14C44 26 36 32 36 42C36 48 42 52 46 50L46 58H34C28 50 20 50 18 58C16 66 24 72 32 68L30 78C38 86 44 92 44 102H56C56 92 62 86 70 78L68 68C76 72 84 66 82 58C80 50 72 50 66 58H54L54 50C58 52 64 48 64 42C64 32 56 26 50 14Z"
 };
 function passant(n,c){
@@ -320,6 +322,35 @@ LAK.forEach(function(s){gw.appendChild(el("path",{d:line(s,1),fill:"#2a5f7a","fi
 RIV.forEach(function(s){gw.appendChild(el("path",{d:line(s,0),fill:"none",stroke:"#8fc5de","stroke-width":1.5,"stroke-opacity":".8","stroke-linecap":"round","stroke-linejoin":"round"}));});
 
 document.getElementById("imparms").innerHTML=armsSVG({f:"#d6a62c",ch:["eagle","#1e1c19"]},34);
+
+/* ---- states added to the Empire: free cities, Italian communes and small principalities ---- */
+var T2=[
+{"n": "Free City of Lubeck", "r": "F", "d": "M347.2 127.8L347.0 122.3L343.0 118.3L337.7 119.2L332.8 120.3L328.1 124.4L331.0 130.3L333.7 134.1L337.3 139.4L343.0 137.2L346.8 133.2Z", "c": [338.9, 127.8], "a": 308, "h": "No ruling house: an elected council", "x": "Refounded by Henry the Lion in 1159 and made directly imperial by Barbarossa in 1226. The Baltic trade runs through this harbour, and the law written here will be copied by a hundred towns along that coast.", "g": {"f": "#efe9da", "o": [["perfess", "#b3272d"]]}},
+{"n": "Free City of Hamburg", "r": "F", "d": "M320.0 147.0L319.3 141.8L315.5 138.0L310.1 136.2L306.9 141.2L302.3 144.1L302.3 149.9L304.9 155.2L310.3 156.7L315.2 155.4L319.9 152.6Z", "c": [311.6, 147.0], "a": 272, "h": "No ruling house: an elected council", "x": "A harbour on the Elbe with a charter of 1189 granting freedom from toll down to the sea. It is smaller than Lubeck and it is standing in exactly the right place.", "g": {"f": "#b3272d", "ch": ["tower", "#efe9da"]}},
+{"n": "Free City of Frankfurt", "r": "F", "d": "M270.3 353.4L268.7 347.8L264.6 343.9L259.4 345.1L254.2 345.7L249.5 350.0L251.6 356.2L253.1 362.5L259.4 361.8L264.2 362.1L267.1 357.9Z", "c": [260.5, 353.4], "a": 308, "h": "No ruling house: an elected council", "x": "The ford of the Franks, the autumn fair, and the field at which kings of the Romans are elected. Whoever is crowned has to come here first.", "g": {"f": "#b3272d", "ch": ["eagle", "#efe9da"]}},
+{"n": "Free City of Worms", "r": "F", "d": "M258.1 382.2L253.8 378.3L251.4 374.4L246.9 374.1L242.3 375.2L238.7 379.3L239.1 385.0L243.3 388.0L246.8 391.5L251.9 391.3L254.7 386.8Z", "c": [248.0, 382.2], "a": 239, "h": "No ruling house: council and bishop in dispute", "x": "The Concordat was signed here in 1122 and the burghers have been fighting their bishop for the city ever since. The Jewish community is among the oldest north of the Alps.", "g": {"f": "#2a2722", "ch": ["key", "#efe9da"]}},
+{"n": "Free City of Speyer", "r": "F", "d": "M259.7 400.8L257.7 396.1L254.6 391.9L249.5 391.7L245.1 393.8L243.1 398.4L242.1 403.5L244.7 408.2L249.8 408.2L253.8 407.8L258.3 406.0Z", "c": [250.8, 400.8], "a": 208, "h": "No ruling house: an elected council", "x": "The Salian emperors are buried in the cathedral, which is the largest building in the Empire. The city got its liberties out of the bishop in 1111 and does not intend to give them back.", "g": {"f": "#2f5d8c", "ch": ["tower", "#efe9da"]}},
+{"n": "Free City of Aachen", "r": "F", "d": "M166.5 313.2L166.6 308.1L163.1 304.0L157.8 303.8L153.3 306.0L149.6 310.2L150.3 315.9L154.5 318.9L157.9 322.1L163.1 322.4L166.7 318.4Z", "c": [159.1, 313.2], "a": 239, "h": "No ruling house: an elected council", "x": "Charlemagne's chapel and his throne. A king of the Romans who has not been crowned in this church is open to the argument that he is not properly king at all.", "g": {"f": "#d6a62c", "ch": ["eagle", "#1e1c19"]}},
+{"n": "Free City of Basel", "r": "F", "d": "M228.2 506.4L224.9 501.7L221.1 499.2L217.0 498.8L213.5 500.9L209.8 503.8L208.6 509.3L212.4 513.3L217.0 514.0L222.0 515.7L226.1 511.9Z", "c": [218.0, 506.4], "a": 239, "h": "No ruling house: council under the bishop", "x": "Where the Rhine turns north. The bishop rules it, the merchants finance it, and the bridge of 1225 will make it the crossing everyone uses.", "g": {"f": "#efe9da", "ch": ["crozier", "#2a2722"]}},
+{"n": "Free City of Zurich", "r": "F", "d": "M264.6 517.2L263.2 511.7L258.9 508.2L254.1 509.8L249.7 510.6L247.5 514.8L246.9 519.7L248.6 525.1L254.0 525.1L259.3 527.0L261.5 521.6Z", "c": [255.1, 517.2], "a": 239, "h": "No ruling house: abbess and council", "x": "Governed in theory by the abbess of the Fraumunster and in practice by the guilds. Imperial immediacy comes in 1218 when the Zahringen line dies out.", "g": {"f": "#efe9da", "o": [["bend", "#2f5d8c"]]}},
+{"n": "Free City of Bern", "r": "F", "d": "M221.4 543.0L219.7 538.1L216.6 533.7L211.4 534.6L207.0 536.2L203.2 540.1L202.7 546.1L206.5 550.4L211.2 553.1L216.1 551.3L221.1 548.8Z", "c": [212.6, 543.0], "a": 272, "h": "No ruling house: an elected council", "x": "Founded by Berthold V of Zahringen in 1191 on a loop of the Aare, and barely a generation old. It will outlast every duchy around it.", "g": {"f": "#b3272d", "o": [["bend", "#d6a62c"]]}},
+{"n": "Free City of Dortmund", "r": "F", "d": "M222.6 269.4L219.8 265.0L217.2 260.4L212.2 261.1L208.7 263.7L205.6 267.0L206.3 271.6L207.7 276.2L212.2 277.7L216.4 276.5L220.7 274.4Z", "c": [213.3, 269.4], "a": 208, "h": "No ruling house: an elected council", "x": "An imperial town on the Hellweg, the road that carries everything moving east from the Rhine. Small, rich, and surrounded by counts who would like it.", "g": {"f": "#efe9da", "ch": ["eagle", "#b3272d"]}},
+{"n": "Commune of Piacenza", "r": "T", "d": "M316.4 657.0L312.7 648.3L306.8 640.9L297.6 639.6L289.0 643.6L283.9 652.0L281.1 662.9L287.3 672.4L297.0 678.4L305.9 671.0L315.5 667.6Z", "c": [299.9, 657.0], "a": 959, "h": "No ruling house: elected consuls", "x": "Where the Via Emilia meets the Po crossing. A founding member of the Lombard League and a lender to anyone who will take the terms.", "g": {"f": "#efe9da", "o": [["perpale", "#b3272d"]]}},
+{"n": "Commune of Parma", "r": "T", "d": "M342.2 672.0L341.4 660.8L332.8 653.5L322.9 657.1L314.9 659.7L312.0 668.0L308.0 677.3L313.2 686.3L322.3 690.9L330.9 686.1L337.0 680.3Z", "c": [324.9, 672.0], "a": 896, "h": "No ruling house: elected consuls", "x": "Imperial by inclination and Lombard by geography, which has been an uncomfortable combination since Barbarossa. The cheese is already famous.", "g": {"f": "#2f5d8c", "o": [["cross", "#d6a62c"]]}},
+{"n": "Commune of Modena", "r": "T", "d": "M363.0 681.0L362.7 671.2L354.9 665.7L346.4 667.5L336.3 666.3L330.6 675.5L330.4 686.6L335.9 696.1L345.7 699.8L355.5 697.7L361.3 689.9Z", "c": [348.3, 681.0], "a": 835, "h": "No ruling house: elected consuls", "x": "At war with Bologna over a strip of hill country more or less permanently. Ghibelline, because Bologna is not.", "g": {"f": "#2f5d8c", "o": [["cross", "#efe9da"]]}},
+{"n": "Commune of Ferrara", "r": "T", "d": "M392.7 669.6L390.4 659.2L381.8 654.2L373.3 655.4L363.5 655.3L357.3 664.0L359.5 674.5L366.0 680.9L372.5 689.5L380.7 682.4L389.8 679.5Z", "c": [375.2, 669.6], "a": 835, "h": "Azzo VI of Este", "x": "The Po delta, the salt pans and the toll on everything coming downriver. The Este are turning a commune into a lordship and nobody has stopped them.", "g": {"f": "#2f5d8c", "ch": ["eagle", "#efe9da"]}},
+{"n": "Commune of Treviso", "r": "T", "d": "M415.4 619.8L414.4 609.8L406.1 605.1L397.5 603.0L390.0 607.9L384.4 615.0L382.8 625.1L389.1 632.9L397.8 634.1L404.8 631.6L413.6 629.2Z", "c": [399.8, 619.8], "a": 777, "h": "No ruling house: elected consuls", "x": "The march between Venice and the mountains, with the timber that Venice builds its fleet out of coming down the Piave through here.", "g": {"f": "#efe9da", "o": [["perfess", "#2f5d8c"]]}},
+{"n": "Commune of Vicenza", "r": "T", "d": "M388.1 627.0L382.6 620.1L377.6 615.1L370.1 609.8L361.1 613.1L356.8 622.1L360.0 630.9L364.1 637.2L370.3 643.0L379.0 642.2L383.9 634.8Z", "c": [372.5, 627.0], "a": 720, "h": "No ruling house: elected consuls", "x": "Caught between Padua and Verona and raided by both. Wool comes down from the hills and the quarries above the town cut a stone that carves like wood.", "g": {"f": "#efe9da", "o": [["perpale", "#2f5d8c"]]}},
+{"n": "Bishopric of Trent", "r": "E", "d": "M373.2 595.8L371.7 584.9L361.9 581.2L353.4 579.1L344.2 581.7L337.5 590.1L340.4 600.6L345.9 607.8L352.6 618.2L363.9 614.9L370.0 605.6Z", "c": [355.7, 595.8], "a": 1091, "h": "Konrad II von Beseno", "x": "The bishop holds the Brenner road, which is the only reason anyone has ever cared about this valley. Every emperor going to Rome comes through it and pays for the privilege.", "g": {"f": "#efe9da", "ch": ["eagle", "#2a2722"]}},
+{"n": "Margraviate of Lusatia", "r": "M", "d": "M505.6 289.2L508.9 272.5L494.3 266.0L481.3 266.5L466.2 266.9L457.9 281.0L459.4 297.0L467.3 310.2L480.6 317.2L494.6 312.9L506.1 304.0Z", "c": [484.4, 289.2], "a": 2063, "h": "Konrad II of Wettin", "x": "Wendish country east of the Elbe, held by the Wettins and settled in by German farmers on written terms. The old language is still spoken in the villages.", "g": {"f": "#efe9da", "ch": ["bull", "#2a2722"]}},
+{"n": "Principality of Anhalt", "r": "C", "d": "M399.9 252.0L396.0 241.0L390.1 228.1L377.3 233.1L366.1 235.1L356.6 244.8L362.8 257.3L364.3 271.0L376.4 277.4L389.2 273.7L399.3 265.3Z", "c": [379.9, 252.0], "a": 1539, "h": "Henry I of Ascania", "x": "The Ascanian heartland, split off from Saxony when Bernhard died. The crancelin across the bars is the rue garland the house was granted with the duchy.", "g": {"f": "#d6a62c", "o": [["bars", "#2a2722", 10], ["crancelin", "#3f7f4a"]]}},
+{"n": "County of Lippe", "r": "C", "d": "M287.5 243.6L286.2 231.4L276.5 224.5L265.0 219.4L253.3 225.3L251.2 238.3L246.9 250.3L254.2 260.9L266.1 259.8L276.1 261.6L287.6 256.7Z", "c": [268.3, 243.6], "a": 1232, "h": "Hermann II of Lippe", "x": "A small lordship in the Teutoburg forest that has survived by being too awkward to be worth taking. The rose is already on the seal.", "g": {"f": "#efe9da", "ch": ["rose", "#b3272d"]}},
+{"n": "Bishopric of Hildesheim", "r": "E", "d": "M326.3 231.0L324.8 220.9L317.3 214.1L307.6 213.3L297.2 215.3L293.1 225.7L288.1 237.8L298.4 245.2L306.7 256.1L318.8 251.4L326.8 242.4Z", "c": [310.0, 231.0], "a": 1381, "h": "Hartbert von Dahlum", "x": "The bronze doors and the column were cast here two centuries ago and nothing like them has been made since. The see is wedged between the Welfs and resents both of them.", "g": {"f": "#d6a62c", "o": [["perpale", "#b3272d"]]}},
+{"n": "Bishopric of Minden", "r": "E", "d": "M286.0 222.6L288.2 210.1L277.8 204.3L266.9 200.6L257.4 207.3L248.8 216.0L249.5 228.9L258.6 236.5L266.8 245.1L276.4 237.9L283.2 231.7Z", "c": [269.9, 222.6], "a": 1160, "h": "Thietmar von Kerssenbrock", "x": "The Weser crossing where the river cuts the hills, and a toll on every barge that uses it.", "g": {"f": "#b3272d", "ch": ["key", "#efe9da"]}},
+{"n": "Bishopric of Merseburg", "r": "E", "d": "M407.1 279.0L402.9 270.0L397.9 259.7L387.2 260.9L377.5 264.1L368.8 272.5L374.0 283.9L378.8 292.2L386.7 300.6L398.4 299.5L402.8 288.0Z", "c": [389.6, 279.0], "a": 1091, "h": "Dietrich von Meissen", "x": "Founded to hold the Slav frontier that is now two hundred miles further east. What is left is the salt, the cathedral, and a quarrel with Magdeburg.", "g": {"f": "#efe9da", "o": [["cross", "#b3272d"]]}},
+{"n": "Bishopric of Eichstatt", "r": "E", "d": "M380.3 426.6L372.7 416.6L364.3 412.1L355.1 405.0L347.1 413.2L339.0 420.7L341.2 431.8L348.1 438.7L355.2 447.5L365.7 444.4L374.7 438.0Z", "c": [358.0, 426.6], "a": 1160, "h": "Hartwig von Grogling", "x": "A limestone valley on the Altmuhl, a long way from anywhere, with a bishop who votes the way Bavaria tells him to.", "g": {"f": "#b3272d", "ch": ["crozier", "#d6a62c"]}}];
+RANKS.F=["Free imperial city", "#1f8f7a"];
+T=T.concat(T2);
 
 var labs=[], shields=[], cur=null, TGEO=[];
 T.forEach(function(t){
@@ -1184,8 +1215,8 @@ var SUBS=[
 ["Itzehoe","Kiel","Rendsburg","Oldenburg","Segeberg"],
 ["Schwerin","Rostock","Wismar","Gustrow","Parchim"],
 ["Stettin","Stralsund","Greifswald","Kolberg","Demmin","Anklam"],
-["Brandenburg","Berlin","Spandau","Frankfurt","Prenzlau","Salzwedel","Stendal"],
-["Wittenberg","Lauenburg","Belzig","Gommern","Dessau","Ratzeburg","Bernburg"],
+["Brandenburg","Berlin","Spandau","Frankfurt an der Oder","Prenzlau","Salzwedel","Stendal"],
+["Wittenberg","Lauenburg","Belzig","Gommern","Coswig","Ratzeburg","Aken"],
 ["Magdeburg","Halle","Halberstadt","Calbe","Burg","Juterbog"],
 ["Eisenach","Gotha","Weimar","Jena","Saalfeld","Muhlhausen","Nordhausen","Arnstadt","Langensalza"],
 ["Meissen","Dresden","Freiberg","Leipzig","Grimma","Dobeln","Chemnitz"],
@@ -1226,6 +1257,60 @@ var TITLES=["King of Bohemia","Duke of Austria","Duke of Styria","Duke of Carint
 "Patriarch of Aquileia","Consuls of Milan","Consuls of Cremona","Consuls of Brescia","Consuls of Verona",
 "Consuls of Mantua","Consuls of Padua","Consuls of Bologna","Consuls of Genoa","Consuls of Pisa",
 "Consuls of Lucca","Consuls of Florence","Consuls of Siena","Marquis of Montferrat","Marquis of Saluzzo"];
+
+var RG2=[
+["Free City of Lubeck", 28, 82, 74, "co", 80, 70, 18, -25, "ger", ["fish", "amber"], 1, 1, 0],
+["Free City of Hamburg", 22, 80, 70, "mr", 76, 70, 18, -20, "ger", ["fish", "timber"], 1, 1, 0],
+["Free City of Frankfurt", 24, 78, 74, "va", 82, 72, 16, 30, "ger", ["wine"], 1, 0, 0],
+["Free City of Worms", 16, 74, 70, "va", 78, 70, 18, 35, "ger", ["wine"], 1, 0, 0],
+["Free City of Speyer", 13, 72, 68, "va", 76, 72, 16, 40, "ger", ["wine"], 1, 0, 0],
+["Free City of Aachen", 15, 70, 68, "hl", 74, 74, 14, -30, "ger", ["iron"], 1, 0, 0],
+["Free City of Basel", 12, 68, 66, "va", 74, 70, 18, 10, "ger", ["wine"], 1, 0, 0],
+["Free City of Zurich", 11, 66, 64, "hl", 70, 72, 16, 0, "ger", ["wool"], 1, 0, 0],
+["Free City of Bern", 9, 60, 58, "hl", 64, 74, 14, 0, "ger", ["timber"], 1, 0, 0],
+["Free City of Dortmund", 10, 64, 62, "pl", 72, 72, 16, -20, "ger", ["iron"], 1, 0, 0],
+["Commune of Piacenza", 60, 34, 74, "pl", 76, 62, 26, -20, "ita", ["grain", "bank"], 1, 0, 0],
+["Commune of Parma", 55, 33, 72, "pl", 74, 62, 26, 10, "ita", ["grain", "wool"], 1, 0, 0],
+["Commune of Modena", 50, 32, 72, "pl", 74, 60, 28, 20, "ita", ["grain"], 1, 0, 0],
+["Commune of Ferrara", 48, 32, 72, "mr", 72, 58, 30, -20, "ita", ["grain", "salt"], 1, 0, 0],
+["Commune of Treviso", 42, 30, 70, "pl", 72, 62, 26, -20, "ita", ["wine", "timber"], 1, 0, 0],
+["Commune of Vicenza", 40, 30, 70, "hl", 70, 60, 28, -10, "ita", ["wool", "marble"], 1, 0, 0],
+["Bishopric of Trent", 38, 18, 58, "al", 48, 70, 16, 55, "ita", ["silver", "wine"], 1, 0, 46],
+["Margraviate of Lusatia", 70, 6, 34, "fo", 40, 62, 22, 45, "wnd", ["timber", "grain"], 2, 0, 38],
+["Principality of Anhalt", 55, 9, 42, "pl", 56, 68, 16, 35, "ger", ["grain", "salt"], 2, 0, 30],
+["County of Lippe", 42, 8, 40, "fo", 52, 70, 14, -25, "ger", ["timber", "iron"], 1, 0, 34],
+["Bishopric of Hildesheim", 60, 11, 48, "pl", 58, 70, 16, -35, "ger", ["silver", "grain"], 2, 0, 44],
+["Bishopric of Minden", 38, 9, 42, "pl", 54, 70, 16, -30, "ger", ["grain", "fish"], 1, 0, 48],
+["Bishopric of Merseburg", 36, 10, 44, "pl", 58, 70, 16, 30, "ger", ["salt", "grain"], 1, 0, 52],
+["Bishopric of Eichstatt", 34, 9, 44, "hl", 52, 72, 14, 50, "ger", ["iron"], 1, 0, 50]];
+var SUBS2=[
+["Lubeck", "Travemunde", "Oldesloe"],
+["Hamburg", "Bergedorf"],
+["Frankfurt", "Bornheim", "Sachsenhausen"],
+["Worms", "Pfeddersheim"],
+["Speyer", "Deidesheim"],
+["Aachen", "Burtscheid"],
+["Basel", "Kleinbasel", "Riehen"],
+["Zurich", "Uster", "Horgen"],
+["Bern", "Thun", "Burgdorf"],
+["Dortmund", "Horde"],
+["Piacenza", "Fiorenzuola", "Castel San Giovanni", "Bobbio"],
+["Parma", "Borgo San Donnino", "Colorno"],
+["Modena", "Carpi", "Sassuolo"],
+["Ferrara", "Comacchio", "Argenta"],
+["Treviso", "Conegliano", "Castelfranco Veneto"],
+["Vicenza", "Bassano", "Marostica"],
+["Trent", "Riva", "Bolzano", "Rovereto"],
+["Bautzen", "Gorlitz", "Lubben", "Kamenz"],
+["Bernburg", "Dessau", "Kothen", "Zerbst"],
+["Detmold", "Lemgo", "Blomberg"],
+["Hildesheim", "Peine", "Alfeld", "Bockenem"],
+["Minden", "Petershagen", "Lubbecke"],
+["Merseburg", "Lauchstadt", "Mucheln"],
+["Eichstatt", "Beilngries", "Greding"]];
+var TITLES2=["Council of Lubeck", "Council of Hamburg", "Council of Frankfurt", "Council of Worms", "Council of Speyer", "Council of Aachen", "Council of Basel", "Council of Zurich", "Council of Bern", "Council of Dortmund", "Consuls of Piacenza", "Consuls of Parma", "Consuls of Modena", "Consuls of Ferrara", "Consuls of Treviso", "Consuls of Vicenza", "Prince-Bishop of Trent", "Margrave of Lusatia", "Prince of Anhalt", "Lord of Lippe", "Prince-Bishop of Hildesheim", "Prince-Bishop of Minden", "Prince-Bishop of Merseburg", "Prince-Bishop of Eichstatt"];
+RANKS.F=["Free imperial city", "#1f8f7a"];
+RG=RG.concat(RG2); SUBS=SUBS.concat(SUBS2); TITLES=TITLES.concat(TITLES2);
 
 /* Who claims the crown in 1200, and what picking them means. */
 var CLAIMS={
@@ -1497,13 +1582,17 @@ function recalcRegion(r,M){
  var acc=cl0(r.acc+m(M,"acc")*0.4+be(B,"acc")+G.cent*0.1+adapt*0.2,4,99);
  r.accEff=acc;
  var rural=r.pop*(1-r.urb/100), urban=r.pop*(r.urb/100);
+ r.need=r.pop*0.00105;
  var resB=0;r.res.forEach(function(k){resB+=RES[k]?RES[k][1]:0;});
  var fert=tf[1]*(1+m(M,"food")*0.009+adapt*0.006);
- r.food=rural*fert*0.00115*(1+r.farms*0.03)+be(B,"food")*0.62;
- r.need=r.pop*0.00105;
+ r.foodRaw=rural*fert*0.00115*(1+r.farms*0.03)+be(B,"food")*0.62;
  r.goods=(rural*0.00052+urban*0.0017)*(1+m(M,"goods")*0.011+resB*0.012+r.dev*0.006)
    +be(B,"goods")*0.8;
  r.serv=(urban*0.0031*(1+m(M,"serv")*0.013+r.towns*0.035+r.dev*0.005)+be(B,"serv")*0.9)*(acc/70);
+ /* a town does not grow what it eats. It buys it, and how much it can buy
+    depends on the market it commands and whether the carts can reach it. */
+ r.imported=Math.min(r.need*0.75,r.serv*0.45*(acc/100)*(1+m(M,"mkt")*0.005));
+ r.food=r.foodRaw+r.imported;
  r.gdp=(r.goods+r.serv)*100;
  r.gdpc=r.gdp/Math.max(0.001,r.pop/1000);
  r.def=Math.round(be(B,"def")+m(M,"def")*0.3);
@@ -2162,7 +2251,7 @@ var AIP={
 function aiPersona(ix){
  var rank=T[ix]?T[ix].r:"C", pop=RG[ix][1], h=(ix*2654435761)>>>0, roll=(h%100)/100;
  if(rank==="E")return roll<0.78?"pious":"dynastic";
- if(rank==="T")return roll<0.76?"mercantile":"dynastic";
+ if(rank==="T"||rank==="F")return roll<0.82?"mercantile":"cautious";
  if(rank==="M")return roll<0.72?"warlike":"dynastic";
  if(rank==="K")return roll<0.5?"warlike":"dynastic";
  if(rank==="D")return roll<0.42?"warlike":(roll<0.8?"dynastic":"cautious");
@@ -2411,7 +2500,7 @@ function pickNeighbour(){
  return G.states[near[Math.floor(G.rnd()*near.length)]];
 }
 function shortName(n){
- return String(n).replace(/^(Duchy|County|Kingdom|Margraviate|Landgraviate|Lordship|Bishopric|Archbishopric|Patriarchate|Dauphine|March|Commune|Marquisate|Palatinate) of /,"");
+ return String(n).replace(/^(Duchy|County|Kingdom|Margraviate|Landgraviate|Lordship|Bishopric|Archbishopric|Patriarchate|Dauphine|March|Commune|Marquisate|Palatinate|Free City|Principality) of /,"");
 }
 function evCtx(e){
  var C={};
@@ -3057,7 +3146,7 @@ function paneDiplo(){
   list.forEach(function(s){
    var al=G.allies[s.ix], sel=dipSel===s.ix;
    h+='<div class="tr" style="cursor:pointer" data-dsel="'+s.ix+'"><div class="trh">'+
-    '<span class="n">'+esc(s.n.replace(/^(Duchy|County|Kingdom|Margraviate|Landgraviate|Lordship|Bishopric|Archbishopric|Patriarchate|Dauphine|March|Commune|Marquisate|Palatinate) of /,""))+
+    '<span class="n">'+esc(s.n.replace(/^(Duchy|County|Kingdom|Margraviate|Landgraviate|Lordship|Bishopric|Archbishopric|Patriarchate|Dauphine|March|Commune|Marquisate|Palatinate|Free City|Principality) of /,""))+
     (al?' <span class="pill g">allied</span>':'')+(s.claim?' <span class="pill b">claim</span>':'')+
     (s.spy?' <span class="pill w">agent</span>':'')+'</span>'+
     '<span class="pill '+cls(s.rel)+'">'+esc(word(s.rel,W_REL))+'</span></div>'+
@@ -3635,7 +3724,7 @@ function selPanel(){
    'border-radius:5px;background:var(--panel);color:var(--ink);margin-bottom:7px">';
  h+='<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:9px">';
  [["all","All"],["K","Kingdoms"],["D","Duchies"],["E","Church"],["T","Communes"],
-  ["C","Counties"],["M","Marches"],["big","Great"],["small","Small"]].forEach(function(f){
+  ["F","Free cities"],["C","Counties"],["M","Marches"],["big","Great"],["small","Small"]].forEach(function(f){
   h+='<button class="btn sm'+(selFilter===f[0]?" p":"")+'" data-sf="'+f[0]+'">'+f[1]+'</button>';});
  h+='</div>';
 
@@ -3643,7 +3732,7 @@ function selPanel(){
  var list=RG.map(function(_,i){return i;}).filter(function(i){
   if(selFilter==="big"&&RG[i][1]<250)return 0;
   if(selFilter==="small"&&RG[i][1]>=150)return 0;
-  if(["K","D","E","T","C","M","L"].indexOf(selFilter)>=0&&T[i].r!==selFilter)return 0;
+  if(["K","D","E","T","C","M","L","F"].indexOf(selFilter)>=0&&T[i].r!==selFilter)return 0;
   if(!q)return 1;
   return (RG[i][0]+" "+TITLES[i]+" "+SUBS[i].join(" ")+" "+T[i].h).toLowerCase().indexOf(q)>=0;
  }).sort(function(a,b){return RG[b][1]-RG[a][1];});
@@ -3768,7 +3857,7 @@ function startScreen(){
  var ord=RG.map(function(r,i){return i;});
  if(pickSort==="pop")ord.sort(function(a,b){return RG[b][1]-RG[a][1];});
  else if(pickSort==="name")ord.sort(function(a,b){return RG[a][0]<RG[b][0]?-1:1;});
- else ord.sort(function(a,b){return "KDMLETC".indexOf(T[a].r)-"KDMLETC".indexOf(T[b].r);});
+ else ord.sort(function(a,b){return "KDMLETFC".indexOf(T[a].r)-"KDMLETFC".indexOf(T[b].r);});
  ord.forEach(function(i){
   var r=RG[i],t=T[i],claim=(i===CLAIMS.ph.ix?"ph":i===CLAIMS.ot.ix?"ot":null);
   h+='<button class="opt" data-nat="'+i+'"><span class="sa" style="display:flex;align-items:center;gap:10px;margin-bottom:5px">'+
@@ -3853,7 +3942,7 @@ function overModal(){
 /* ================= SAVE ================= */
 function save(){
  try{
-  var s={v:2,yr:G.yr,turn:G.turn,nat:G.nat,ruler:G.ruler,recog:G.recog,impFav:G.impFav,
+  var s={v:3,yr:G.yr,turn:G.turn,nat:G.nat,ruler:G.ruler,recog:G.recog,impFav:G.impFav,
    outlaw:G.outlaw,emp:G.emp,king:G.king,tr:G.tr,sub:G.sub,leg:G.leg,pap:G.pap,prs:G.prs,
    debt:G.debt,debtLvl:G.debtLvl,infl:G.infl,cent:G.cent,taxRate:G.taxRate,
    done:G.done,enacted:G.enacted,laws:G.laws,doct:G.doct,uniq:G.uniq,queue:G.queue,qleft:G.qleft,
@@ -3870,7 +3959,7 @@ function save(){
 function load(){
  try{
   var raw=localStorage.getItem("rex1200");if(!raw)return 0;
-  var s=JSON.parse(raw);if(!s||s.v!==2||s.nat===undefined)return 0;
+  var s=JSON.parse(raw);if(!s||s.v!==3||s.nat===undefined)return 0;
   initGame(s.nat,s.recog);
   ["yr","turn","ruler","recog","impFav","outlaw","emp","king","tr","sub","leg","pap","prs",
    "debt","debtLvl","infl","cent","taxRate","done","enacted","laws","doct","uniq","queue","qleft",
