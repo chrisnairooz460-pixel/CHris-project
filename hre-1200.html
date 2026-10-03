@@ -155,6 +155,13 @@ textarea{width:100%;font-family:Inter,sans-serif;font-size:13px;background:var(-
  #modal h2{font-size:22px}
  #ovbtns{max-width:58vw}
 }
+body.sel #tabs{display:none}
+body.sel #ovbtns{display:none}
+body.sel #side{width:430px;flex:0 0 430px}
+body.sel #end{background:var(--gold);color:#1c1a15;font-weight:700}
+body.sel #end:disabled{background:none;color:#ffffff7a;border-color:#ffffff2e}
+body.sel .tr:hover{background:var(--panel-2)}
+@media (max-width:860px){body.sel #side{width:100%;flex:1 1 auto}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 <div id="shell">
@@ -319,6 +326,7 @@ T.forEach(function(t){
   g.appendChild(pf); g.appendChild(ps);
   TGEO.push({t:t,g:g,f:pf,s:ps});
   function pick(){
+    if(typeof selMode!=="undefined"&&selMode){selNation(T.indexOf(t));return;}
     if(cur)cur.classList.remove("on");
     g.classList.add("on");cur=g;
     if(typeof stateModal==="function")stateModal(t);
@@ -3451,6 +3459,196 @@ function stateModal(t){
  $("mclose").onclick=closeModal;
 }
 
+/* ===================== NATION SELECTION =====================
+   The map is the picker. Pick a state on it or from the list, read what you
+   would be taking on, and begin.
+   ============================================================ */
+var selMode=0, selIx=null, selQ="", selFilter="all", selRecog=null;
+
+/* How hard this state is to hold, from its size, its development, how many
+   regions it has to lose, and what is sitting next to it. */
+function difficulty(ix){
+ var r=RG[ix], pop=r[1], dev=r[3], nreg=SUBS[ix].length;
+ var nb=nearIx(ix), press=0;
+ nb.forEach(function(j){press+=RG[j][1];});
+ press=press/Math.max(1,nb.length);
+ var score=Math.log(Math.max(20,pop))*7.5+dev*0.26+nreg*1.5-Math.log(Math.max(20,press))*5.4;
+ if(ix===CLAIMS.ph.ix)score+=5;          /* a crown is worth something */
+ if(ix===CLAIMS.ot.ix)score-=4;          /* and Otto's is worth less */
+ if(r[12])score+=1.5;                    /* a coast is an escape and a trade route */
+ return score;
+}
+function diffBand(ix){
+ var d=difficulty(ix);
+ if(d>=42)return["Comfortable","#3f7f5a"];
+ if(d>=34)return["Workable","#7f8a3f"];
+ if(d>=28)return["Hard","#b5761f"];
+ return["Precarious","#9c2a28"];
+}
+
+/* The starts worth pointing at, with a reason to take each one. */
+var BOOKS=[
+ {ix:8,n:"Philip of Swabia",p:"Barbarossa's youngest son, crowned at Mainz, holding the family lands, the family treasure and the family enemies. The strongest opening in the Empire and the one everyone is measuring themselves against."},
+ {ix:28,n:"Otto IV of Brunswick",p:"Crowned at Aachen with almost no German land of his own. What you have is Cologne's money, an English subsidy that runs out, and a Pope who will change his mind. The hardest crown to keep."},
+ {ix:0,n:"Premysl Ottokar I of Bohemia",p:"King for two years, and he got the title by selling his support twice. Rich, populous, half outside the Empire's reach, and in a position to decide who wears the crown."},
+ {ix:45,n:"The Commune of Milan",p:"Razed by Barbarossa in 1162, rebuilt within a decade, and it beat him at Legnano. No prince, no dynasty, consuls elected annually and a popular assembly. Govern by persuading the richest city in Lombardy."},
+ {ix:14,n:"Adolf of Altena, Cologne",p:"The archbishop who crowned Otto and will sell him out in four years. The richest see north of the Alps, the Rhine trade in your hand, and a vote that is worth whatever the moment will pay."},
+ {ix:39,n:"The County of Habsburg",p:"Sixty thousand souls and five valleys in the Aargau, and nobody in 1200 has heard of you. In seventy-three years a Habsburg is elected King of the Romans. Start from nothing and see if you can get there faster."},
+ {ix:1,n:"Leopold VI of Austria",p:"Austria and Styria in one pair of hands from the year he inherits. His father took Richard the Lionheart on the road home from crusade, and the ransom paid for Vienna's walls."},
+ {ix:19,n:"Baldwin IX of Flanders",p:"The richest, most urban, most ungovernable county in the Empire, with cloth towns that make their own decisions. Historically he leaves on the Fourth Crusade and dies Emperor of Constantinople. You need not."},
+ {ix:53,n:"The Commune of Pisa",p:"Ghibelline to the bone, at sea against Genoa, and the imperial party in Tuscany. A maritime republic with a quarrel with every neighbour it has."},
+ {ix:7,n:"Ludwig I of Bavaria",p:"The largest duchy in Germany and a Wittelsbach who has just been given it for backing the right Staufen. Salt, grain, timber, and a long quiet frontier."}
+];
+
+function trimAt(t,n2){
+ if(t.length<=n2)return t;
+ var cut=t.slice(0,n2), sp=cut.lastIndexOf(" ");
+ return (sp>40?cut.slice(0,sp):cut).replace(/[,;:]$/,"")+"\u2026";
+}
+function selBegin(ix,recog){
+ selMode=0;selIx=null;
+ document.body.classList.remove("sel");
+ begin(ix,recog);
+}
+function selPaint(){
+ TGEO.forEach(function(e,ix){
+  var c=RANKS[e.t.r][1];
+  if(selIx===ix){e.f.setAttribute("fill","#f0d98a");e.s.setAttribute("stroke","#fff6dd");
+   e.s.setAttribute("stroke-width",4.4);e.f.setAttribute("fill-opacity",".88");e.g.classList.add("on");}
+  else{e.f.setAttribute("fill",c);e.s.setAttribute("stroke",c);
+   e.s.setAttribute("stroke-width",1.6);e.f.setAttribute("fill-opacity",selIx===null?".44":".26");
+   e.g.classList.remove("on");}
+  e.g.classList.remove("dim");
+ });
+ var lg=$("legend");
+ lg.innerHTML='<div class="lt">Rank</div>';
+ var row=document.createElement("div");row.style.cssText="display:flex;flex-wrap:wrap;gap:5px 11px";
+ Object.keys(RANKS).forEach(function(k){var d=document.createElement("span");d.className="lg";
+  d.innerHTML='<span class="sw" style="background:'+RANKS[k][1]+'"></span>'+RANKS[k][0];row.appendChild(d);});
+ lg.appendChild(row);
+}
+function selNation(ix){
+ selIx=ix;selRecog=null;
+ selPaint();selPanel();
+ var el2=$("seldet");if(el2)el2.scrollIntoView({block:"nearest"});
+}
+function selBar(){
+ $("stats").innerHTML='<div class="st"><div class="k">Year</div><div class="v">1200</div></div>'+
+  '<div class="st"><div class="k">States</div><div class="v">59</div></div>'+
+  '<div class="st" style="min-width:auto"><div class="k">Choose</div>'+
+  '<div class="v" style="font-size:12px;color:#ffffffb0">pick a state on the map</div></div>';
+ $("reign").textContent="The Double Election";
+ $("subt").textContent=selIx===null?"Fifty-nine states. Pick one on the map or from the list.":
+   TITLES[selIx]+" \u00b7 "+SUBS[selIx].length+" regions \u00b7 "+diffBand(selIx)[0].toLowerCase()+" to hold";
+ $("end").textContent=selIx===null?"Choose a state":
+   (selIx===CLAIMS.ph.ix||selIx===CLAIMS.ot.ix)?"Begin":"Begin uncommitted";
+ $("end").disabled=selIx===null;
+}
+function selPanel(){
+ var h='';
+ if(selIx!==null){
+  var ix=selIx,r=RG[ix],t=T[ix],db=diffBand(ix),bk=BOOKS.filter(function(x){return x.ix===ix;})[0];
+  var claim=(ix===CLAIMS.ph.ix?"ph":ix===CLAIMS.ot.ix?"ot":null);
+  var nb=nearIx(ix).map(function(j){return shortName(RG[j][0]);});
+  h+='<div class="card hi" id="seldet" style="margin-bottom:14px">';
+  h+='<div style="display:flex;gap:11px;align-items:flex-start;margin-bottom:7px">'+armsSVG(t.g,44)+
+    '<div style="min-width:0"><h4 style="font-size:17px;margin-bottom:1px">'+esc(TITLES[ix])+'</h4>'+
+    '<div style="font-size:11.5px;color:var(--ink-3)">'+esc(r[0])+' \u00b7 '+RANKS[t.r][0]+'</div></div></div>';
+  h+='<p style="margin:0 0 9px;font-size:12.5px;line-height:1.6;color:var(--ink-2)">'+
+    esc(bk?bk.p:t.x)+'</p>';
+  h+='<div class="kv"><span class="k">To hold</span><span class="v wd" style="color:'+db[1]+'">'+db[0]+'</span></div>';
+  h+=kv("Population",fmt(r[1]*1000));
+  h+=kv("Regions",SUBS[ix].length);
+  h+=kvw("Seat",SUBS[ix][0]);
+  h+=kvw("Country",CULT[r[9]]+", "+TERR[r[4]][0].toLowerCase());
+  h+=kvw("Resources",r[10].map(function(k){return RES[k][0];}).join(", ")||"none of note");
+  h+=kvw("Ruler in 1200",t.h);
+  h+=kvw("Neighbours",nb.slice(0,4).join(", "));
+  if(claim){
+   h+='<p style="margin:10px 0 0"><span class="pill b">Crowned king of the Romans</span></p>';
+   h+='<div class="btns"><button class="btn p" data-go="'+ix+'" data-rc="'+claim+'">Begin as '+esc(TITLES[ix])+'</button></div>';
+  }else{
+   h+='<p class="fine" style="margin-top:10px">Two men are crowned. Which you recognise sets where you start with the Empire, and you can change your mind later at a price.</p>';
+   h+='<div class="btns">'+
+    '<button class="btn p" data-go="'+ix+'" data-rc="ph">Begin \u00b7 for Philip</button>'+
+    '<button class="btn p" data-go="'+ix+'" data-rc="ot">Begin \u00b7 for Otto</button>'+
+    '<button class="btn" data-go="'+ix+'" data-rc="">Begin \u00b7 uncommitted</button></div>';
+  }
+  h+='</div>';
+ }else{
+  h+='<div class="sh"><h3>The Holy Roman Empire, 1200</h3></div>';
+  h+='<p class="lead">Henry VI died at Messina in 1197 leaving a son of three in Sicily, and the princes did what the elective crown allows: they elected two kings. Philip of Swabia was crowned at Mainz, Otto of Brunswick at Aachen.</p>';
+  h+='<p class="lead">Take any of the fifty-nine states on the map. Tap one to read what you would be taking on.</p>';
+ }
+
+ /* suggested starts */
+ h+='<div class="sh" style="margin-top:4px"><h3 style="font-size:15px">Suggested starts</h3></div>';
+ BOOKS.forEach(function(bk2){
+  var t2=T[bk2.ix],db2=diffBand(bk2.ix);
+  h+='<div class="tr" style="cursor:pointer" data-pick="'+bk2.ix+'"><div class="trh" style="gap:9px">'+
+   '<span style="flex:0 0 auto">'+armsSVG(t2.g,20)+'</span>'+
+   '<span class="n">'+esc(bk2.n)+'</span>'+
+   '<span class="pill" style="color:'+db2[1]+'">'+db2[0]+'</span></div>'+
+   '<div class="d">'+esc(trimAt(bk2.p,116))+'</div></div>';
+ });
+
+ /* search and filter */
+ h+='<div class="sh" style="margin-top:16px"><h3 style="font-size:15px">All states</h3>'+
+   '<span class="hr" id="selcount"></span></div>';
+ h+='<input id="selq" type="search" placeholder="Search a state, a title or a city" value="'+esc(selQ)+'" '+
+   'style="width:100%;font:inherit;font-size:13px;padding:7px 9px;border:1px solid var(--rule);'+
+   'border-radius:5px;background:var(--panel);color:var(--ink);margin-bottom:7px">';
+ h+='<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:9px">';
+ [["all","All"],["K","Kingdoms"],["D","Duchies"],["E","Church"],["T","Communes"],
+  ["C","Counties"],["M","Marches"],["big","Great"],["small","Small"]].forEach(function(f){
+  h+='<button class="btn sm'+(selFilter===f[0]?" p":"")+'" data-sf="'+f[0]+'">'+f[1]+'</button>';});
+ h+='</div>';
+
+ var q=selQ.toLowerCase();
+ var list=RG.map(function(_,i){return i;}).filter(function(i){
+  if(selFilter==="big"&&RG[i][1]<250)return 0;
+  if(selFilter==="small"&&RG[i][1]>=150)return 0;
+  if(["K","D","E","T","C","M","L"].indexOf(selFilter)>=0&&T[i].r!==selFilter)return 0;
+  if(!q)return 1;
+  return (RG[i][0]+" "+TITLES[i]+" "+SUBS[i].join(" ")+" "+T[i].h).toLowerCase().indexOf(q)>=0;
+ }).sort(function(a,b){return RG[b][1]-RG[a][1];});
+
+ list.forEach(function(i){
+  var t3=T[i],db3=diffBand(i);
+  h+='<div class="tr" style="cursor:pointer'+(selIx===i?';background:var(--panel-2)':'')+'" data-pick="'+i+'">'+
+   '<div class="trh" style="gap:9px"><span style="flex:0 0 auto">'+armsSVG(t3.g,18)+'</span>'+
+   '<span class="n">'+esc(TITLES[i])+'</span>'+
+   '<span class="pill" style="color:'+db3[1]+'">'+db3[0]+'</span></div>'+
+   '<div class="d">'+esc(shortName(RG[i][0]))+' \u00b7 '+fmt(RG[i][1]*1000)+' \u00b7 '+
+   SUBS[i].length+' regions \u00b7 '+esc(CULT[RG[i][9]])+'</div></div>';
+ });
+
+ $("p-realm").innerHTML=h;
+ var cc=$("selcount");if(cc)cc.textContent=list.length+" of 59";
+ var q2=$("selq");
+ if(q2){q2.oninput=function(){selQ=q2.value;var pos=q2.selectionStart;selPanel();
+   var n2=$("selq");if(n2){n2.focus();try{n2.setSelectionRange(pos,pos);}catch(x){}}};}
+ Array.prototype.forEach.call($("p-realm").querySelectorAll("[data-sf]"),function(b){
+  b.onclick=function(){selFilter=b.getAttribute("data-sf");selPanel();};});
+ Array.prototype.forEach.call($("p-realm").querySelectorAll("[data-pick]"),function(b){
+  b.onclick=function(){selNation(+b.getAttribute("data-pick"));};});
+ Array.prototype.forEach.call($("p-realm").querySelectorAll("[data-go]"),function(b){
+  b.onclick=function(){selBegin(+b.getAttribute("data-go"),b.getAttribute("data-rc")||null);};});
+ selBar();
+}
+function selStart(){
+ selMode=1;selIx=null;selQ="";selFilter="all";
+ document.body.classList.add("sel");
+ $("tabs").innerHTML="";
+ TABS.forEach(function(t){var p=$("p-"+t[0]);if(p)p.hidden=(t[0]!=="realm");});
+ selPaint();selPanel();
+ $("end").onclick=function(){
+  if(selIx===null)return;
+  var claim=(selIx===CLAIMS.ph.ix?"ph":selIx===CLAIMS.ot.ix?"ot":null);
+  selBegin(selIx,claim||selRecog);
+ };
+}
+
 /* ================= MODAL ================= */
 function modal(html){$("mbody").innerHTML=html;$("veil").hidden=false;$("modal").scrollTop=0;}
 function closeModal(){$("veil").hidden=true;}
@@ -3544,7 +3742,8 @@ function overModal(){
  modal('<div class="ey">'+G.yr+'</div><h2>'+esc(o.h)+'</h2><p>'+esc(o.t)+'</p>'+
   '<div class="btns"><button class="btn p" id="mre">Begin again</button>'+
   '<button class="btn" id="mok2">Look at the ledger</button></div>');
- $("mre").onclick=function(){try{localStorage.removeItem("rex1200");}catch(x){}startScreen();};
+ $("mre").onclick=function(){try{localStorage.removeItem("rex1200");}catch(x){}
+  closeModal();G=null;selStart();};
  $("mok2").onclick=closeModal;
 }
 
@@ -3600,19 +3799,23 @@ function load(){
 
 /* ================= BOOT ================= */
 function begin(natIx,recog){
+ selMode=0;document.body.classList.remove("sel");
  initGame(natIx,recog);closeModal();
+ $("end").textContent="End Year";
+ $("end").onclick=endYear;
  tab="realm";buildTabs();buildOvBtns();paintMap();bar();showPane();save();
+}
+function endYear(){
+ if(!G||G.over)return;
+ endTurn();bar();paintMap();buildTabs();showPane();
+ if(G.over){overModal();save();return;}
+ if(G.ev)eventModal();else save();
 }
 function boot(){
  indexTech();
  $("imparms2").innerHTML=armsSVG({f:"#d6a62c",ch:["eagle","#1e1c19"]},30);
  buildOvBtns();
- $("end").onclick=function(){
-  if(!G||G.over)return;
-  endTurn();bar();paintMap();buildTabs();showPane();
-  if(G.over){overModal();save();return;}
-  if(G.ev)eventModal();else save();
- };
+ $("end").onclick=endYear;
  $("themeb").onclick=function(){
   var r=document.documentElement,cur=r.getAttribute("data-theme");
   var dark=cur?cur==="dark":matchMedia("(prefers-color-scheme:dark)").matches;
@@ -3621,7 +3824,7 @@ function boot(){
  };
  try{var th=localStorage.getItem("rextheme");if(th)document.documentElement.setAttribute("data-theme",th);}catch(x){}
  if(load()){tab="realm";buildTabs();paintMap();bar();showPane();if(G.over)overModal();}
- else startScreen();
+ else selStart();
 }
 boot();
 
