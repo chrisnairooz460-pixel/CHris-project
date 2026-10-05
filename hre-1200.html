@@ -159,6 +159,12 @@ textarea{width:100%;font-family:Inter,sans-serif;font-size:13px;background:var(-
 .eff{font-size:10.5px;line-height:1.35;padding:2px 6px;border-radius:3px;border:1px solid currentColor;white-space:nowrap}
 .eff.g{color:var(--good)}.eff.b{color:var(--bad)}
 .eff.u{color:var(--gold);border-color:var(--gold);font-weight:600}
+#btwrap{position:relative;margin:4px 0 10px;border:1px solid var(--rule);border-radius:5px;overflow:hidden;background:#3c4a30}
+#btc{display:block;width:100%;touch-action:none;cursor:crosshair}
+#btmsg{position:absolute;left:8px;bottom:7px;font-size:11.5px;color:#f2ead8;
+ background:#000000a8;padding:3px 8px;border-radius:3px;pointer-events:none}
+.btbar{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:9px}
+.unitmk{pointer-events:none}
 body.sel #tabs{display:none}
 body.sel #ovbtns{display:none}
 body.sel #side{width:430px;flex:0 0 430px}
@@ -1424,7 +1430,8 @@ function initGame(natIx,recog){
   research:{},slots:1,queue:[],qleft:{},done:{},enacted:{},laws:{},doct:{},uniq:{},
   army:{},builds:[],offices:{},court:[],powers:{},rels:{},allies:{},wars:{},badRun:0,
   awars:[],aallies:{},news:[],pendingAttack:null,
-  trade:{routes:[],infra:{}},TB:null,
+  trade:{routes:[],infra:{}},TB:null,host:null,cheats:{},acted:{},
+  pendingBattle:null,battleDue:null,
   peaceOffer:null,peaceDemand:null,
   dipl:0,diplMax:3,
   clim:30,climB:30,genius:null,chron:[],flags:{},strainRun:0,
@@ -1465,6 +1472,7 @@ function initGame(natIx,recog){
  else{G.king=0;G.impFav=34;}
 
  buildCourt(rnd);
+ hostInit();
  recalcAll();
  aiInit();
  G.dipl=G.diplMax;
@@ -1682,7 +1690,8 @@ function natAgg(M){
  G.shortfall=sh;
  var milShort=(sh.iron||0)*0.5+(sh.armour||0)*0.7+(sh.horse||0)*0.4;
  G.prsDrag=((sh.wine||0)+(sh.silk||0)+(sh.furs||0)+(sh.oil||0))*4;
- G.land=Math.round((26+m(M,"land")*0.7+armyStr()*0.55)*cl0(1-milShort*0.3,0.5,1));
+ G.landRaw=26+m(M,"land")*0.7+armyStr()*0.55;
+ G.land=Math.round(G.landRaw*cl0(1-milShort*0.16,0.78,1));
  G.nav=Math.round(8+m(M,"nav")*0.65);
  G.sie=Math.round(10+m(M,"sie")*0.65);
  G.def=Math.round(14+def*0.6+m(M,"def")*0.4);
@@ -1750,7 +1759,7 @@ function tierOpen(cat,tier){
  for(var i=0;i<below.length;i++)if(!G.done[below[i].i])return false;
  return true;
 }
-function slotsTotal(){var M=G.M||{};return cl0(1+Math.round(m(M,"slot")),1,9);}
+function slotsTotal(){var M=G.M||{};return cl0(3+Math.round(m(M,"slot")),3,11);}
 function canStart(t){
  if(G.done[t.i]||G.queue.indexOf(t.i)>=0)return 0;
  if(G.queue.length>=slotsTotal())return 0;
@@ -1762,7 +1771,9 @@ function canStart(t){
  }
  return tierOpen(t.cat,t.tier-1)?1:0;
 }
-function startTech(id){var t=TID[id];if(!canStart(t))return;G.queue.push(id);G.qleft[id]=t.t;}
+function startTech(id){var t=TID[id];if(!canStart(t))return;G.queue.push(id);
+ G.qleft[id]=(G.cheats&&G.cheats.instant)?0:t.t;
+ if(G.cheats&&G.cheats.instant){finishResearch();recalcAll();}}
 
 /* =============== ENACTMENT =============== */
 function enact(id){if(!G.done[id])return;if(G.enacted[id]===undefined)G.enacted[id]=2;}
@@ -1794,9 +1805,30 @@ function centTarget(){
 function chron(y,tx,say){G.chron.unshift({y:y,t:tx,s:say?1:0});if(G.chron.length>340)G.chron.pop();}
 
 /* =============== DIPLOMACY =============== */
-function doDip(six,act){
+function dipKey(six,act){return six+":"+act;}
+function dipDone(six,act){return !!(G.acted&&G.acted[dipKey(six,act)]);}
+/* why an approach is not on the table, or "" if it is */
+function dipBlocked(six,act){
  var s=G.states[six],a=DIPA.filter(function(x){return x.i===act;})[0];
- if(!s||!a||G.dipl<=0||G.tr<a.c)return "";
+ if(!s||!a)return "not possible";
+ if(isMine(s))return "your own";
+ if(dipDone(six,act))return "already tried this year";
+ if(G.dipl<=0)return "no envoy left this year";
+ if(G.tr<a.c)return "not enough in the chamber";
+ if(!indep(s)&&!isMine(s))return "they answer to somebody else now";
+ var war=atWar(six);
+ if(a.ally&&G.allies[six])return "already allied";
+ if(a.i==="agent"&&s.spy)return "an agent is already there";
+ if(a.i==="press"&&s.claim)return "a claim is already entered";
+ if((a.i==="threat"||a.i==="demand")&&war)return "you are already at war";
+ if(a.i==="demand"&&(s.fear||0)>=4)return "they are past being frightened";
+ if(war&&a.k!=="dn"&&a.i!=="envoy")return "you are at war with them";
+ return "";
+}
+function doDip(six,act){
+ if(dipBlocked(six,act))return "";
+ var s=G.states[six],a=DIPA.filter(function(x){return x.i===act;})[0];
+ G.acted[dipKey(six,act)]=1;
  G.dipl--;G.tr-=a.c;
  var skill=G.ruler.sk[0]+(G.offices.chan!==undefined&&G.court[G.offices.chan]?G.court[G.offices.chan].sk[0]*0.5:0);
  var eff=1+(skill-5)*0.07+G.prs*0.004;
@@ -1822,10 +1854,21 @@ function doDip(six,act){
  recalcAll();
  return msg;
 }
-function doPow(pid,act){
+function powBlocked(pid,act){
  var a=POWA.filter(function(x){return x.i===act;})[0],cur=G.powers[pid]||0;
- if(!a||G.dipl<=0||G.tr<a.c)return "";
- if(a.need!==undefined&&cur<a.need)return "";
+ if(!a)return "not possible";
+ if(G.acted&&G.acted["p"+pid+":"+act])return "already tried this year";
+ if(G.dipl<=0)return "no envoy left this year";
+ if(G.tr<a.c)return "not enough in the chamber";
+ if(a.need!==undefined&&cur<a.need)return "relations are not warm enough";
+ if(a.ally&&G.allies["p_"+pid])return "already allied";
+ if(a.i==="brk"&&cur<=-45)return "relations are already broken off";
+ return "";
+}
+function doPow(pid,act){
+ if(powBlocked(pid,act))return "";
+ var a=POWA.filter(function(x){return x.i===act;})[0],cur=G.powers[pid]||0;
+ G.acted["p"+pid+":"+act]=1;
  G.dipl--;G.tr-=a.c;
  var P=POWERS.filter(function(p){return p.i===pid;})[0];
  var eff=1+(G.ruler.sk[0]-5)*0.07;
@@ -1900,19 +1943,9 @@ function endTurn(){
  spreadEnacted();
 
  /* research */
- var fin=[];
  G.queue.slice().forEach(function(id){
-  G.qleft[id]=(G.qleft[id]||TID[id].t)-1;
-  if(G.qleft[id]<=0)fin.push(id);
- });
- fin.forEach(function(id){
-  G.queue.splice(G.queue.indexOf(id),1);delete G.qleft[id];
-  G.done[id]=1;var t=TID[id];
-  if(t.k)G.uniq[id]=0;
-  if(t.e&&t.e.doct)t.e.doct.forEach(function(d){if(G.doct[d]===undefined)G.doct[d]=0;});
-  if(t.e&&t.e.debt)G.debtLvl=Math.max(G.debtLvl,t.e.debt);
-  chron(G.yr,"<b>"+t.n+"</b> is understood. It changes nothing until it is enacted.");
- });
+  G.qleft[id]=(G.qleft[id]||TID[id].t)-(G.cheats&&G.cheats.instant?99:1);});
+ finishResearch();
 
  var M2=bag();G.M=M2;
  G.regions.forEach(function(r){
@@ -1953,7 +1986,10 @@ function endTurn(){
  });
  aiTurn();
 
- /* the wars you are in */
+ /* the host marches, and anything it runs into is a battle */
+ hostMove();
+ G.battleDue=battleDue();
+ G.acted={};                       /* a new year, and things may be tried again */
  G.peaceOffer=null;G.peaceDemand=null;
  for(var wix in (G.wars||{})){
   var res=warRound(+wix);
@@ -2022,6 +2058,17 @@ function endTurn(){
  strain();
  if(!G.over)drawEvent();
  return G;
+}
+function finishResearch(){
+ G.queue.slice().forEach(function(id){
+  if(G.qleft[id]>0)return;
+  G.queue.splice(G.queue.indexOf(id),1);delete G.qleft[id];
+  G.done[id]=1;var t=TID[id];
+  if(t.k)G.uniq[id]=0;
+  if(t.e&&t.e.doct)t.e.doct.forEach(function(d){if(G.doct[d]===undefined)G.doct[d]=0;});
+  if(t.e&&t.e.debt)G.debtLvl=Math.max(G.debtLvl,t.e.debt);
+  chron(G.yr,"<b>"+t.n+"</b> is understood. It changes nothing until it is enacted.");
+ });
 }
 function unrAll(n){G.regions.forEach(function(r){r.unrDelta+=n*0.5;r.unr=cl0(r.unr+n,0,100);});}
 
@@ -2700,6 +2747,19 @@ function drawEvent(){
   G.flags["h"+H.i]=1;G.ev=H;G.evC=evCtx(H);return;}
  /* the Empire asks you for things */
  if(!G.king&&!G.outlaw&&G.rnd()<0.2){impDemand();if(G.ev){G.evC=evCtx(G.ev);return;}}
+ /* two hosts in the same place is a battle, and it waits for nothing */
+ if(G.battleDue!==null&&G.battleDue!==undefined&&armyCount()>0){
+  var bix=G.battleDue;G.battleDue=null;
+  G.ev={i:"battle",ey:"The hosts are in sight of each other",
+   h:"Battle with "+stName(bix),
+   t:"Your host and theirs are drawn up on the same field outside "+
+     (hostAt()===G.nat?(G.regions[0]?G.regions[0].n:G.sname):stName(hostAt()))+
+     ". There is no more manoeuvring to be done. You can take the field yourself or leave it to the marshal.",
+   o:[{n:"Take the field",d:"Fight it in person, block by block.",e:{fight:bix},r:""},
+      {n:"Leave it to the marshal",d:"Let it be settled and reported to you.",e:{autofight:bix},r:""},
+      {n:"Withdraw without fighting",d:"Give up the ground and keep the men.",e:{withdraw:bix},
+       r:"The host draws off before contact. The ground is theirs and the men are yours."}]};
+  G.evC=evCtx(G.ev);return;}
  /* someone has invaded you. That comes before everything. */
  if(G.pendingAttack!==null&&G.pendingAttack!==undefined){
   var aix=G.pendingAttack;G.pendingAttack=null;
@@ -2796,6 +2856,13 @@ function applyEff(e){
    case"battle":note=resolveBattle(v);break;
    case"swiss":G.flags.swiss=v;break;
    case"peace":note=makePeace(v[0],v[1]);break;
+   case"fight":G.pendingBattle=v;break;
+   case"autofight":var rr=btAuto(v);
+     note=rr==="win"?"The marshal reports their line broken and the field held.":
+       rr==="lose"?"The marshal reports the host broken and withdrawing.":
+       "The marshal reports both hosts drawn off undecided.";break;
+   case"withdraw":var ww=G.wars[v];if(ww)ww.sc=cl0(ww.sc-12,-100,100);
+     if(G.host)G.host.loc=G.nat;break;
    case"war":note=declareWar(v);break;
    case"heir":break;
    default:G.em[k]=(G.em[k]||0)+v;break;
@@ -2879,19 +2946,6 @@ function buildOvBtns(){
  var w=$("ovbtns");w.innerHTML="";
  OVS.forEach(function(o){var b=document.createElement("button");b.textContent=o.n;
   b.className=o.i===ov?"on":"";b.onclick=function(){ov=o.i;buildOvBtns();paintMap();};w.appendChild(b);});
-}
-function paintMil(){
- var g=$("gmil");g.innerHTML="";
- if(!G)return;var n=armyCount();if(!n)return;
- var t=T[G.nat];if(!t)return;var c=t.c,NS2="http://www.w3.org/2000/svg";
- var rc=document.createElementNS(NS2,"rect");
- rc.setAttribute("x",c[0]-13);rc.setAttribute("y",c[1]+6);rc.setAttribute("width",26);
- rc.setAttribute("height",13);rc.setAttribute("rx",2);rc.setAttribute("fill","#1c1a15");
- rc.setAttribute("stroke","#d8b14a");rc.setAttribute("stroke-width","1");
- var tx=document.createElementNS(NS2,"text");
- tx.setAttribute("x",c[0]);tx.setAttribute("y",c[1]+15);tx.setAttribute("text-anchor","middle");
- tx.setAttribute("font-size","9");tx.setAttribute("fill","#eccd7a");tx.textContent=n;
- g.appendChild(rc);g.appendChild(tx);
 }
 
 /* ---- top bar ---- */
@@ -3156,9 +3210,10 @@ function paneDiplo(){
     kvw("Standing",v>22?"Friendly":v>-12?"Wary":"Hostile",v>22?"g":v>-12?"w":"b")+
     barHtml((v+100)/2,v>22?"good":v>-12?"warn":"bad")+'<div class="btns">';
    POWA.forEach(function(a){
-    var dis=G.dipl<=0||G.tr<a.c||(a.need!==undefined&&v<a.need);
-    h+='<button class="btn sm" data-pw="'+p.i+'" data-pa="'+a.i+'"'+(dis?' disabled':'')+
-     ' title="'+esc(a.d)+'">'+esc(a.n)+(a.c?' \u00b7 '+a.c+'m':'')+'</button>';});
+    var why=powBlocked(p.i,a.i);
+    h+='<button class="btn sm" data-pw="'+p.i+'" data-pa="'+a.i+'"'+(why?' disabled':'')+
+     ' title="'+esc(why||a.d)+'">'+esc(a.n)+(a.c?' \u00b7 '+a.c+'m':'')+
+     (why?' <span style="opacity:.6">\u00b7 '+esc(why)+'</span>':'')+'</button>';});
    h+='</div></div>';
   });
  }else if(dipMode==="states"){
@@ -3178,11 +3233,11 @@ function paneDiplo(){
    if(sel){
     h+='<div class="btns" style="margin-top:6px">';
     DIPA.forEach(function(a){
-     if(a.i==="agent"&&s.spy)return;
-     if(a.i==="marry"&&al)return;
-     var dis=G.dipl<=0||G.tr<a.c;
-     h+='<button class="btn sm" data-ds="'+s.ix+'" data-da="'+a.i+'"'+(dis?' disabled':'')+
-      ' title="'+esc(a.d)+'">'+esc(a.n)+(a.c?' \u00b7 '+a.c+'m':'')+'</button>';});
+     var why=dipBlocked(s.ix,a.i);
+     if(why==="your own"||why==="not possible")return;
+     h+='<button class="btn sm" data-ds="'+s.ix+'" data-da="'+a.i+'"'+(why?' disabled':'')+
+      ' title="'+esc(why||a.d)+'">'+esc(a.n)+(a.c?' \u00b7 '+a.c+'m':'')+
+      (why?' <span style="opacity:.6">\u00b7 '+esc(why)+'</span>':'')+'</button>';});
     h+='</div>';
    }
    h+='</div>';
@@ -3407,6 +3462,22 @@ function paneMil(){
  h+=kv("Fortification",G.def);h+=kv("Companies in being",armyCount());
  h+=kv("Yearly upkeep",fmt(G.upkeep)+" marks","b");
  h+=kv("Wars",warCount(),warCount()?"b":"");
+ h+=kvw("The host stands at",hostAt()===G.nat?(G.regions[0]?G.regions[0].n:G.sname):stName(hostAt()),
+   hostAt()===G.nat?"":"w");
+ if(G.host&&G.host.moving!==null&&G.host.moving!==undefined)
+  h+=kvw("Marching on",stName(G.host.moving),"w");
+ if(armyCount()){
+  h+='<p class="fine">A host standing in a state you are at war with brings on a battle at the turn of the year.</p>';
+  var near=nearIx(hostAt()).filter(function(j){return canMarchTo(j);});
+  if(near.length||hostAt()!==G.nat){
+   h+='<div class="btns">';
+   if(canMarchTo(G.nat))h+='<button class="btn sm" data-march="'+G.nat+'">Recall home</button>';
+   near.slice(0,5).forEach(function(j){
+    h+='<button class="btn sm'+(atWar(j)?" p":"")+'" data-march="'+j+'">'+esc(stName(j))+
+     (atWar(j)?' \u00b7 at war':'')+'</button>';});
+   h+='</div>';
+  }
+ }
  var wk=Object.keys(G.wars||{});
  if(wk.length){
   h+='<div class="sec" style="margin-top:16px">'+sh("Wars in hand","a season at a time");
@@ -3420,6 +3491,7 @@ function paneMil(){
     '<div class="btns">'+
     (w.sc>=35&&regionsLeft(s2)>0?'<button class="btn sm p" data-wp="'+k+'" data-wt="annex">Take a region</button>':'')+
     (w.sc>=20?'<button class="btn sm p" data-wp="'+k+'" data-wt="tribute">Take tribute</button>':'')+
+    '<button class="btn sm p" data-nego="'+k+'">Negotiate</button>'+
     '<button class="btn sm" data-wp="'+k+'" data-wt="white">Peace as things stand</button>'+
     '</div></div>';});
   h+='</div>';
@@ -3450,6 +3522,11 @@ function paneMil(){
   h+='</div>';});
  h+='</div>';
  $("p-mil").innerHTML=h;
+ Array.prototype.forEach.call($("p-mil").querySelectorAll("[data-march]"),function(b){
+  b.onclick=function(){var msg=orderMarch(+b.getAttribute("data-march"));
+   bar();paintMap();paneMil();if(msg)toast(msg);};});
+ Array.prototype.forEach.call($("p-mil").querySelectorAll("[data-nego]"),function(b){
+  b.onclick=function(){negoModal(+b.getAttribute("data-nego"));};});
  Array.prototype.forEach.call($("p-mil").querySelectorAll("[data-wp]"),function(b){
   b.onclick=function(){var msg=makePeace(+b.getAttribute("data-wp"),b.getAttribute("data-wt"));
    bar();paintMap();buildTabs();showPane();if(msg)toast(msg);};});
@@ -3477,6 +3554,12 @@ function paneCourt(){
   h+='<div class="sec">'+sh("At court","while he lives")+'<div class="card"><h4>'+esc(cap1(G.genius.n))+'</h4>'+
    '<p style="margin:0 0 6px;font-size:12px;line-height:1.55;color:var(--ink-2)">'+esc(G.genius.d)+'</p>'+
    kv("Years he is likely to have",G.genius.left)+'</div></div>';}
+ h+='<div class="sec">'+sh("Out of character","cheats");
+ h+='<p class="lead">None of this is part of the game. It is for seeing the rest of it without waiting.</p>';
+ h+='<label class="ck"><input type="checkbox" id="chInst"'+(G.cheats.instant?" checked":"")+'>'+
+  '<span><b>Instant tech completion.</b> Anything you begin researching is understood at once.</span></label>';
+ h+='<div class="btns"><button class="btn sm" id="chAll">Finish current research</button>'+
+  '<button class="btn sm" id="chGold">Add 10,000 marks</button></div></div>';
  h+='<div class="sec">'+sh("Speak","recorded verbatim");
  h+='<p class="lead">What you say is your own. Write it and it goes into the chronicle in full, as spoken, without being summarised or answered for you.</p>';
  h+='<textarea id="sayx" placeholder="&#8220;&#8230;&#8221;"></textarea>';
@@ -3491,6 +3574,18 @@ function paneCourt(){
    '<div class="d mu">'+SKN.map(function(s,j){return s.slice(0,3)+" "+c.sk[j];}).join(" \u00b7 ")+'</div></div>';});
  h+='</div>';
  $("p-court").innerHTML=h;
+ var ci=$("chInst");
+ if(ci)ci.onchange=function(){G.cheats.instant=ci.checked?1:0;
+  if(ci.checked&&G.queue.length){G.queue.slice().forEach(function(id){G.qleft[id]=0;});
+   finishResearch();recalcAll();}
+  toast(ci.checked?"Instant research on":"Instant research off");bar();buildTabs();paneCourt();};
+ var ca=$("chAll");
+ if(ca)ca.onclick=function(){
+  if(!G.queue.length){toast("Nothing is being researched.");return;}
+  G.queue.slice().forEach(function(id){G.qleft[id]=0;});
+  finishResearch();recalcAll();bar();buildTabs();paneCourt();toast("Research completed.");};
+ var cg=$("chGold");
+ if(cg)cg.onclick=function(){G.tr+=10000;recalcAll();bar();paneCourt();toast("10,000 marks added.");};
  $("sayb").onclick=function(){
   var v=$("sayx").value.trim();if(!v)return;
   chron(G.yr,"<b>"+esc(G.ruler.n)+":</b> \u201c"+esc(v)+"\u201d",1);
@@ -3567,26 +3662,22 @@ function stateModal(t){
     w.sc>14?"g":w.sc>-14?"w":"b");
   h+=barHtml((w.sc+100)/2,w.sc>14?"good":w.sc>-14?"warn":"bad");
   h+=kv("Regions they have left",regionsLeft(s));
-  h+='<div class="btns">';
-  if(w.sc>=35&&regionsLeft(s)>0)h+='<button class="btn sm p" data-pt="annex">Take a region</button>';
-  if(w.sc>=20)h+='<button class="btn sm p" data-pt="tribute">Take tribute</button>';
-  h+='<button class="btn sm" data-pt="white">Offer peace as things stand</button>';
-  if(w.sc<=-30)h+='<button class="btn sm" data-pt="submit">Buy peace</button>';
-  h+='</div><p class="fine">A war is fought a season at a time and costs money, men and patience every year it runs.</p>';
+  h+='<div class="btns"><button class="btn sm p" id="mnego">Negotiate terms</button></div><p class="fine">A war is fought a season at a time and costs money, men and patience every year it runs.</p>';
  }
  h+='<div class="sh" style="margin-top:14px"><h3 style="font-size:15px">Deal with them</h3>'+
   '<span class="hr">'+G.dipl+' of '+G.diplMax+' envoys left</span></div><div class="btns">';
+ if(canMarchTo(ix))
+  h+='<button class="btn sm" id="mmarch" style="border-color:var(--gold);color:var(--gold)">March the host here</button>';
  if(!atWar(ix)&&!isMine(s)){
   h+='<button class="btn sm" id="mwar"'+(canDeclare(ix)?'':' disabled')+
    ' style="border-color:var(--blood);color:var(--blood)">Declare war'+
    (s.claim?' \u00b7 on your claim':' \u00b7 without a claim')+'</button>';
  }
  DIPA.forEach(function(a){
-  if(a.i==="agent"&&s.spy)return;
-  if(a.i==="marry"&&G.allies[s.ix])return;
-  var dis=G.dipl<=0||G.tr<a.c;
-  h+='<button class="btn sm" data-ms="'+a.i+'"'+(dis?' disabled':'')+' title="'+esc(a.d)+'">'+
-   esc(a.n)+(a.c?' \u00b7 '+a.c+'m':'')+'</button>';});
+  var why=dipBlocked(ix,a.i);
+  if(why==="your own"||why==="not possible")return;
+  h+='<button class="btn sm" data-ms="'+a.i+'"'+(why?' disabled':'')+' title="'+esc(why||a.d)+'">'+
+   esc(a.n)+(a.c?' \u00b7 '+a.c+'m':'')+(why?' <span style="opacity:.6">\u00b7 '+esc(why)+'</span>':'')+'</button>';});
  h+='</div>';
  DIPA.forEach(function(a){h+='<p class="fine" style="margin-top:5px"><b>'+esc(a.n)+'.</b> '+esc(a.d)+'</p>';});
  h+='<div class="btns" style="margin-top:12px"><button class="btn" id="mclose">Close</button></div>';
@@ -3602,6 +3693,10 @@ function stateModal(t){
  if(wb)wb.onclick=function(){var msg=declareWar(ix);
   bar();paintMap();buildTabs();if(tab==="diplo")paneDiplo();
   stateModal(t);if(msg)toast(msg);};
+ var ng=$("mnego"); if(ng)ng.onclick=function(){negoModal(ix);};
+ var mh=$("mmarch");
+ if(mh)mh.onclick=function(){var msg=orderMarch(ix);closeModal();bar();paintMap();
+  if(tab==="mil")paneMil();if(msg)toast(msg);};
  $("mclose").onclick=closeModal;
 }
 
@@ -4282,6 +4377,536 @@ function partnerModal(comm,dir){
  $("mclose").onclick=closeModal;
 }
 
+/* ===================== THE HOST IN THE FIELD =====================
+   An army stands somewhere. It marches, it meets other armies, and where
+   two of them meet there is a battle.
+   ================================================================= */
+function hostInit(){
+ if(!G.host)G.host={loc:G.nat,moving:null,march:0};
+ if(!G.ehosts)G.ehosts=[];
+}
+function hostAt(){return G.host?G.host.loc:G.nat;}
+function canMarchTo(ix){
+ if(ix===hostAt())return 0;
+ if(!armyCount())return 0;
+ if(G.host.moving!==null&&G.host.moving!==undefined)return 0;
+ var near=nearIx(hostAt());
+ return near.indexOf(ix)>=0?1:0;
+}
+function orderMarch(ix){
+ if(!canMarchTo(ix))return "";
+ G.host.moving=ix;
+ var s=G.states[ix];
+ chron(G.yr,"The host is ordered to march on <b>"+stName(ix)+"</b>.");
+ return "Marching on "+stName(ix);
+}
+function hostMove(){
+ if(!G.host)return;
+ if(G.host.moving===null||G.host.moving===undefined)return;
+ var to=G.host.moving;
+ G.host.loc=to;G.host.moving=null;G.host.march=(G.host.march||0)+1;
+ var s=G.states[to];
+ if(!isMine(s))chron(G.yr,"The host has crossed into <b>"+stName(to)+"</b>.");
+ else chron(G.yr,"The host is quartered at <b>"+stName(to)+"</b>.");
+}
+/* the enemy hosts the player could know about */
+function enemyHosts(){
+ var out=[];
+ for(var k in (G.wars||{})){
+  var ix=+k,s=G.states[ix];if(!s)continue;
+  var w=G.wars[k];
+  /* a host that is invading stands on your ground; otherwise it is at home */
+  var loc=(w.def&&w.yrs>0)?G.nat:ix;
+  out.push({ix:ix,loc:loc,n:s.army,s:s});
+ }
+ return out;
+}
+/* where a battle is owed this year */
+function battleDue(){
+ var here=hostAt();
+ for(var k in (G.wars||{})){
+  var ix=+k;
+  if(ix===here)return ix;                       /* you are standing in their land */
+  var w=G.wars[k];
+  if(w.def&&here===G.nat&&w.yrs>0)return ix;    /* or they are standing in yours */
+ }
+ return null;
+}
+/* --- the markers on the map --- */
+function paintMil(){
+ var g=$("gmil");g.innerHTML="";
+ if(!G||selMode)return;
+ var NS2="http://www.w3.org/2000/svg";
+ function marker(cx,cy,n,col,edge,label){
+  var w=Math.max(26,12+String(n).length*8);
+  var box=document.createElementNS(NS2,"g");
+  box.setAttribute("class","unitmk");
+  var sh=document.createElementNS(NS2,"path");
+  sh.setAttribute("d","M"+(cx-w/2)+" "+(cy-7)+"h"+w+"v12l-"+(w/2)+" 6l-"+(w/2)+" -6z");
+  sh.setAttribute("fill",col);sh.setAttribute("stroke",edge);sh.setAttribute("stroke-width","1.2");
+  var tx=document.createElementNS(NS2,"text");
+  tx.setAttribute("x",cx);tx.setAttribute("y",cy+3);tx.setAttribute("text-anchor","middle");
+  tx.setAttribute("font-size","9.5");tx.setAttribute("font-weight","600");
+  tx.setAttribute("fill",edge);tx.textContent=n;
+  box.appendChild(sh);box.appendChild(tx);
+  if(label){
+   var lb=document.createElementNS(NS2,"text");
+   lb.setAttribute("x",cx);lb.setAttribute("y",cy-11);lb.setAttribute("text-anchor","middle");
+   lb.setAttribute("font-size","8");lb.setAttribute("fill","#f4efe2");
+   lb.setAttribute("stroke","#1c1a15");lb.setAttribute("stroke-width","2.2");
+   lb.textContent=label;box.appendChild(lb);
+  }
+  g.appendChild(box);
+ }
+ var n=armyCount();
+ if(n&&T[hostAt()]){
+  var c=T[hostAt()].c;
+  marker(c[0],c[1]+16,n,"#d8b14a","#1c1a15",hostAt()===G.nat?null:"your host");
+  if(G.host.moving!==null&&G.host.moving!==undefined&&T[G.host.moving]){
+   var d=T[G.host.moving].c;
+   var ln=document.createElementNS(NS2,"path");
+   ln.setAttribute("d","M"+c[0]+" "+(c[1]+16)+"L"+d[0]+" "+(d[1]+16));
+   ln.setAttribute("stroke","#d8b14a");ln.setAttribute("stroke-width","2");
+   ln.setAttribute("stroke-dasharray","5 4");ln.setAttribute("fill","none");
+   ln.setAttribute("opacity",".9");g.appendChild(ln);
+  }
+ }
+ enemyHosts().forEach(function(h){
+  if(h.s.intel<1)return;
+  var t=T[h.loc];if(!t)return;
+  marker(t.c[0],t.c[1]+32,h.n,"#8c1f24","#f6e9d8",stName(h.ix));
+ });
+}
+
+/* ===================== THE BATTLE =====================
+   Fought in real time on a field, or settled on the spot. Blocks of men
+   advance, close, break and run. Morale decides it far more often than
+   casualties do.
+   ====================================================== */
+var BT=null;     /* the live battle */
+var BTYPE={
+ mil:{n:"Milites",men:40,sp:0.62,atk:3.1,def:2.2,mor:1.25,rng:0,col:"#c9a23a",cls:"horse"},
+ serj:{n:"Serjeants",men:110,sp:0.34,atk:1.5,def:1.7,mor:1.0,rng:0,col:"#8e8468",cls:"foot"},
+ pike:{n:"Spear Hedge",men:120,sp:0.28,atk:1.3,def:2.6,mor:1.1,rng:0,col:"#6f7f92",cls:"spear"},
+ xbow:{n:"Crossbowmen",men:70,sp:0.33,atk:1.1,def:0.9,mor:0.85,rng:88,col:"#7a9a6a",cls:"shot"},
+ merc:{n:"Brabancons",men:100,sp:0.36,atk:2.1,def:1.8,mor:0.95,rng:0,col:"#9a6f4a",cls:"foot"},
+ siege:{n:"Siege Train",men:30,sp:0.16,atk:0.6,def:0.6,mor:0.7,rng:120,col:"#6a5a4a",cls:"engine"},
+ cog:{n:"Marines",men:50,sp:0.3,atk:1.3,def:1.3,mor:0.9,rng:0,col:"#4a6f8c",cls:"foot"},
+ gal:{n:"Marines",men:50,sp:0.3,atk:1.3,def:1.3,mor:0.9,rng:0,col:"#4a6f8c",cls:"foot"}
+};
+function btMake(army,side,W,H,bonus){
+ var blocks=[],i=0,list=[];
+ for(var u in army){for(var k=0;k<army[u];k++)list.push(u);}
+ if(!list.length)list=["serj"];
+ /* a line of foot with horse on the wings, which is how it was done */
+ list.sort(function(a,b){
+  var ra=BTYPE[a]?BTYPE[a].cls:"foot", rb=BTYPE[b]?BTYPE[b].cls:"foot";
+  var o={shot:0,spear:1,foot:2,horse:3,engine:4};
+  return (o[ra]||2)-(o[rb]||2);
+ });
+ var n=list.length, wide=Math.min(n,9), rows=Math.ceil(n/wide);
+ list.forEach(function(u,ix){
+  var t=BTYPE[u]||BTYPE.serj;
+  var row=Math.floor(ix/wide), col=ix%wide, inRow=Math.min(wide,n-row*wide);
+  var spread=W*0.56, x0=W/2-spread/2+spread*((col+0.5)/inRow);
+  var y0=side===0?H-64-row*40:64+row*40;
+  blocks.push({u:u,t:t,side:side,x:x0,y:y0,tx:x0,ty:y0,
+   men:t.men,max:t.men,mor:100,st:"hold",eng:null,cd:0,sel:0,
+   atk:t.atk*(1+bonus*0.01),def:t.def*(1+bonus*0.01)});
+  i++;
+ });
+ return blocks;
+}
+function battleStart(ix,onDone){
+ var s=G.states[ix];
+ var W=900,H=560;
+ var doc=0,dk={shock:0,attr:0};
+ DOCT.forEach(function(D){var a=(G.doct[D.i]||0)/100;if(!a)return;doc+=a*4;
+  dk.shock+=(D.e.shock||0)*a;dk.attr+=(D.e.attr||0)*a;});
+ /* both sides are scored the same way, or the comparison means nothing */
+ function quality(land,martial){return (land-30)*0.30+martial*2.2;}
+ var myBonus=quality(G.landRaw||G.land,G.ruler.sk[1])+dk.shock*0.35;
+ var theirArmy={},left=Math.max(1,s.army);
+ /* what a state of their size and wealth puts in the field */
+ var mix=["serj","serj","xbow","mil","pike"];
+ for(var i=0;i<left;i++)theirArmy[mix[i%mix.length]]=(theirArmy[mix[i%mix.length]]||0)+1;
+ var theirLand=26+s.army*4.4+s.dev*0.12+((s.tech||2.2)-2.2)*110;
+ var theirBonus=quality(theirLand,s.rule?s.rule.sk[1]:4);
+ var myB=btMake(G.army,0,W,H,myBonus), thB=btMake(theirArmy,1,W,H,theirBonus);
+ /* the same weight of men per company on both sides, or the count means nothing */
+ var myPer=myB.reduce(function(a,x){return a+x.max;},0)/Math.max(1,myB.length);
+ var thPer=thB.reduce(function(a,x){return a+x.max;},0)/Math.max(1,thB.length);
+ if(thPer>0){var k2=myPer/thPer;thB.forEach(function(x){x.max=Math.round(x.max*k2);x.men=x.max;});}
+ BT={ix:ix,W:W,H:H,t:0,speed:1,run:0,over:null,onDone:onDone,
+  blocks:myB.concat(thB),
+  myStart:armyCount(),theirStart:left,attr:dk.attr,
+  sel:[],drag:null,msg:"Your line is drawn up. Give the order."};
+ return BT;
+}
+function btSide(side){return BT.blocks.filter(function(b){
+ return b.side===side&&b.men>0&&b.mor>0&&!b.out;});}
+function btStep(dt){
+ if(!BT||BT.over)return;
+ BT.t+=dt;
+ var B=BT.blocks;
+ /* who is fighting whom, so that six blocks cannot all pile onto one */
+ var engaged={};
+ B.forEach(function(b){
+  if(b.men<=0||b.mor<=0||b.st==="rout")return;
+  var foe=null,fd=1e9;
+  btSide(1-b.side).forEach(function(o){
+   if(o.st==="rout")return;
+   var d=Math.hypot(o.x-b.x,o.y-b.y);if(d<fd){fd=d;foe=o;}});
+  b._foe=foe;b._fd=fd;
+  if(foe&&fd<22){var k=B.indexOf(foe);engaged[k]=(engaged[k]||0)+1;}
+ });
+ B.forEach(function(b){
+  if(b.men<=0||b.mor<=0)return;
+  /* the enemy picks its own fights */
+  if(b.side===1&&!b.eng){
+   var tg=null,bd=1e9;
+   btSide(0).forEach(function(o){if(o.st==="rout")return;
+    var d=Math.hypot(o.x-b.x,o.y-b.y);if(d<bd){bd=d;tg=o;}});
+   if(tg){b.tx=tg.x;b.ty=tg.y-(b.t.rng?b.t.rng*0.8:0);}
+  }
+  if(b.st==="rout"){
+   b.y+=(b.side===0?1:-1)*b.t.sp*2.4*dt*60;
+   b.routT=(b.routT||0)+dt;
+   /* the pursuit costs them, and then they are away */
+   if(b.routT<2.2)b.men=Math.max(0,b.men-b.max*dt*0.045);
+   else b.out=1;
+   b.mor=Math.max(0,b.mor-dt*6);
+   return;
+  }
+  var foe=b._foe,fd=b._fd===undefined?1e9:b._fd;
+  b.eng=null;
+  if(foe){
+   if(b.t.rng>0&&fd<b.t.rng){
+    /* shoot */
+    b.cd-=dt;
+    if(b.cd<=0){b.cd=1.1;
+     var hit=b.men*0.05*b.atk*0.35;
+     foe.men=Math.max(0,foe.men-hit);
+     foe.mor-=hit/foe.max*150;
+    }
+   }else if(fd<22){
+    b.eng=foe;
+    /* a block holding its ground fights better than one caught moving */
+    var held=Math.hypot(b.tx-b.x,b.ty-b.y)<5?1.22:1;
+    var fHeld=Math.hypot(foe.tx-foe.x,foe.ty-foe.y)<5?1.22:1;
+    var push=(b.atk*b.men/b.max)-(foe.def*fHeld*foe.men/foe.max)*0.72;
+    var crowd=1/Math.sqrt(Math.max(1,engaged[B.indexOf(foe)]||1));
+    var cas=Math.max(0.3,(b.atk*0.85*held+Math.max(0,push)*1.15))*dt*1.25*crowd*
+      cl0(1-BT.attr*0.004,0.5,1.3);
+    foe.men=Math.max(0,foe.men-cas);
+    /* heart goes long before the numbers do */
+    foe.mor-=cas/foe.max*210+dt*1.2;
+    /* a charge in the flank or rear is worth more than numbers */
+    if(b.t.cls==="horse"&&fd<24&&BT.t<16)foe.mor-=dt*9;
+   }
+  }
+  /* move toward the order, or toward the nearest foe if none given */
+  var gx=b.tx,gy=b.ty;
+  /* an unordered line still advances to meet what is coming at it */
+  if(b.side===0&&b.st==="hold"&&Math.hypot(gx-b.x,gy-b.y)<4&&foe&&fd<420){
+   gx=foe.x;gy=foe.y-(b.t.rng?b.t.rng*0.75:0);}
+  var dx=gx-b.x,dy=gy-b.y,d=Math.hypot(dx,dy);
+  if(d>2&&!b.eng){
+   var v=b.t.sp*dt*60;
+   b.x+=dx/d*v;b.y+=dy/d*v;
+  }
+  b.x=cl0(b.x,14,BT.W-14);b.y=cl0(b.y,14,BT.H-14);
+  /* morale recovers a little when nothing is happening */
+  if(!b.eng&&b.mor<100)b.mor=Math.min(100,b.mor+dt*1.6);
+  if(b.mor<=18&&b.st!=="rout"){b.st="rout";
+   if(b.side===0)BT.msg=b.t.n+" have broken and are running.";}
+ });
+ /* is it decided */
+ var a=btSide(0).filter(function(b){return b.st!=="rout";}).length;
+ var c=btSide(1).filter(function(b){return b.st!=="rout";}).length;
+ if(BT.t>150&&a&&c){                       /* the light goes and both draw off */
+  var am=0,cm=0;
+  btSide(0).forEach(function(b){am+=b.men;});
+  btSide(1).forEach(function(b){cm+=b.men;});
+  BT.over=am>cm*1.3?"win":cm>am*1.3?"lose":"draw";
+  btFinish();return;
+ }
+ if(!a||!c){
+  BT.over=(!c&&a)?"win":(!a&&c)?"lose":"draw";
+  btFinish();
+ }
+}
+function btLosses(){
+ var mine=0,theirs=0,m0=0,t0=0;
+ BT.blocks.forEach(function(b){
+  var lost=Math.max(0,b.max-b.men);
+  if(b.side===0){m0+=b.max;mine+=lost;}
+  else{t0+=b.max;theirs+=lost;}});
+ return {mine:mine/Math.max(1,m0),theirs:theirs/Math.max(1,t0)};
+}
+function btFinish(){
+ var L=btLosses(), ix=BT.ix, res=BT.over;
+ /* companies lost in proportion to the men lost */
+ var lossFrac=cl0(L.mine*(res==="lose"?1.25:0.75),0,0.9);
+ var killed=0;
+ Object.keys(G.army).forEach(function(u){
+  var k=Math.round(G.army[u]*lossFrac);
+  if(k>0){G.army[u]-=k;killed+=k;if(G.army[u]<=0)delete G.army[u];}
+ });
+ var s=G.states[ix];
+ s.army=Math.max(0,Math.round(s.army*(1-cl0(L.theirs*(res==="win"?1.2:0.7),0,0.85))));
+ var w=G.wars[ix];
+ if(w){
+  var swing=res==="win"?26+L.theirs*28:res==="lose"?-(24+L.mine*26):0;
+  w.sc=cl0(w.sc+swing,-100,100);
+ }
+ G.prs=cl0(G.prs+(res==="win"?6:res==="lose"?-7:0),0,100);
+ chron(G.yr,"<b>A battle is fought against "+stName(ix)+".</b> "+
+  (res==="win"?"Their line broke and the field is yours.":
+   res==="lose"?"Your line broke. What is left came away in the dark.":
+   "Both hosts drew off at dusk with nothing settled.")+
+  " You lost "+killed+(killed===1?" company":" companies")+".");
+ recalcAll();
+}
+/* settled without being fought */
+function btAuto(ix){
+ var s=G.states[ix];
+ var mine=G.land+G.ruler.sk[1]*4+armyStr()*0.2;
+ var theirs=s.army*9+s.dev*0.5+((s.tech||2.2)-2.2)*150+(s.rule?s.rule.sk[1]*3:12)+24;
+ var roll=(mine-theirs)*0.5+(G.rnd()-0.5)*70;
+ BT={ix:ix,blocks:[],over:roll>12?"win":roll<-12?"lose":"draw",t:0,W:900,H:560};
+ /* casualties scale with how close it was */
+ var close=cl0(1-Math.abs(roll)/140,0.25,1);
+ var mineLoss=cl0((roll<0?0.3:0.12)*close*1.6,0.04,0.6);
+ var theirLoss=cl0((roll>0?0.32:0.12)*close*1.6,0.04,0.6);
+ BT.blocks=[{side:0,max:100,men:100*(1-mineLoss)},{side:1,max:100,men:100*(1-theirLoss)}];
+ btFinish();
+ var r=BT.over;BT=null;
+ return r;
+}
+
+/* ---- the field, drawn ---- */
+var btRAF=null,btLast=0;
+function battleModal(ix){
+ battleStart(ix);
+ var s=G.states[ix];
+ var h='<div class="ey">'+esc(G.yr)+' \u00b7 the field before '+esc(stName(ix))+'</div>'+
+  '<h2>Battle</h2>'+
+  '<p>Drag a box to select blocks, then click where they should go. <b>Select all</b> and '+
+  '<b>Charge</b> is the whole of the art if you are in a hurry. A line that is given no orders and '+
+  'waits to be come at will usually be beaten. Blocks that lose heart run, and a line that runs '+
+  'does not come back.</p>'+
+  '<div id="btwrap"><canvas id="btc"></canvas><div id="btmsg"></div></div>'+
+  '<div class="btbar">'+
+   '<button class="btn p" id="btplay">Begin</button>'+
+   '<button class="btn" id="btspd">Speed x1</button>'+
+   '<button class="btn" id="btall">Select all</button>'+
+   '<button class="btn" id="btchg">Charge</button>'+
+   '<button class="btn" id="bthold">Hold</button>'+
+   '<button class="btn" id="btauto">Resolve it for me</button>'+
+  '</div><div id="btstat"></div>';
+ modal(h);
+ var cv=$("btc"),ctx=cv.getContext("2d");
+ function size(){
+  var w=cv.parentNode.clientWidth||680;
+  cv.width=Math.round(w*(window.devicePixelRatio||1));
+  cv.height=Math.round(w*0.62*(window.devicePixelRatio||1));
+  cv.style.width=w+"px";cv.style.height=Math.round(w*0.62)+"px";
+ }
+ size();
+ function sc(){return cv.width/BT.W;}
+ function draw(){
+  if(!BT)return;
+  var k=sc(),W=cv.width,H=cv.height;
+  ctx.clearRect(0,0,W,H);
+  /* the ground */
+  var g=ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,"#4a5c3a");g.addColorStop(0.5,"#5d6b42");g.addColorStop(1,"#4a5c3a");
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle="rgba(255,255,255,.05)";ctx.lineWidth=1;
+  for(var i=1;i<8;i++){ctx.beginPath();ctx.moveTo(0,H*i/8);ctx.lineTo(W,H*i/8);ctx.stroke();}
+  BT.blocks.forEach(function(b){
+   if(b.men<=0)return;
+   var x=b.x*k,y=b.y*k,w=Math.max(22,46*k*(0.45+0.55*(b.men/b.max))),hh=17*k;
+   ctx.globalAlpha=b.st==="rout"?0.42:1;
+   ctx.fillStyle=b.side===0?b.t.col:"#8c3a3a";
+   ctx.fillRect(x-w/2,y-hh/2,w,hh);
+   ctx.strokeStyle=b.sel?"#fff6dd":(b.side===0?"#1c1a15":"#2a1010");
+   ctx.lineWidth=b.sel?2.5*k:1.2*k;
+   ctx.strokeRect(x-w/2,y-hh/2,w,hh);
+   /* morale bar */
+   ctx.fillStyle=b.mor>60?"#6fbf6a":b.mor>30?"#d6a147":"#d46360";
+   ctx.globalAlpha=b.st==="rout"?0.42:0.95;
+   ctx.fillRect(x-w/2,y+hh/2+2*k,w*(b.mor/100),3*k);
+   ctx.globalAlpha=1;
+   if(k>0.45){
+    ctx.fillStyle="#f2ead8";ctx.font=(9*k)+"px Inter, sans-serif";ctx.textAlign="center";
+    ctx.fillText(Math.round(b.men),x,y+3.4*k);
+   }
+   if(b.eng){
+    ctx.strokeStyle="rgba(255,220,150,.75)";ctx.lineWidth=1.6*k;
+    ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(b.eng.x*k,b.eng.y*k);ctx.stroke();
+   }
+  });
+  if(BT.drag){
+   var d=BT.drag;
+   ctx.strokeStyle="#fff6dd";ctx.lineWidth=1.4;ctx.setLineDash([4,3]);
+   ctx.strokeRect(d.x0*k,d.y0*k,(d.x1-d.x0)*k,(d.y1-d.y0)*k);ctx.setLineDash([]);
+  }
+ }
+ function stat(){
+  var a=btSide(0),c=btSide(1);
+  var am=a.reduce(function(x,b){return x+b.men;},0),cm=c.reduce(function(x,b){return x+b.men;},0);
+  var ar=a.filter(function(b){return b.st==="rout";}).length;
+  $("btstat").innerHTML='<div class="kv"><span class="k">Your men</span><span class="v g">'+Math.round(am)+
+   ' in '+a.length+' blocks'+(ar?", "+ar+" running":"")+'</span></div>'+
+   '<div class="kv"><span class="k">Theirs</span><span class="v b">'+Math.round(cm)+' in '+c.length+' blocks</span></div>';
+  $("btmsg").textContent=BT.msg||"";
+ }
+ function loop(ts){
+  if(!BT){return;}
+  var dt=Math.min(0.05,(ts-btLast)/1000)*BT.speed;btLast=ts;
+  if(BT.run)btStep(dt);
+  draw();stat();
+  if(BT&&BT.over){finish();return;}
+  btRAF=requestAnimationFrame(loop);
+ }
+ function finish(){
+  if(btRAF)cancelAnimationFrame(btRAF);btRAF=null;
+  var res=BT.over,L=btLosses();
+  var t=res==="win"?"The field is yours.":res==="lose"?"Your line is broken.":"Both hosts draw off.";
+  var body=res==="win"?"Their blocks lost heart one after another and went. The pursuit took more of them than the fighting did.":
+   res==="lose"?"It went at the centre and then everywhere. What came away did so in the dark and without its banners.":
+   "Neither line would break and the light went. The dead are shared out roughly evenly.";
+  BT=null;
+  modal('<div class="ey">The field</div><h2>'+esc(t)+'</h2><p>'+esc(body)+'</p>'+
+   '<p class="q">Your losses '+Math.round(L.mine*100)+' in the hundred. Theirs '+Math.round(L.theirs*100)+'.</p>'+
+   '<div class="btns"><button class="btn p" id="mok">Continue</button></div>');
+  $("mok").onclick=function(){closeModal();bar();paintMap();buildTabs();showPane();save();};
+ }
+ $("btplay").onclick=function(){BT.run=!BT.run;$("btplay").textContent=BT.run?"Pause":"Begin";
+  BT.msg=BT.run?"":"Halted.";};
+ $("btspd").onclick=function(){BT.speed=BT.speed>=4?1:BT.speed*2;$("btspd").textContent="Speed x"+BT.speed;};
+ $("btall").onclick=function(){btSide(0).forEach(function(b){b.sel=1;});};
+ $("btchg").onclick=function(){
+  btSide(0).forEach(function(b){if(!b.sel)return;
+   var tg=null,bd=1e9;btSide(1).forEach(function(o){var d=Math.hypot(o.x-b.x,o.y-b.y);if(d<bd){bd=d;tg=o;}});
+   if(tg){b.tx=tg.x;b.ty=tg.y;b.st="charge";}});
+  BT.msg="Ordered forward.";};
+ $("bthold").onclick=function(){btSide(0).forEach(function(b){if(b.sel){b.tx=b.x;b.ty=b.y;b.st="hold";}});
+  BT.msg="Ordered to stand.";};
+ $("btauto").onclick=function(){
+  if(btRAF)cancelAnimationFrame(btRAF);btRAF=null;
+  var ixx=BT.ix;BT=null;
+  var res=btAuto(ixx);
+  modal('<div class="ey">Reported from the field</div><h2>'+
+   (res==="win"?"A victory":res==="lose"?"A defeat":"Nothing settled")+'</h2>'+
+   '<p>'+(res==="win"?"The marshal reports their line broken and the field held.":
+     res==="lose"?"The marshal reports the host broken and withdrawing.":
+     "The marshal reports both hosts drawn off with the matter undecided.")+'</p>'+
+   '<div class="btns"><button class="btn p" id="mok">Continue</button></div>');
+  $("mok").onclick=function(){closeModal();bar();paintMap();buildTabs();showPane();save();};
+ };
+ function pt(e){
+  var r=cv.getBoundingClientRect(),k=cv.width/BT.W/(cv.width/r.width);
+  return {x:(e.clientX-r.left)/(r.width/BT.W),y:(e.clientY-r.top)/(r.height/BT.H)};
+ }
+ cv.addEventListener("pointerdown",function(e){
+  if(!BT)return;cv.setPointerCapture(e.pointerId);
+  var p=pt(e);BT.drag={x0:p.x,y0:p.y,x1:p.x,y1:p.y};});
+ cv.addEventListener("pointermove",function(e){
+  if(!BT||!BT.drag)return;var p=pt(e);BT.drag.x1=p.x;BT.drag.y1=p.y;});
+ cv.addEventListener("pointerup",function(e){
+  if(!BT)return;var p=pt(e),d=BT.drag;BT.drag=null;
+  if(d&&Math.hypot(d.x1-d.x0,d.y1-d.y0)>12){
+   var x0=Math.min(d.x0,d.x1),x1=Math.max(d.x0,d.x1),y0=Math.min(d.y0,d.y1),y1=Math.max(d.y0,d.y1);
+   btSide(0).forEach(function(b){b.sel=(b.x>=x0&&b.x<=x1&&b.y>=y0&&b.y<=y1)?1:0;});
+   BT.msg="Selected.";
+  }else{
+   var any=btSide(0).some(function(b){return b.sel;});
+   if(any){btSide(0).forEach(function(b){if(b.sel){b.tx=p.x;b.ty=p.y;b.st="move";}});BT.msg="Ordered.";}
+   else{
+    var hit=null;btSide(0).forEach(function(b){if(Math.hypot(b.x-p.x,b.y-p.y)<24)hit=b;});
+    if(hit){btSide(0).forEach(function(b){b.sel=0;});hit.sel=1;BT.msg=hit.t.n+" selected.";}
+   }
+  }});
+ addEventListener("resize",size);
+ btLast=performance.now();btRAF=requestAnimationFrame(loop);
+}
+
+/* ===================== WAR NEGOTIATION ===================== */
+function negoModal(ix){
+ var s=G.states[ix],w=G.wars[ix];
+ if(!w)return;
+ var terms=[
+  {i:"white",n:"Peace as things stand",d:"Neither side gives anything up.",ask:0},
+  {i:"tribute",n:"They pay tribute",d:"Silver, and they keep their land.",ask:26},
+  {i:"annex",n:"They cede a region",d:"One province, sworn over.",ask:48},
+  {i:"annex2",n:"They cede two regions",d:"As much as a war is usually worth.",ask:72},
+  {i:"vassal",n:"They become a client",d:"Their foreign policy follows yours.",ask:84},
+  {i:"submit",n:"You pay them off",d:"Buy your way out of a war you are losing.",ask:-30},
+  {i:"cede",n:"You cede a region",d:"Give one up and end it.",ask:-50}
+ ];
+ function accept(t){
+  /* a war score they can read as well as you can */
+  var tired=cl0(w.yrs*4,0,30);
+  var theirPos=-w.sc+ (s.army*3) - tired;
+  var margin=w.sc - t.ask;
+  /* both sides tire, and a long war makes almost any terms look reasonable */
+  return cl0(50+margin*0.95+tired*1.2-(s.army-armyCount())*1.5,4,96);
+ }
+ var h='<div class="ey">Envoys under safe conduct</div><h2>Terms with '+esc(stName(ix))+'</h2>'+
+  '<p>The war is in its '+w.yrs+(w.yrs===1?" year":" years")+'. '+
+  (w.sc>35?"It has gone your way and they know it.":w.sc<-35?"It has gone against you and they know that too.":
+   "Neither side has got the better of it.")+
+  ' What you can ask for depends on what the fighting has actually settled.</p>';
+ h+=kvw("The war stands",w.sc>45?"You are winning it":w.sc>14?"Going your way":
+   w.sc>-14?"Nothing decided":w.sc>-45?"Going against you":"You are losing it",
+   w.sc>14?"g":w.sc>-14?"w":"b");
+ h+=barHtml((w.sc+100)/2,w.sc>14?"good":w.sc>-14?"warn":"bad");
+ h+=kv("Their companies",s.army);
+ h+=kv("Yours",armyCount());
+ h+=kv("Regions they have left",regionsLeft(s));
+ h+='<div class="sh" style="margin-top:14px"><h3 style="font-size:15px">What to put to them</h3>'+
+  '<span class="hr">chance they accept</span></div>';
+ terms.forEach(function(t){
+  if((t.i==="annex"||t.i==="annex2")&&regionsLeft(s)<(t.i==="annex2"?2:1))return;
+  if(t.i==="cede"&&G.regions.length<2)return;
+  var ch=accept(t);
+  h+='<button class="opt" data-ng="'+t.i+'"><span class="ot">'+esc(t.n)+
+   ' <span class="pill '+(ch>62?"g":ch>32?"w":"b")+'">'+Math.round(ch)+'%</span></span>'+
+   '<span class="od">'+esc(t.d)+'</span></button>';
+ });
+ h+='<p class="fine">An offer they refuse costs you a year and a little face. They will come back with their own terms when they think they can get them.</p>';
+ h+='<div class="btns"><button class="btn" id="mclose">Keep fighting</button></div>';
+ modal(h);
+ Array.prototype.forEach.call($("mbody").querySelectorAll("[data-ng]"),function(b){
+  b.onclick=function(){
+   var id=b.getAttribute("data-ng"),t=terms.filter(function(x){return x.i===id;})[0];
+   var ch=accept(t);
+   if(G.rnd()*100<ch){
+    var msg="";
+    if(id==="annex2"){makePeace(ix,"annex");if(G.wars[ix]===undefined){/*already closed*/}
+      if(regionsLeft(s)>0){G.wars[ix]={sc:60,yrs:w.yrs};makePeace(ix,"annex");}
+      msg="Two regions ceded.";}
+    else if(id==="vassal"){G.allies[ix]=1;s.rel=cl0(s.rel+30,0,100);
+      makePeace(ix,"tribute");msg=stName(ix)+" accepts your lead.";}
+    else msg=makePeace(ix,id);
+    closeModal();bar();paintMap();buildTabs();showPane();if(msg)toast(msg);save();
+   }else{
+    G.prs=cl0(G.prs-2,0,100);
+    w.refused=(w.refused||0)+1;
+    chron(G.yr,"<b>"+stName(ix)+" refuses the terms offered.</b> The war goes on.");
+    modal('<div class="ey">Refused</div><h2>They will not have it</h2>'+
+     '<p>The envoys came back with the offer still in their bag. '+
+     (w.sc<0?"They can see the war is going their way as clearly as you can.":
+      "They think they can do better by fighting on, and they may be right.")+'</p>'+
+     '<div class="btns"><button class="btn p" id="mok">Very well</button></div>');
+    $("mok").onclick=function(){closeModal();bar();showPane();};
+   }};});
+ $("mclose").onclick=closeModal;
+}
+
 /* ================= MODAL ================= */
 function modal(html){$("mbody").innerHTML=html;$("veil").hidden=false;$("modal").scrollTop=0;}
 function closeModal(){$("veil").hidden=true;}
@@ -4351,7 +4976,11 @@ function eventModal(){
  Array.prototype.forEach.call($("mbody").querySelectorAll("[data-ev]"),function(b){
   b.onclick=function(){
    var o=e.o[+b.getAttribute("data-ev")];
+   G.pendingBattle=null;
    var note=applyEff(o.e);
+   if(G.pendingBattle!==null&&G.pendingBattle!==undefined){
+    var bx=G.pendingBattle;G.pendingBattle=null;G.ev=null;G.evC=null;
+    battleModal(bx);return;}
    var note2=o.rg?applyRegion(C.R,o.rg):"";
    if(/claim is entered/.test(o.r||"")&&C.S)C.S.claim=1;
    recalcAll();
@@ -4389,6 +5018,7 @@ function save(){
    done:G.done,enacted:G.enacted,laws:G.laws,doct:G.doct,uniq:G.uniq,queue:G.queue,qleft:G.qleft,
    army:G.army,builds:G.builds,offices:G.offices,court:G.court,powers:G.powers,allies:G.allies,
    dipl:G.dipl,clim:G.clim,climB:G.climB,genius:G.genius,wars:G.wars,badRun:G.badRun,trade:G.trade,
+   host:G.host,cheats:G.cheats,acted:G.acted,
    awars:G.awars,aallies:G.aallies,news:(G.news||[]).slice(0,80),pendingAttack:G.pendingAttack,chron:G.chron.slice(0,120),
    flags:G.flags,strainRun:G.strainRun,over:G.over,em:G.em,
    rg:G.regions.map(function(r){return[r.pop,r.stab,r.unr,r.farms,r.bld,r.shifted,r.dev,r.urb,r.n,r.conq?1:0,r.res,r.terr,r.acc,r.towns,r.coast,r.cap];}),
@@ -4405,7 +5035,7 @@ function load(){
   ["yr","turn","ruler","recog","impFav","outlaw","emp","king","tr","sub","leg","pap","prs",
    "debt","debtLvl","infl","cent","taxRate","done","enacted","laws","doct","uniq","queue","qleft",
    "army","builds","offices","court","powers","allies","dipl","clim","climB","genius","chron",
-   "flags","strainRun","over","em","wars","badRun","awars","aallies","news","pendingAttack","trade"].forEach(function(k){if(s[k]!==undefined)G[k]=s[k];});
+   "flags","strainRun","over","em","wars","badRun","awars","aallies","news","pendingAttack","trade","host","cheats","acted"].forEach(function(k){if(s[k]!==undefined)G[k]=s[k];});
   if(s.rg&&s.rg.length>G.regions.length){
    for(var q=G.regions.length;q<s.rg.length;q++){var a2=s.rg[q];
     G.regions.push({ix:q,nat:G.nat,n:a2[8]||("Region "+q),cap:a2[15]||0,pop:a2[0],urb:a2[7],
