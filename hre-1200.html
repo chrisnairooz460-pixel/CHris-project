@@ -104,6 +104,7 @@ h1,h2,h3,h4{font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;margi
 .btns{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .empty{font-size:12.5px;color:var(--ink-3);font-style:italic;padding:9px 0;line-height:1.6}
 .tr{padding:7px 0;border-bottom:1px dotted var(--rule)}
+.selrow,#p-diplo .tr{content-visibility:auto;contain-intrinsic-size:auto 58px}
 .tr:last-child{border-bottom:none}
 .trh{display:flex;align-items:baseline;gap:8px}
 .tr .n{font-size:12.5px;flex:1;min-width:0}
@@ -171,6 +172,7 @@ body.sel #side{width:430px;flex:0 0 430px}
 body.sel #end{background:var(--gold);color:#1c1a15;font-weight:700}
 body.sel #end:disabled{background:none;color:#ffffff7a;border-color:#ffffff2e}
 body.sel .tr:hover{background:var(--panel-2)}
+.selrow.on{background:var(--panel-2)}
 @media (max-width:860px){body.sel #side{width:100%;flex:1 1 auto}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
@@ -469,7 +471,7 @@ RANKS.P=["Principality", "#c2456f"];
 RANKS.I=["Empire", "#8c1f26"];
 T=T.concat(T2).concat(T3);
 
-var labs=[], shields=[], cur=null, TGEO=[];
+var labs=[], shields=[], cur=null, TGEO=[], armsHTML="", labTmp=[];
 T.forEach(function(t){
   var c=RANKS[t.r][1];
   var g=el("g",{"class":"terr",tabindex:"0",role:"button","aria-label":t.n});
@@ -488,63 +490,108 @@ T.forEach(function(t){
   g.addEventListener("click",pick);
   g.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();pick();}});
   gf.appendChild(g);
-  var holder=el("g",{});
-  holder.innerHTML=armsSVG(t.g,100);
-  var sh=holder.firstChild; sh.removeAttribute("width"); sh.removeAttribute("height");
-  sh.setAttribute("style","overflow:visible");
-  gl.appendChild(sh); shields.push([sh,t.c,t.a]);
+  armsHTML+=armsSVG(t.g,100);
   var tx=el("text",{x:t.c[0],y:t.c[1],"text-anchor":"middle","dominant-baseline":"central",
-    fill:"#faf6ec",stroke:"#14110a","stroke-width":"3.4","font-weight":"600"});
+    fill:"#faf6ec",stroke:"#14110a","font-weight":"600"});
   tx.textContent=t.n.replace(/^(Duchy|County|Kingdom|Margraviate|Landgraviate|Lordship|Bishopric|Patriarchate|Dauphine|March) of /,"").replace(/^Archbishopric of /,"Abp. ");
-  gl.appendChild(tx); labs.push([tx,t.a]);
+  labTmp.push(tx);
 });
+/* One parse for all the shields rather than one for each of a hundred and
+   eighty-three, and the names laid over them rather than between them. */
+(function(){
+  var holder=el("g",{});
+  holder.innerHTML=armsHTML;
+  var i;
+  for(i=0;i<T.length;i++){
+    var sh=holder.firstChild; if(!sh)break;
+    sh.removeAttribute("width"); sh.removeAttribute("height");
+    sh.setAttribute("style","overflow:visible");
+    gl.appendChild(sh); shields.push([sh,T[i].c,T[i].a,-1]);
+  }
+  for(i=0;i<labTmp.length;i++){gl.appendChild(labTmp[i]);labs.push([labTmp[i],T[i].a,-1,T[i].c]);}
+  armsHTML="";labTmp=[];
+})();
 
 var cl=[];
 CITY.forEach(function(c){var p=P(c[1],c[2]);
   gc.appendChild(el("circle",{cx:p[0],cy:p[1],r:2.6,fill:"#17160f",stroke:"#f4efe2","stroke-width":"1.1"}));
-  var t=el("text",{x:p[0]+5,y:p[1]-4.5,fill:"#17160f",stroke:"#f4efe2","stroke-width":"2.6"});
+  var t=el("text",{x:p[0]+5,y:p[1]-4.5,fill:"#17160f",stroke:"#f4efe2"});
   t.textContent=c[0];gc.appendChild(t);cl.push(t);});
 
 var sc=1,tx0=0,ty0=0,sn=1,sa=1,scy=1,sw=1;
 var vp=document.getElementById("vp"),st=document.getElementById("stage");
-function draw(){
+/* Dragging the map changes only the transform. Resizing the labels and the
+   shields costs a thousand attribute writes, so that is done only when the
+   scale or a toggle has actually moved, and never more than once a frame. */
+var lastK=-1,lastFlags="",lastVx=1e9,lastVy=1e9,drawQ=0;
+/* Asking the stage for its box forces the browser to lay the page out. It is
+   the same box until the window changes size, so it is read once and kept. */
+var stRect=null;
+function stageRect(){return stRect||(stRect=st.getBoundingClientRect());}
+addEventListener("resize",function(){stRect=null;});
+function drawXf(){
   vp.setAttribute("transform","translate("+tx0+","+ty0+") scale("+sc+")");
-  var r=st.getBoundingClientRect(), k=Math.max(r.width/VW,r.height/VH)*sc;
-  var fs=12/k, fc=11/k, shw=19/k;
-  labs.forEach(function(l){l[0].setAttribute("font-size",fs);
-    l[0].setAttribute("dy",(sa&&l[1]*k*k>5200)?fs*0.95:0);
-    l[0].setAttribute("opacity",(sn&&l[1]*k*k>5200)?1:0);});
-  shields.forEach(function(s){var vis=sa&&s[2]*k*k>5200;
-    s[0].setAttribute("opacity",vis?1:0);
-    s[0].setAttribute("width",shw); s[0].setAttribute("height",shw*1.2);
-    s[0].setAttribute("x",s[1][0]-shw/2); s[0].setAttribute("y",s[1][1]-shw*1.2-(sn?fs*0.2:-shw*0.6));});
-  cl.forEach(function(t){t.setAttribute("font-size",fc);});
+}
+function drawScale(force){
+  var r=stageRect(), k=Math.max(r.width/VW,r.height/VH)*sc;
+  var flags=sn+"/"+sa+"/"+scy+"/"+sw;
+  /* what part of the map is actually on the screen, in map units, with a
+     margin so that a label just off the edge is ready when it scrolls in */
+  var mg=60/sc;
+  var vx0=-tx0/sc-mg, vx1=vx0+VW/sc+mg*2;
+  var vy0=-ty0/sc-mg, vy1=vy0+VH/sc+mg*2;
+  var moved=Math.abs(k-lastK)>0.0015||flags!==lastFlags;
+  if(!force&&!moved&&Math.abs(vx0-lastVx)<6/sc&&Math.abs(vy0-lastVy)<6/sc)return;
+  lastK=k;lastFlags=flags;lastVx=vx0;lastVy=vy0;
+  var fs=12/k, fc=11/k, shw=19/k, dy=fs*0.95, sy=shw*1.2;
+  var oy=sn?fs*0.2:-shw*0.6;
+  /* font-size inherits down the group, so it is written once, not once a label */
+  if(moved||force){
+    gl.setAttribute("font-size",fs);gl.setAttribute("stroke-width",fs*0.38);
+    gc.setAttribute("font-size",fc);gc.setAttribute("stroke-width",fc*0.3);}
+  function on(c){return c[0]>vx0&&c[0]<vx1&&c[1]>vy0&&c[1]<vy1;}
+  for(var i=0;i<labs.length;i++){var l=labs[i];
+    var vis=(sn&&l[1]*k*k>5200&&on(l[3]))?1:0;
+    if(l[2]!==vis){l[2]=vis;l[0].style.display=vis?"":"none";}
+    if(vis&&moved)l[0].setAttribute("dy",sa?dy:0);}
+  for(i=0;i<shields.length;i++){var s2=shields[i];
+    var vs=(sa&&s2[2]*k*k>5200&&on(s2[1]))?1:0;
+    if(s2[3]!==vs){s2[3]=vs;s2[0].style.display=vs?"":"none";}
+    if(!vs||!moved)continue;
+    s2[0].setAttribute("width",shw); s2[0].setAttribute("height",sy);
+    s2[0].setAttribute("x",s2[1][0]-shw/2); s2[0].setAttribute("y",s2[1][1]-sy-oy);}
   gc.setAttribute("opacity",scy?1:0); gw.setAttribute("opacity",sw?.95:0);
 }
-function hook(id,get,set){var b=document.getElementById(id);b.onclick=function(){set(!get());b.classList.toggle("off",!get());draw();};}
+function draw(force){
+  drawXf();
+  if(force){drawScale(1);return;}
+  if(drawQ)return;
+  drawQ=requestAnimationFrame(function(){drawQ=0;drawScale(0);});
+}
+function hook(id,get,set){var b=document.getElementById(id);b.onclick=function(){set(!get());b.classList.toggle("off",!get());draw(1);};}
 hook("bn",function(){return sn;},function(v){sn=v;});
 hook("bs",function(){return sa;},function(v){sa=v;});
 hook("bc",function(){return scy;},function(v){scy=v;});
 hook("bw",function(){return sw;},function(v){sw=v;});
-document.getElementById("br").onclick=function(){sc=1;tx0=0;ty0=0;draw();};
+document.getElementById("br").onclick=function(){sc=1;tx0=0;ty0=0;draw(1);};
 
 var pts={},last=null,ld=0;
 st.addEventListener("pointerdown",function(e){st.setPointerCapture(e.pointerId);pts[e.pointerId]=[e.clientX,e.clientY];last=[e.clientX,e.clientY];st.classList.add("drag");});
 st.addEventListener("pointermove",function(e){
   if(!(e.pointerId in pts))return;
-  var ids=Object.keys(pts),r=st.getBoundingClientRect(),k=Math.max(r.width/VW,r.height/VH);
+  var ids=Object.keys(pts),r=stageRect(),k=Math.max(r.width/VW,r.height/VH);
   if(ids.length===1){tx0+=(e.clientX-last[0])/k;ty0+=(e.clientY-last[1])/k;last=[e.clientX,e.clientY];pts[e.pointerId]=[e.clientX,e.clientY];draw();}
   else{pts[e.pointerId]=[e.clientX,e.clientY];var a=pts[ids[0]],b=pts[ids[1]],d=Math.hypot(a[0]-b[0],a[1]-b[1]);
     if(ld)zoom(((a[0]+b[0])/2-r.left)/k,((a[1]+b[1])/2-r.top)/k,d/ld);ld=d;}});
 function up(e){delete pts[e.pointerId];ld=0;last=null;st.classList.remove("drag");}
 st.addEventListener("pointerup",up);st.addEventListener("pointercancel",up);
 function zoom(mx,my,f){var ns=Math.min(14,Math.max(1,sc*f));tx0=mx-(mx-tx0)*(ns/sc);ty0=my-(my-ty0)*(ns/sc);sc=ns;draw();}
-st.addEventListener("wheel",function(e){e.preventDefault();var r=st.getBoundingClientRect(),k=Math.max(r.width/VW,r.height/VH);
+st.addEventListener("wheel",function(e){e.preventDefault();var r=stageRect(),k=Math.max(r.width/VW,r.height/VH);
   zoom((e.clientX-r.left)/k,(e.clientY-r.top)/k,e.deltaY<0?1.14:0.88);},{passive:false});
-st.addEventListener("dblclick",function(e){var r=st.getBoundingClientRect(),k=Math.max(r.width/VW,r.height/VH);
+st.addEventListener("dblclick",function(e){var r=stageRect(),k=Math.max(r.width/VW,r.height/VH);
   zoom((e.clientX-r.left)/k,(e.clientY-r.top)/k,1.7);});
 
-addEventListener("resize",draw);draw();
+addEventListener("resize",function(){draw(1);});draw(1);
 
 /* ===================================================================
    SIMULATION LAYER \u2014 Holy Roman Empire, anno Domini 1200
@@ -1848,12 +1895,15 @@ function genRegions(ix,rnd){
 }
 
 /* crude adjacency from the drawn label positions: who you share a frontier with */
+var NEARC=[];
 function nearIx(ix){
- var c=T[ix]&&T[ix].c;if(!c)return[];
+ if(NEARC[ix])return NEARC[ix];
+ var c=T[ix]&&T[ix].c;if(!c)return (NEARC[ix]=[]);
  var d=[];T.forEach(function(t,j){if(j===ix||!t.c)return;
-  d.push([j,Math.hypot(t.c[0]-c[0],t.c[1]-c[1])]);});
+  var dx=t.c[0]-c[0],dy=t.c[1]-c[1];
+  d.push([j,dx*dx+dy*dy]);});
  d.sort(function(a,b){return a[1]-b[1];});
- return d.slice(0,6).map(function(x){return x[0];});
+ return (NEARC[ix]=d.slice(0,6).map(function(x){return x[0];}));
 }
 
 function mkChar(nm,age,rnd){
@@ -3368,22 +3418,28 @@ function stCol(ix){if(!STCOL)buildStateColours();return STCOL[ix];}
 var ov="states";
 function ramp(v,cs){return cs[Math.round(cl0(v,0,99.9)/100*(cs.length-1))];}
 
+/* Writing an attribute that already holds that value still invalidates style
+   and layout for the element, and there are five hundred and forty-nine paths
+   on this map. Each one remembers what it was last given. */
+function setA(el,k,v,memo){if(memo[k]===v)return;memo[k]=v;el.setAttribute(k,v);}
 function paintMap(){
  var o=OVS.filter(function(x){return x.i===ov;})[0];
+ var plain=["rank","states","intel"].indexOf(ov)<0;
  TGEO.forEach(function(e,ix){
   var s=G?G.states[ix]:null;
   var c=G?o.f(s,e.t):RANKS[e.t.r][1];
   /* a conquered territory flies whoever's arms now hold it */
-  if(G&&s&&!indep(s)&&!isMine(s)&&["rank","states","intel"].indexOf(ov)<0)c="#6b5a7a";
-  e.f.setAttribute("fill",c);
-  e.f.setAttribute("fill-opacity",1);
-  e.s.setAttribute("stroke","#15120c");
-  e.s.setAttribute("stroke-width",G&&isMine(s)?3.2:1.5);
-  e.s.setAttribute("stroke-opacity",1);
-  if(G&&isMine(s))e.o2.setAttribute("stroke-opacity",1);
-  else e.o2.setAttribute("stroke-opacity",0);
-  if(G&&s.intel<1&&["rank","states","intel"].indexOf(ov)<0)e.g.classList.add("dim");
-  else e.g.classList.remove("dim");
+  if(G&&s&&!indep(s)&&!isMine(s)&&plain)c="#6b5a7a";
+  var mine=!!(G&&isMine(s));
+  e.m=e.m||{f:{},s:{},o:{}};
+  setA(e.f,"fill",c,e.m.f);
+  setA(e.f,"fill-opacity",1,e.m.f);
+  setA(e.s,"stroke","#15120c",e.m.s);
+  setA(e.s,"stroke-width",mine?3.2:1.5,e.m.s);
+  setA(e.s,"stroke-opacity",1,e.m.s);
+  setA(e.o2,"stroke-opacity",mine?1:0,e.m.o);
+  var dim=!!(G&&s.intel<1&&plain);
+  if(e.dim!==dim){e.dim=dim;e.g.classList.toggle("dim",dim);}
  });
  var lg=$("legend");lg.innerHTML='<div class="lt">'+o.lt+'</div>';
  var row=document.createElement("div");row.style.cssText="display:flex;flex-wrap:wrap;gap:5px 11px";
@@ -4174,7 +4230,9 @@ var selMode=0, selIx=null, selQ="", selFilter="all", selRecog=null;
 
 /* How hard this state is to hold, from its size, its development, how many
    regions it has to lose, and what is sitting next to it. */
+var DIFFC=[];
 function difficulty(ix){
+ if(DIFFC[ix]!==undefined)return DIFFC[ix];
  var r=RG[ix], pop=r[1], dev=r[3], nreg=SUBS[ix].length;
  var nb=nearIx(ix), press=0;
  nb.forEach(function(j){press+=RG[j][1];});
@@ -4186,7 +4244,7 @@ function difficulty(ix){
  /* a lord above you is a roof over your head and a lid on your head */
  if(liege0(ix)>=0)score+=4.5;
  score+=(tier0(ix)-3)*1.6;
- return score;
+ return (DIFFC[ix]=score);
 }
 /* Before a game exists there is no G, so rank and liege have to be read off
    the tables directly. */
@@ -4228,6 +4286,8 @@ function trimAt(t,n2){
 function selBegin(ix,recog){
  selMode=0;selIx=null;
  document.body.classList.remove("sel");
+ stRect=null;
+ var pr=$("p-realm");if(pr)pr.onclick=null;      /* the picker's delegate is done with */
  begin(ix,recog);
 }
 function selPaint(){
@@ -4254,7 +4314,9 @@ function selPaint(){
 }
 function selNation(ix){
  selIx=ix;selRecog=null;
- selPaint();selPanel();
+ selPaint();
+ if($("seltop")){$("seltop").innerHTML=selDetail();selMark();selBar();}
+ else selPanel();
  var el2=$("seldet");if(el2)el2.scrollIntoView({block:"nearest"});
 }
 function selBar(){
@@ -4272,7 +4334,12 @@ function selBar(){
    (selIx===CLAIMS.ph.ix||selIx===CLAIMS.ot.ix)?"Begin":"Begin uncommitted";
  $("end").disabled=selIx===null;
 }
-function selPanel(){
+/* The picker is three pieces that change at different rates: the detail card
+   changes on every tap, the search and filter row when a filter is pressed,
+   and the list of a hundred and eighty-three states only when the search or
+   the filter actually changes what is in it. Tapping a state used to rebuild
+   all three, which is a second of work on a phone for one card. */
+function selDetail(){
  var h='';
  if(selIx!==null){
   var ix=selIx,r=RG[ix],t=T[ix],db=diffBand(ix),bk=BOOKS.filter(function(x){return x.ix===ix;})[0];
@@ -4320,9 +4387,10 @@ function selPanel(){
   h+='<p class="lead">Take any of the '+T.length+' states on the map: a kingdom, a duchy, a prince-bishopric, an imperial abbey, a free city, a Lombard commune, or a county of four thousand souls that holds of somebody else and would rather not. Tap one to read what you would be taking on.</p>';
   h+='<p class="lead">Rank is not decoration. It sets how many envoys you have in a year, how many wars you may run, which laws you are competent to make and whom you are allowed to attack at all. Seven tiers run from a lordship to the Empire itself, and the Empire raises a man who has made himself worth raising.</p>';
  }
-
- /* suggested starts */
- h+='<div class="sh" style="margin-top:4px"><h3 style="font-size:15px">Suggested starts</h3></div>';
+ return h;
+}
+function selSug(){
+ var h='<div class="sh" style="margin-top:4px"><h3 style="font-size:15px">Suggested starts</h3></div>';
  BOOKS.forEach(function(bk2){
   var t2=T[bk2.ix],db2=diffBand(bk2.ix);
   h+='<div class="tr" style="cursor:pointer" data-pick="'+bk2.ix+'"><div class="trh" style="gap:9px">'+
@@ -4331,23 +4399,26 @@ function selPanel(){
    '<span class="pill" style="color:'+db2[1]+'">'+db2[0]+'</span></div>'+
    '<div class="d">'+esc(trimAt(bk2.p,116))+'</div></div>';
  });
-
- /* search and filter */
- h+='<div class="sh" style="margin-top:16px"><h3 style="font-size:15px">All states</h3>'+
+ return h;
+}
+var SELF=[["all","All"],["K","Kingdoms"],["D","Duchies"],["P","Principalities"],["E","Bishoprics"],
+ ["A","Archbishoprics"],["B","Abbeys"],["T","Communes"],["R","Republics"],
+ ["F","Free cities"],["C","Counties"],["M","Marches"],["S","Lordships"],
+ ["imm","Immediate"],["vas","Vassals"],["big","Great"],["small","Small"]];
+function selFind(){
+ var h='<div class="sh" style="margin-top:16px"><h3 style="font-size:15px">All states</h3>'+
    '<span class="hr" id="selcount"></span></div>';
  h+='<input id="selq" type="search" placeholder="Search a state, a title or a city" value="'+esc(selQ)+'" '+
    'style="width:100%;font:inherit;font-size:13px;padding:7px 9px;border:1px solid var(--rule);'+
    'border-radius:5px;background:var(--panel);color:var(--ink);margin-bottom:7px">';
  h+='<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:9px">';
- [["all","All"],["K","Kingdoms"],["D","Duchies"],["P","Principalities"],["E","Bishoprics"],
-  ["A","Archbishoprics"],["B","Abbeys"],["T","Communes"],["R","Republics"],
-  ["F","Free cities"],["C","Counties"],["M","Marches"],["S","Lordships"],
-  ["imm","Immediate"],["vas","Vassals"],["big","Great"],["small","Small"]].forEach(function(f){
+ SELF.forEach(function(f){
   h+='<button class="btn sm'+(selFilter===f[0]?" p":"")+'" data-sf="'+f[0]+'">'+f[1]+'</button>';});
- h+='</div>';
-
+ return h+'</div>';
+}
+function selMatch(){
  var q=selQ.toLowerCase();
- var list=RG.map(function(_,i){return i;}).filter(function(i){
+ return RG.map(function(_,i){return i;}).filter(function(i){
   if(selFilter==="big"&&RG[i][1]<250)return 0;
   if(selFilter==="small"&&RG[i][1]>=150)return 0;
   if(selFilter==="vas"&&liege0(i)<0)return 0;
@@ -4356,10 +4427,13 @@ function selPanel(){
   if(!q)return 1;
   return (RG[i][0]+" "+TITLES[i]+" "+SUBS[i].join(" ")+" "+T[i].h).toLowerCase().indexOf(q)>=0;
  }).sort(function(a,b){return RG[b][1]-RG[a][1];});
-
+}
+var selN=0, selRow=null;
+function selList(){
+ var list=selMatch(), h='';
  list.forEach(function(i){
   var t3=T[i],db3=diffBand(i);
-  h+='<div class="tr" style="cursor:pointer'+(selIx===i?';background:var(--panel-2)':'')+'" data-pick="'+i+'">'+
+  h+='<div class="tr selrow'+(selIx===i?' on':'')+'" style="cursor:pointer" data-pick="'+i+'">'+
    '<div class="trh" style="gap:9px"><span style="flex:0 0 auto">'+armsSVG(t3.g,18)+'</span>'+
    '<span class="n">'+esc(TITLES[i])+'</span>'+
    '<span class="pill" style="color:'+db3[1]+'">'+db3[0]+'</span></div>'+
@@ -4367,23 +4441,53 @@ function selPanel(){
    SUBS[i].length+' regions \u00b7 '+esc(CULT[RG[i][9]])+
    (liege0(i)>=0?' \u00b7 holds of '+esc(shortName(RG[liege0(i)][0])):' \u00b7 immediate')+'</div></div>';
  });
-
- $("p-realm").innerHTML=h;
- var cc=$("selcount");if(cc)cc.textContent=list.length+" of 59";
+ selN=list.length;
+ selRow=null;
+ return h;
+}
+function selMark(){
+ if(selRow){selRow.classList.remove("on");selRow=null;}
+ var w=$("sellist");if(!w||selIx===null)return;
+ var r=w.querySelector('[data-pick="'+selIx+'"]');
+ if(r){r.classList.add("on");selRow=r;}
+}
+function selCount(){var cc=$("selcount");if(cc)cc.textContent=selN+" of "+T.length;}
+function selRelist(){
+ $("sellist").innerHTML=selList();
+ selCount();selMark();
+}
+function selRefilter(){
+ $("selfind").innerHTML=selFind();
+ selRelist();
  var q2=$("selq");
- if(q2){q2.oninput=function(){selQ=q2.value;var pos=q2.selectionStart;selPanel();
-   var n2=$("selq");if(n2){n2.focus();try{n2.setSelectionRange(pos,pos);}catch(x){}}};}
- Array.prototype.forEach.call($("p-realm").querySelectorAll("[data-sf]"),function(b){
-  b.onclick=function(){selFilter=b.getAttribute("data-sf");selPanel();};});
- Array.prototype.forEach.call($("p-realm").querySelectorAll("[data-pick]"),function(b){
-  b.onclick=function(){selNation(+b.getAttribute("data-pick"));};});
- Array.prototype.forEach.call($("p-realm").querySelectorAll("[data-go]"),function(b){
-  b.onclick=function(){selBegin(+b.getAttribute("data-go"),b.getAttribute("data-rc")||null);};});
+ if(q2)q2.oninput=function(){selQ=q2.value;selRelist();};
+}
+function selPanel(){
+ var p=$("p-realm");
+ p.innerHTML='<div id="seltop"></div><div id="selsug"></div>'+
+   '<div id="selfind"></div><div id="sellist"></div>';
+ $("selsug").innerHTML=selSug();
+ /* one listener for the whole panel rather than one for each of the rows */
+ p.onclick=function(e){
+  var n=e.target;
+  while(n&&n!==p){
+   if(n.getAttribute){
+    if(n.hasAttribute("data-go"))
+     return selBegin(+n.getAttribute("data-go"),n.getAttribute("data-rc")||null);
+    if(n.hasAttribute("data-sf")){selFilter=n.getAttribute("data-sf");return selRefilter();}
+    if(n.hasAttribute("data-pick"))return selNation(+n.getAttribute("data-pick"));
+   }
+   n=n.parentNode;
+  }
+ };
+ $("seltop").innerHTML=selDetail();
+ selRefilter();
  selBar();
 }
 function selStart(){
  selMode=1;selIx=null;selQ="";selFilter="all";
  document.body.classList.add("sel");
+ stRect=null;
  $("tabs").innerHTML="";
  TABS.forEach(function(t){var p=$("p-"+t[0]);if(p)p.hidden=(t[0]!=="realm");});
  selPaint();selPanel();
@@ -5522,6 +5626,21 @@ function overModal(){
 }
 
 /* ================= SAVE ================= */
+var saveQ=0;
+/* Writing the save out is a tenth of a second of work that nobody is waiting
+   for, so it goes in the gap after the year has been drawn. If the page is
+   put away before that gap arrives it is written immediately instead. */
+function saveSoon(){
+ if(saveQ)return;
+ var run=function(){saveQ=0;save();};
+ saveQ=(typeof requestIdleCallback==="function")?
+   requestIdleCallback(run,{timeout:1200}):setTimeout(run,90);
+}
+function saveFlush(){if(!saveQ||!G)return;
+ if(typeof cancelIdleCallback==="function")try{cancelIdleCallback(saveQ);}catch(x){}
+ clearTimeout(saveQ);saveQ=0;save();}
+addEventListener("pagehide",saveFlush);
+addEventListener("visibilitychange",function(){if(document.visibilityState==="hidden")saveFlush();});
 function save(){
  try{
   var s={v:4,yr:G.yr,turn:G.turn,nat:G.nat,ruler:G.ruler,recog:G.recog,impFav:G.impFav,
@@ -6480,7 +6599,7 @@ function endYear(){
  if(G.over){overModal();save();return;}
  if(G.ev)eventModal();
  else if(G.liegeAsk)liegeAskModal();
- else save();
+ else saveSoon();
 }
 function boot(){
  indexTech();
