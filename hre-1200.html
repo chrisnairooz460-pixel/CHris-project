@@ -193,6 +193,7 @@ body.sel .tr:hover{background:var(--panel-2)}
  <div id="body">
   <div class="pane" id="p-realm"></div>
   <div class="pane" id="p-ledger" hidden></div>
+  <div class="pane" id="p-standing" hidden></div>
   <div class="pane" id="p-research" hidden></div>
   <div class="pane" id="p-laws" hidden></div>
   <div class="pane" id="p-gov" hidden></div>
@@ -357,7 +358,116 @@ var T2=[
 {"n": "Bishopric of Merseburg", "r": "E", "d": "M407.1 279.0L402.9 270.0L397.9 259.7L387.2 260.9L377.5 264.1L368.8 272.5L374.0 283.9L378.8 292.2L386.7 300.6L398.4 299.5L402.8 288.0Z", "c": [389.6, 279.0], "a": 1091, "h": "Dietrich von Meissen", "x": "Founded to hold the Slav frontier that is now two hundred miles further east. What is left is the salt, the cathedral, and a quarrel with Magdeburg.", "g": {"f": "#efe9da", "o": [["cross", "#b3272d"]]}},
 {"n": "Bishopric of Eichstatt", "r": "E", "d": "M380.3 426.6L372.7 416.6L364.3 412.1L355.1 405.0L347.1 413.2L339.0 420.7L341.2 431.8L348.1 438.7L355.2 447.5L365.7 444.4L374.7 438.0Z", "c": [358.0, 426.6], "a": 1160, "h": "Hartwig von Grogling", "x": "A limestone valley on the Altmuhl, a long way from anywhere, with a bishop who votes the way Bavaria tells him to.", "g": {"f": "#b3272d", "ch": ["crozier", "#d6a62c"]}}];
 RANKS.F=["Free imperial city", "#1f8f7a"];
-T=T.concat(T2);
+/* ---- a hundred more immediate estates of the Empire: sees, abbeys, imperial
+   cities, Lombard and Tuscan communes, and the counties and lordships ---- */
+var T3=[
+{"n": "Bishopric of Wurzburg", "r": "E", "d": "M326.9 372.6L321.9 364.0L314.9 359.4L306.9 355.1L296.1 356.5L292.8 367.5L292.1 377.9L297.4 387.1L307.3 387.2L317.5 391.7L324.2 382.8Z", "c": [309.3, 372.6], "a": 959, "h": "Konrad von Querfurt", "x": "The bishop is also Duke of Franconia by a title nobody else recognises, which has not stopped him using it. The Main valley wine pays for everything.", "g": {"f": "#efe9da", "o": [["bend", "#b3272d"]]}},
+{"n": "Bishopric of Augsburg", "r": "E", "d": "M366.7 463.2L362.7 454.7L355.4 451.2L347.9 446.3L341.5 452.5L337.4 459.2L337.4 467.2L341.6 473.8L348.1 479.2L357.2 479.4L365.0 473.3Z", "c": [350.2, 463.2], "a": 720, "h": "Hartwig II von Hirschberg", "x": "A see with a rich city inside it that is trying to get out. The bishop keeps his court at Dillingen and comes to Augsburg only when he has to.", "g": {"f": "#b3272d", "ch": ["crozier", "#efe9da"]}},
+{"n": "Bishopric of Konstanz", "r": "E", "d": "M295.7 500.4L292.1 492.2L285.3 488.1L277.6 482.7L269.9 488.0L264.1 495.4L266.2 504.7L271.2 511.2L277.7 517.5L286.8 516.1L290.6 507.6Z", "c": [280.0, 500.4], "a": 777, "h": "Diethelm von Krenkingen", "x": "The largest diocese in Germany by area and one of the poorest by revenue, because almost all of it belongs to somebody else.", "g": {"f": "#efe9da", "ch": ["cross", "#b3272d"]}},
+{"n": "Bishopric of Passau", "r": "E", "d": "M458.6 445.8L456.6 438.4L452.2 430.9L443.4 428.0L436.5 434.4L431.1 441.2L432.3 450.0L434.6 459.5L443.7 460.9L453.0 462.5L460.1 455.6Z", "c": [445.8, 445.8], "a": 835, "h": "Wolfger von Erla", "x": "Where the Inn and the Ilz meet the Danube. Wolfger kept Walther von der Vogelweide in a winter coat and wrote the expense down, which is the only hard evidence we have that the poet existed.", "g": {"f": "#b3272d", "ch": ["lion", "#efe9da"]}},
+{"n": "Bishopric of Freising", "r": "E", "d": "M392.5 456.0L391.3 448.4L385.1 444.8L378.3 441.8L372.0 445.9L369.3 452.6L369.7 459.3L372.3 465.8L378.1 471.6L385.7 468.6L391.3 463.5Z", "c": [380.2, 456.0], "a": 515, "h": "Otto II von Berg", "x": "A small see on a hill above the Isar with holdings scattered as far as the Tyrol, and a bear on the arms that is really a moor's head.", "g": {"f": "#d6a62c", "ch": ["bull", "#2a2722"]}},
+{"n": "Bishopric of Regensburg", "r": "E", "d": "M413.1 423.6L410.9 415.2L403.6 411.9L397.0 411.7L390.8 414.1L387.1 420.0L384.6 427.9L391.1 432.7L396.9 436.1L402.8 433.3L409.1 430.8Z", "c": [398.6, 423.6], "a": 515, "h": "Konrad III von Laichling", "x": "The bishop holds the cathedral and the abbeys; the burghers hold the bridge, the salt staple and the money. Relations are correct and cold.", "g": {"f": "#efe9da", "o": [["perfess", "#b3272d"]]}},
+{"n": "Bishopric of Chur", "r": "E", "d": "M310.0 549.0L307.8 539.3L299.5 535.5L291.9 535.8L286.0 539.6L277.3 543.9L282.3 552.5L282.7 562.5L291.8 563.0L300.5 564.9L307.4 558.4Z", "c": [293.7, 549.0], "a": 720, "h": "Reiner von Vaz", "x": "The bishop controls the Septimer and the Julier, which is to say he controls who crosses the Alps here and what they pay for it.", "g": {"f": "#efe9da", "ch": ["lion", "#2a2722"]}},
+{"n": "Bishopric of Basel", "r": "E", "d": "M214.2 514.8L208.2 509.0L205.3 501.8L198.1 503.0L192.5 506.0L185.4 510.3L189.6 518.0L190.1 526.6L197.7 529.2L205.4 528.0L208.8 521.0Z", "c": [199.7, 514.8], "a": 515, "h": "Lutold II von Aarburg", "x": "The bishop rules the Jura valleys and has to be argued with every year by the city he is nominally lord of.", "g": {"f": "#efe9da", "ch": ["crozier", "#b3272d"]}},
+{"n": "Bishopric of Worms", "r": "E", "d": "M250.3 375.6L248.5 369.9L244.3 366.2L238.4 362.3L232.1 365.6L229.5 372.2L228.5 379.3L232.6 385.0L238.5 388.5L245.2 387.1L250.0 382.2Z", "c": [240.2, 375.6], "a": 426, "h": "Lupold von Scheinfeld", "x": "What is left to the bishop after the burghers took the city: a run of villages, the tithes, and a lawsuit that will outlive him.", "g": {"f": "#2a2722", "ch": ["key", "#efe9da"]}},
+{"n": "Bishopric of Verdun", "r": "E", "d": "M147.1 410.4L144.3 401.9L137.4 397.3L130.0 396.9L123.5 400.2L115.6 405.4L116.3 415.2L122.4 421.9L129.8 425.5L137.1 422.6L145.9 420.0Z", "c": [131.8, 410.4], "a": 720, "h": "Albert de Hierges", "x": "The westernmost see of the Empire, on the Meuse, with France on the far bank and getting closer every reign.", "g": {"f": "#2f5d8c", "ch": ["cross", "#efe9da"]}},
+{"n": "Bishopric of Metz", "r": "E", "d": "M183.1 412.8L176.8 403.4L170.5 395.5L160.4 393.1L152.4 399.8L145.3 407.3L146.5 418.0L151.7 426.7L160.3 432.7L170.5 430.2L175.8 421.5Z", "c": [163.0, 412.8], "a": 959, "h": "Bertram of Metz", "x": "The richest of the three Lotharingian sees, with the salt of Vic and Marsal, and a city that is already running itself in all but name.", "g": {"f": "#efe9da", "o": [["perfess", "#2a2722"]]}},
+{"n": "Bishopric of Toul", "r": "E", "d": "M167.1 439.2L164.2 430.7L158.1 424.3L149.9 425.6L141.5 426.7L141.1 435.9L138.3 443.4L143.1 449.7L149.9 452.3L156.5 450.2L161.5 445.9Z", "c": [151.7, 439.2], "a": 613, "h": "Matthew of Lorraine", "x": "A see that is slowly being digested by the dukes of Lorraine, who hold the advocacy and use it exactly as you would expect.", "g": {"f": "#b3272d", "ch": ["crozier", "#d6a62c"]}},
+{"n": "Bishopric of Cambrai", "r": "E", "d": "M63.9 349.2L62.5 339.6L53.7 336.7L46.0 331.7L37.8 336.3L34.5 344.9L33.0 354.0L40.4 359.0L46.0 366.9L55.5 365.8L58.9 356.4Z", "c": [48.4, 349.2], "a": 720, "h": "John of Bethune", "x": "Imperial in law, French in everything else, with a cloth town inside it that has had a sworn commune since 1077 and will not give it up.", "g": {"f": "#d6a62c", "ch": ["eagle", "#2a2722"]}},
+{"n": "Bishopric of Lausanne", "r": "E", "d": "M193.7 568.8L189.9 562.4L185.6 557.2L178.6 554.2L173.0 559.5L168.9 565.2L167.0 573.0L172.6 578.6L178.8 582.1L186.8 583.4L191.8 576.4Z", "c": [180.6, 568.8], "a": 613, "h": "Roger of Vico Pisano", "x": "Above the lake, on the road from Burgundy to the Great St Bernard. The bishop is imperial prince, feudal lord and chief magistrate, and he is losing all three to the counts of Savoy.", "g": {"f": "#efe9da", "o": [["perpale", "#b3272d"]]}},
+{"n": "Bishopric of Sion", "r": "E", "d": "M221.6 586.2L221.3 577.9L214.4 573.8L207.1 572.2L199.2 574.1L192.6 581.1L193.7 591.0L198.6 599.0L206.7 603.3L214.9 599.7L223.8 596.3Z", "c": [209.0, 586.2], "a": 720, "h": "Guillaume I de Saillon", "x": "The Valais, a single valley eighty miles long with a bishop at one end and the Simplon at the other. He is Count of the Valais as well, by a grant of 999 that nobody has been able to cancel.", "g": {"f": "#b3272d", "o": [["perfess", "#efe9da"]]}},
+{"n": "Bishopric of Halberstadt", "r": "E", "d": "M366.4 246.0L367.7 236.0L360.6 228.3L350.7 229.2L342.6 233.3L339.4 241.8L340.7 249.8L344.6 256.2L350.6 263.1L358.4 258.7L363.8 253.4Z", "c": [353.0, 246.0], "a": 835, "h": "Conrad of Krosigk", "x": "A see wedged between Brunswick, Magdeburg and Anhalt, which is three too many neighbours. Conrad goes on the Fourth Crusade and comes back with relics instead of money.", "g": {"f": "#efe9da", "o": [["perpale", "#b3272d"]]}},
+{"n": "Bishopric of Verden", "r": "E", "d": "M297.4 184.8L293.5 176.9L288.7 169.2L280.2 171.5L274.7 175.9L270.8 181.3L268.8 188.9L272.3 196.6L280.4 196.5L288.2 199.2L294.1 193.0Z", "c": [282.0, 184.8], "a": 613, "h": "Rudolf I of Verden", "x": "Charlemagne's name is still attached to this place for the worst of reasons. Now it is heath, marsh and a bishop who does what Bremen tells him.", "g": {"f": "#b3272d", "ch": ["cross", "#efe9da"]}},
+{"n": "Bishopric of Ratzeburg", "r": "E", "d": "M354.0 138.0L351.4 131.6L347.4 125.4L340.6 127.7L334.0 128.1L329.0 133.9L328.7 142.2L333.1 148.9L340.3 150.4L347.0 149.5L352.9 145.4Z", "c": [342.0, 138.0], "a": 470, "h": "Philipp of Ratzeburg", "x": "Founded to convert the Wends and now mostly German, sitting on a lake island with Lubeck's money on one side and Holstein's ambition on the other.", "g": {"f": "#d6a62c", "ch": ["cross", "#b3272d"]}},
+{"n": "Bishopric of Schwerin", "r": "E", "d": "M382.2 142.2L376.4 136.1L373.4 128.1L365.8 130.9L358.7 131.6L355.4 138.5L357.2 145.4L360.0 151.2L365.8 153.6L373.7 156.9L379.8 150.7Z", "c": [367.4, 142.2], "a": 563, "h": "Brunward of Schwerin", "x": "A missionary see turned territorial lordship, with a bishop who will outlive four counts and end up owning half of what they fought over.", "g": {"f": "#2f5d8c", "ch": ["crozier", "#d6a62c"]}},
+{"n": "Bishopric of Naumburg", "r": "E", "d": "M395.0 291.0L391.1 285.2L388.3 277.8L380.8 278.2L372.9 279.1L369.1 286.8L371.3 294.5L375.1 300.1L380.6 305.4L387.5 302.5L394.9 299.4Z", "c": [382.6, 291.0], "a": 515, "h": "Berthold II of Naumburg", "x": "The Unstrut wine and the Wettin shadow. Two hundred years from now someone will carve the donor figures in this cathedral and change what sculpture is.", "g": {"f": "#efe9da", "ch": ["key", "#2f5d8c"]}},
+{"n": "Bishopric of Brixen", "r": "E", "d": "M392.3 556.8L388.2 548.7L382.4 542.8L374.1 540.4L366.3 544.5L364.7 553.2L362.3 561.2L367.8 567.3L374.3 572.3L381.2 568.1L389.3 565.6Z", "c": [376.4, 556.8], "a": 666, "h": "Eberhard of Regensberg", "x": "The Brenner on the southern side, held by a bishop whose advocate is the Count of Tyrol, which is a polite way of saying the Count of Tyrol holds it.", "g": {"f": "#efe9da", "o": [["perfess", "#b3272d"]]}},
+{"n": "Bishopric of Gurk", "r": "E", "d": "M492.6 547.2L488.6 541.1L485.9 532.9L478.1 535.5L473.2 539.2L469.3 544.0L467.4 551.0L473.0 555.4L477.6 562.3L485.5 560.6L490.1 554.3Z", "c": [479.7, 547.2], "a": 515, "h": "Walther of Vatz", "x": "The smallest prince-bishopric in the Empire and one of the richest per head, because Friesach mints the best silver penny south of the Danube.", "g": {"f": "#b3272d", "ch": ["crozier", "#efe9da"]}},
+{"n": "Archbishopric of Besancon", "r": "A", "d": "M174.7 525.6L170.4 516.3L163.1 510.8L154.6 509.4L146.1 512.5L138.1 519.8L143.6 529.7L145.3 539.7L154.8 540.3L165.0 544.6L171.1 535.4Z", "c": [156.8, 525.6], "a": 959, "h": "Amadeus de Tramelay", "x": "Metropolitan of Upper Burgundy, lord of a city that elects its own governors, and the only reason the Empire has any authority left in the Jura.", "g": {"f": "#d6a62c", "o": [["bend", "#2a2722"]]}},
+{"n": "Archbishopric of Arles", "r": "A", "d": "M117.3 739.2L116.7 729.6L108.3 725.8L100.5 723.7L90.1 723.9L85.8 734.0L86.6 744.2L91.0 753.4L99.9 759.1L110.0 756.4L116.3 748.5Z", "c": [102.6, 739.2], "a": 959, "h": "Imbert d'Eyguieres", "x": "The old capital of the kingdom of Burgundy, with the Rhone delta, the salt and the ruins. The kingdom is a title the Emperor keeps in a drawer.", "g": {"f": "#2f5d8c", "ch": ["lily", "#d6a62c"]}},
+{"n": "Abbey of Fulda", "r": "B", "d": "M312.6 327.0L312.3 318.0L306.3 310.4L296.8 309.6L289.5 315.3L283.3 322.1L285.1 331.4L290.9 337.1L296.7 345.1L305.4 341.5L309.7 334.2Z", "c": [299.1, 327.0], "a": 720, "h": "Heinrich III von Kronberg", "x": "Boniface is buried here and the abbot is the primate of all the abbots of Germany, which gives him precedence at the Diet and no soldiers at all.", "g": {"f": "#2a2722", "ch": ["cross", "#efe9da"]}},
+{"n": "Abbey of Kempten", "r": "B", "d": "M334.4 496.2L332.1 491.0L328.9 485.8L323.1 486.2L316.5 486.4L313.3 492.7L312.1 500.0L317.3 505.0L322.8 508.8L328.5 505.5L334.1 502.8Z", "c": [324.5, 496.2], "a": 426, "h": "Heinrich von Rothenstein", "x": "An abbey town in the Allgau with a cheese trade, a wool trade and an advocate in Swabia who takes a cut of both.", "g": {"f": "#d6a62c", "ch": ["crozier", "#b3272d"]}},
+{"n": "Abbey of Corvey", "r": "B", "d": "M302.5 253.2L298.8 246.5L294.6 240.1L287.1 239.1L281.8 244.4L276.0 249.1L277.9 256.6L281.7 262.1L287.1 267.0L294.5 266.0L300.6 261.1Z", "c": [289.0, 253.2], "a": 470, "h": "Widukind of Corvey", "x": "The mission to the Saxons started here and the library is still one of the best in the north. The Welfs would like the advocacy and keep asking.", "g": {"f": "#efe9da", "ch": ["key", "#2a2722"]}},
+{"n": "Abbey of St Gallen", "r": "B", "d": "M302.4 514.8L297.6 508.1L293.1 502.5L286.1 501.9L279.0 504.0L276.0 511.1L274.8 518.9L278.5 526.2L285.8 529.4L294.1 529.5L297.9 521.7Z", "c": [287.8, 514.8], "a": 563, "h": "Ulrich von Sax", "x": "The plan of this monastery is the plan every monastery in Europe copies, and the scriptorium has been writing Latin without a break for four hundred years.", "g": {"f": "#efe9da", "ch": ["bull", "#2a2722"]}},
+{"n": "Abbey of Reichenau", "r": "B", "d": "M285.3 498.0L282.6 493.1L279.1 489.3L273.9 487.2L269.2 490.5L265.9 495.1L264.7 501.3L269.2 505.5L274.1 507.1L279.7 508.1L283.4 503.5Z", "c": [275.3, 498.0], "a": 308, "h": "Diethelm of Krenkingen", "x": "An island in the Untersee with three churches on it and a painted ceiling at Oberzell that nothing else in the Empire can match. Konstanz has been trying to absorb it for a century.", "g": {"f": "#3f7f4a", "ch": ["cross", "#efe9da"]}},
+{"n": "Abbey of Murbach", "r": "B", "d": "M212.3 484.2L210.1 478.1L205.7 473.8L199.7 472.5L192.9 474.0L191.2 481.1L191.1 487.4L194.1 493.0L199.7 495.5L205.0 492.9L210.8 490.7Z", "c": [201.2, 484.2], "a": 384, "h": "Heinrich von Murbach", "x": "A valley in the Vosges where the abbot is a prince and the monks are all noblemen, which is how it stays rich and why it never grows.", "g": {"f": "#b3272d", "ch": ["crozier", "#efe9da"]}},
+{"n": "Abbey of Essen", "r": "B", "d": "M209.0 272.4L203.9 266.6L200.3 261.0L194.0 262.2L189.2 264.8L183.0 268.5L184.3 275.8L186.8 283.0L194.0 282.3L199.4 281.7L204.8 278.8Z", "c": [195.4, 272.4], "a": 426, "h": "Abbess Elisabeth of Essen", "x": "Ruled by an abbess who answers only to the Emperor, with a treasury of Ottonian gold that is worth more than the territory around it.", "g": {"f": "#2f5d8c", "ch": ["crozier", "#d6a62c"]}},
+{"n": "Abbey of Quedlinburg", "r": "B", "d": "M367.3 252.6L367.4 245.2L361.2 241.5L354.8 240.3L348.3 242.6L344.7 248.9L346.4 255.7L349.6 261.0L354.8 264.8L360.6 262.1L367.8 260.4Z", "c": [356.5, 252.6], "a": 426, "h": "Abbess Sophia of Brehna", "x": "Henry the Fowler is buried in the crypt and his widow founded this house for his daughters. The abbess has a seat at the Diet, a mint, and a town that argues with her about both.", "g": {"f": "#d6a62c", "ch": ["eagle", "#2a2722"]}},
+{"n": "Abbey of Hersfeld", "r": "B", "d": "M313.0 307.8L309.6 301.7L305.9 295.6L299.3 297.7L291.5 296.5L287.8 303.8L288.0 311.8L294.1 315.8L298.7 322.3L305.3 318.6L312.2 315.6Z", "c": [300.7, 307.8], "a": 470, "h": "Siegfried of Hersfeld", "x": "The salt road and the Fulda crossing, with an abbot who has been in the hands of the Thuringian landgraves as advocates since nobody can remember.", "g": {"f": "#efe9da", "o": [["cross", "#2a2722"]]}},
+{"n": "Abbey of Ellwangen", "r": "B", "d": "M328.7 422.4L325.4 416.7L322.4 410.0L315.5 410.7L310.0 413.8L305.6 418.8L305.1 426.1L309.8 431.3L315.3 435.5L321.7 433.2L326.2 428.6Z", "c": [317.1, 422.4], "a": 384, "h": "Kuno of Ellwangen", "x": "A Benedictine house on the Jagst with imperial immediacy and almost nothing else, surviving because the Staufen find it useful to have a friend here.", "g": {"f": "#b3272d", "ch": ["crozier", "#d6a62c"]}},
+{"n": "Free City of Cologne", "r": "F", "d": "M199.7 300.6L199.5 294.9L195.3 290.8L189.6 289.4L184.6 292.6L180.5 297.3L181.9 303.5L184.4 308.8L190.0 309.0L195.8 311.5L197.9 305.3Z", "c": [191.1, 300.6], "a": 308, "h": "No ruling house: the Richerzeche and the sworn commune", "x": "The largest city north of the Alps, forty thousand people inside Roman walls, and it has beaten its archbishop in the street twice already. The third time will be at Worringen and it will win for good.", "g": {"f": "#efe9da", "o": [["chief", "#b3272d"]], "ch": ["cross", "#2a2722"]}},
+{"n": "Free City of Nuremberg", "r": "F", "d": "M362.5 393.0L362.5 387.3L357.8 384.4L352.8 383.6L347.5 384.9L346.5 390.6L344.0 396.2L348.9 399.4L352.9 401.7L357.9 401.7L361.2 397.8Z", "c": [354.1, 393.0], "a": 308, "h": "No ruling house: an imperial castellan and a council", "x": "A Staufen castle on a rock with a town that grew up underneath it making armour. The charter of 1219 will confirm what the burghers already behave as if they had.", "g": {"f": "#d6a62c", "o": [["perpale", "#2a2722"]], "ch": ["eagle", "#2a2722"]}},
+{"n": "Free City of Ulm", "r": "F", "d": "M321.3 456.0L320.6 449.8L314.8 448.5L310.6 448.3L305.0 447.9L302.8 453.2L302.1 459.0L304.9 464.3L310.2 466.4L315.2 464.2L320.1 461.8Z", "c": [311.6, 456.0], "a": 272, "h": "No ruling house: an elected council", "x": "The Danube becomes navigable here and everything Swabia makes goes downriver from this quay. A royal palace, a mint, and no lord in between.", "g": {"f": "#2a2722", "o": [["perfess", "#efe9da"]]}},
+{"n": "Free City of Strasbourg", "r": "F", "d": "M235.1 445.2L231.6 440.2L228.1 436.2L223.0 436.2L218.7 438.5L213.8 441.9L216.4 447.7L218.8 451.9L223.0 454.2L228.3 454.7L232.0 450.5Z", "c": [224.2, 445.2], "a": 308, "h": "No ruling house: council against bishop", "x": "The burghers and the bishop have been at law and occasionally at arms since 1129. In 1262 the city wins the battle of Hausbergen and the question is settled.", "g": {"f": "#efe9da", "o": [["bend", "#b3272d"]]}},
+{"n": "Free City of Goslar", "r": "F", "d": "M337.6 246.0L335.2 241.6L332.0 238.5L327.5 236.7L322.6 238.4L320.9 243.5L321.3 248.3L322.8 253.4L327.3 256.6L333.3 256.5L335.2 250.4Z", "c": [328.8, 246.0], "a": 272, "h": "No ruling house: an imperial bailiff and a council", "x": "The Rammelsberg under the town has been producing silver, lead and copper since the tenth century and it is the reason emperors kept a palace here.", "g": {"f": "#b3272d", "ch": ["eagle", "#d6a62c"]}},
+{"n": "Free City of Colmar", "r": "F", "d": "M217.2 475.2L214.8 471.3L212.6 467.0L207.8 466.2L203.3 468.2L202.9 473.3L200.6 477.8L204.6 480.6L207.8 484.3L211.7 481.4L216.3 480.1Z", "c": [209.0, 475.2], "a": 208, "h": "No ruling house: an imperial bailiff and a council", "x": "Alsatian wine, an imperial palace, and a charter from Frederick II coming in 1226. Small, and situated on the only flat road between Basel and Strasbourg.", "g": {"f": "#3f7f4a", "ch": ["wheel", "#b3272d"]}},
+{"n": "Free City of Hagenau", "r": "F", "d": "M234.8 430.8L233.1 425.8L229.2 422.9L224.7 422.7L221.1 425.0L218.8 428.6L219.1 432.9L220.7 437.0L224.5 440.3L229.9 440.4L233.0 435.7Z", "c": [225.8, 430.8], "a": 239, "h": "No ruling house: the imperial palace and a council", "x": "Barbarossa's favourite residence, and the strongbox for the imperial insignia. Whoever holds Hagenau is holding the regalia of the Empire in a shed in a forest.", "g": {"f": "#b3272d", "o": [["perfess", "#efe9da"]], "ch": ["rose", "#efe9da"]}},
+{"n": "Free City of Schwabisch Hall", "r": "F", "d": "M310.3 413.4L307.7 409.4L305.6 404.7L300.6 404.5L296.1 406.3L295.7 411.5L294.5 415.7L295.9 420.6L300.5 423.1L305.2 421.1L308.7 418.1Z", "c": [301.9, 413.4], "a": 208, "h": "No ruling house: an elected council", "x": "The salt springs on the Kocher, boiled down and sold across half of Swabia, and a silver penny struck here that gives its name to every Heller in Germany.", "g": {"f": "#efe9da", "ch": ["cross", "#b3272d"]}},
+{"n": "Free City of Esslingen", "r": "F", "d": "M293.8 435.6L291.0 431.5L289.0 426.6L284.1 428.4L280.3 429.7L278.5 433.5L278.8 437.6L279.8 442.1L283.8 444.8L288.1 442.6L292.1 440.4Z", "c": [285.1, 435.6], "a": 208, "h": "No ruling house: an imperial bailiff and a council", "x": "A bridge over the Neckar and a toll on it. The counts of Wurttemberg are two valleys away and want this town more than they want anything else.", "g": {"f": "#d6a62c", "o": [["perfess", "#b3272d"]], "ch": ["eagle", "#2a2722"]}},
+{"n": "Free City of Rothenburg", "r": "F", "d": "M327.7 397.2L326.8 392.1L323.1 388.6L318.3 389.1L314.6 391.3L312.1 394.9L311.1 399.8L314.2 403.5L318.2 406.2L323.3 406.3L325.6 401.5Z", "c": [319.4, 397.2], "a": 208, "h": "No ruling house: an imperial castellan and a council", "x": "A Staufen castle above the Tauber with a market under it. Conradin will sell the castellany and the town will buy itself out of the bargain.", "g": {"f": "#b3272d", "o": [["perfess", "#efe9da"]], "ch": ["eagle", "#2a2722"]}},
+{"n": "Free City of Nordlingen", "r": "F", "d": "M338.2 429.0L338.6 423.9L333.8 422.8L330.2 422.0L325.1 421.6L324.8 427.0L322.5 431.7L325.8 435.5L329.8 438.6L334.3 436.3L336.5 432.7Z", "c": [331.1, 429.0], "a": 208, "h": "No ruling house: an elected council", "x": "In the middle of a round basin that nobody can explain, on the road from Augsburg to Frankfurt, with a Whitsun fair that fills the town twice over.", "g": {"f": "#b3272d", "ch": ["eagle", "#d6a62c"]}},
+{"n": "Free City of Memmingen", "r": "F", "d": "M328.3 481.2L326.3 476.2L322.2 473.9L318.0 473.8L313.5 474.5L311.6 478.9L310.3 483.9L314.8 486.4L317.8 490.4L322.6 489.5L326.3 486.2Z", "c": [319.0, 481.2], "a": 208, "h": "No ruling house: a Welf foundation, now a council", "x": "A Welf town that passed to the Staufen and has been quietly accumulating privileges from both. Linen weaving, and a position on the road to the Fern pass.", "g": {"f": "#efe9da", "o": [["perpale", "#2f5d8c"]], "ch": ["cross", "#b3272d"]}},
+{"n": "Free City of Lindau", "r": "F", "d": "M306.0 507.0L304.6 503.6L303.1 498.7L298.4 498.4L295.4 502.0L292.5 504.8L291.1 509.6L295.2 512.3L298.6 513.8L302.8 514.6L304.8 510.6Z", "c": [299.5, 507.0], "a": 180, "h": "No ruling house: an abbess and a council", "x": "An island in the Bodensee with a convent on it and a harbour that handles everything crossing the lake towards the Alpine passes.", "g": {"f": "#2f5d8c", "ch": ["tower", "#d6a62c"]}},
+{"n": "Free City of Soest", "r": "F", "d": "M245.6 265.8L244.4 261.6L242.5 256.1L237.1 256.8L232.2 258.3L230.6 263.4L231.6 267.9L231.7 273.9L236.8 276.5L241.4 273.0L245.4 270.7Z", "c": [238.3, 265.8], "a": 239, "h": "No ruling house: an elected council", "x": "The richest town on the Hellweg, with a law code that Lubeck borrowed from, salt pans, and an archbishop of Cologne it would rather not have.", "g": {"f": "#efe9da", "ch": ["key", "#b3272d"]}},
+{"n": "Free City of Gelnhausen", "r": "F", "d": "M287.0 348.0L287.6 343.1L283.9 339.8L279.3 339.7L276.2 342.9L274.2 346.1L273.1 350.3L276.1 353.3L279.5 354.7L283.2 354.4L287.4 352.8Z", "c": [280.4, 348.0], "a": 180, "h": "No ruling house: the imperial palace and a council", "x": "Barbarossa founded it, built a palace on an island in the Kinzig, and held the Diet of 1180 here that partitioned Saxony. It has never been important since and never needed to be.", "g": {"f": "#b3272d", "ch": ["eagle", "#efe9da"]}},
+{"n": "Free City of Schaffhausen", "r": "F", "d": "M267.1 498.0L266.1 492.9L261.4 491.3L257.7 491.3L254.0 492.4L250.5 495.5L252.1 500.0L253.8 503.8L257.6 505.5L261.4 504.5L264.1 501.8Z", "c": [258.6, 498.0], "a": 208, "h": "No ruling house: abbot and council", "x": "The Rhine falls over a cliff just downstream, so every cargo on the river has to come out of the boat here and go round by cart. The town charges for that.", "g": {"f": "#d6a62c", "ch": ["tower", "#2a2722"]}},
+{"n": "Commune of Pavia", "r": "T", "d": "M293.7 648.6L294.0 638.5L287.1 630.3L276.8 630.6L269.6 636.8L265.8 644.4L262.6 653.8L270.7 659.1L276.9 665.8L287.1 666.9L292.9 657.9Z", "c": [279.2, 648.6], "a": 835, "h": "No ruling house: elected consuls", "x": "The old Lombard capital, the place where kings of Italy were crowned, and Ghibelline to the bone because Milan is twenty miles away and Guelf.", "g": {"f": "#b3272d", "ch": ["cross", "#efe9da"]}},
+{"n": "Commune of Asti", "r": "T", "d": "M258.0 666.0L256.0 656.6L249.4 649.2L239.9 649.0L231.6 653.0L228.2 661.6L229.1 670.1L232.0 678.5L240.4 679.3L249.1 682.1L252.8 673.2Z", "c": [242.2, 666.0], "a": 777, "h": "No ruling house: elected consuls", "x": "The bankers of Asti lend across the Alps as far as Flanders and England, which makes this hill town richer than several duchies.", "g": {"f": "#efe9da", "ch": ["cross", "#b3272d"]}},
+{"n": "Commune of Alessandria", "r": "T", "d": "M271.6 665.4L270.7 656.8L263.9 652.1L255.8 648.0L250.4 655.9L242.0 660.4L245.4 669.4L249.6 675.9L256.4 678.7L264.9 681.0L271.3 674.4Z", "c": [258.2, 665.4], "a": 720, "h": "No ruling house: elected consuls", "x": "Built in 1168 out of nothing by the Lombard League specifically to block Barbarossa, and named after the Pope who was against him. He besieged it for six months and failed.", "g": {"f": "#b3272d", "ch": ["cross", "#efe9da"]}},
+{"n": "Commune of Novara", "r": "T", "d": "M274.5 633.0L269.3 625.4L263.6 620.5L256.5 620.8L247.4 619.8L243.7 628.5L244.5 637.3L249.0 644.3L256.0 649.2L264.9 648.7L268.4 639.9Z", "c": [258.2, 633.0], "a": 666, "h": "No ruling house: elected consuls", "x": "Flat rice country between the Ticino and the Sesia, which means it is fought over by Milan and Vercelli in every generation.", "g": {"f": "#efe9da", "o": [["perpale", "#b3272d"]]}},
+{"n": "Commune of Como", "r": "T", "d": "M290.9 611.4L288.6 602.9L281.9 598.0L274.2 597.3L268.7 602.3L262.9 607.3L260.1 616.4L265.1 624.9L273.9 627.5L281.5 623.8L287.0 618.8Z", "c": [276.1, 611.4], "a": 666, "h": "No ruling house: elected consuls", "x": "Milan razed this town in 1127 and Barbarossa rebuilt it to spite them. The lake carries everything coming down from the Splugen.", "g": {"f": "#efe9da", "ch": ["cross", "#b3272d"]}},
+{"n": "Commune of Bergamo", "r": "T", "d": "M312.2 618.0L311.9 609.3L305.8 602.4L297.4 605.5L291.5 608.6L283.3 613.1L284.5 622.6L290.2 628.9L297.0 634.0L304.9 631.3L312.1 626.9Z", "c": [299.1, 618.0], "a": 666, "h": "No ruling house: elected consuls", "x": "An upper town on a hill and a lower town on the plain that do not agree about anything, including which side of the Lombard quarrel to be on.", "g": {"f": "#d6a62c", "o": [["perfess", "#b3272d"]]}},
+{"n": "Commune of Lodi", "r": "T", "d": "M303.5 641.4L301.8 635.0L298.3 628.0L290.4 625.8L282.4 629.0L281.8 638.1L278.4 645.8L282.3 653.9L290.3 657.3L298.9 656.2L303.3 648.8Z", "c": [292.5, 641.4], "a": 563, "h": "No ruling house: elected consuls", "x": "Milan destroyed the old Lodi and Barbarossa founded the new one, so the loyalty here is imperial and permanent. Also the cheese.", "g": {"f": "#d6a62c", "ch": ["cross", "#b3272d"]}},
+{"n": "Commune of Reggio", "r": "T", "d": "M352.1 678.0L349.1 669.5L342.7 663.8L334.3 661.6L328.7 668.3L322.2 673.5L321.9 682.6L327.3 689.3L334.4 693.8L342.5 691.7L350.2 687.3Z", "c": [336.6, 678.0], "a": 666, "h": "No ruling house: elected consuls", "x": "On the Via Emilia between Parma and Modena, at war with both of them in alternate decades over strips of the Po floodplain.", "g": {"f": "#efe9da", "o": [["cross", "#b3272d"]]}},
+{"n": "Commune of Vercelli", "r": "T", "d": "M264.3 640.8L263.5 631.8L255.6 628.6L248.3 625.3L243.1 631.9L238.7 637.2L238.6 644.5L241.7 651.5L248.3 656.0L255.9 653.5L263.9 650.0Z", "c": [250.4, 640.8], "a": 613, "h": "No ruling house: elected consuls", "x": "A commune with a law school, a quarrel with Novara and a position that makes it the first thing an army coming out of the Alps walks into.", "g": {"f": "#2f5d8c", "ch": ["cross", "#efe9da"]}},
+{"n": "Commune of Turin", "r": "T", "d": "M236.6 655.8L236.1 646.1L227.3 643.2L219.8 640.1L211.1 642.6L206.8 651.1L205.5 660.9L211.9 668.0L219.9 670.7L227.3 668.3L236.7 665.9Z", "c": [221.9, 655.8], "a": 720, "h": "No ruling house: consuls under the bishop", "x": "A Roman grid at the foot of the Alpine passes, governed by consuls, claimed by a bishop, and watched by the counts of Savoy who will have it in the end.", "g": {"f": "#2f5d8c", "ch": ["bull", "#d6a62c"]}},
+{"n": "Commune of Arezzo", "r": "T", "d": "M397.9 752.4L398.4 743.5L391.2 738.7L383.1 736.0L373.9 738.4L372.5 748.4L372.2 756.5L375.1 764.9L382.8 770.8L391.9 767.6L395.8 759.5Z", "c": [385.3, 752.4], "a": 720, "h": "No ruling house: consuls and bishop", "x": "Ghibelline, upstream of Florence, and about to spend two centuries regretting the geography. Guido d'Arezzo invented the stave here.", "g": {"f": "#b3272d", "ch": ["lily", "#d6a62c"]}},
+{"n": "Commune of Pistoia", "r": "T", "d": "M359.3 724.2L357.4 717.5L353.8 709.5L345.6 710.6L337.5 711.9L337.0 720.9L332.9 728.7L340.3 733.0L345.5 738.8L353.1 737.2L357.6 731.1Z", "c": [347.5, 724.2], "a": 613, "h": "No ruling house: elected consuls", "x": "Ironworking in the hills above the town and the oldest surviving commune statutes in Italy. Florence is twenty miles away and patient.", "g": {"f": "#efe9da", "o": [["bars", "#b3272d", 8]]}},
+{"n": "Commune of Volterra", "r": "T", "d": "M357.4 756.0L355.1 749.5L350.0 745.6L343.4 740.2L336.0 744.3L334.3 752.5L331.9 760.3L336.3 767.3L343.6 770.3L350.9 768.5L358.1 764.6Z", "c": [345.5, 756.0], "a": 563, "h": "No ruling house: consuls under the bishop", "x": "Etruscan walls, a salt monopoly and an alum deposit, on a hill so steep that the town is slowly falling off the edge of it.", "g": {"f": "#b3272d", "ch": ["griffin", "#efe9da"]}},
+{"n": "Commune of Ravenna", "r": "T", "d": "M412.1 694.8L409.8 686.6L403.1 682.4L395.6 678.8L390.1 685.4L382.9 690.2L381.9 699.8L388.2 706.5L395.9 709.1L404.2 709.8L410.2 703.3Z", "c": [397.8, 694.8], "a": 720, "h": "No ruling house: consuls under the archbishop", "x": "The capital of the Western Empire eight centuries ago, now a silted harbour with the finest mosaics in the world and a papal claim hanging over it.", "g": {"f": "#d6a62c", "ch": ["eagle", "#b3272d"]}},
+{"n": "Duchy of Spoleto", "r": "D", "d": "M435.8 758.4L432.0 746.2L423.1 737.6L411.3 737.0L401.3 742.7L399.7 753.9L398.1 763.4L403.9 771.0L411.6 777.6L423.2 779.3L430.7 769.6Z", "c": [414.2, 758.4], "a": 1091, "h": "Conrad of Urslingen", "x": "An imperial duchy driven into the middle of Italy as a wedge. Innocent III is taking it back from Conrad this very year, and the Empire will not get it again.", "g": {"f": "#b3272d", "o": [["bend", "#d6a62c"]]}},
+{"n": "March of Ancona", "r": "M", "d": "M461.5 745.2L457.7 735.2L449.2 730.9L440.7 728.2L430.5 729.8L423.9 739.3L428.6 749.7L432.1 758.6L440.8 762.1L449.9 761.1L458.6 755.8Z", "c": [443.0, 745.2], "a": 1091, "h": "Markward of Annweiler", "x": "The Adriatic coast and the only good harbour between Venice and Apulia. Markward holds it for the Staufen and the Pope is pulling it out of his hands district by district.", "g": {"f": "#d6a62c", "ch": ["cross", "#b3272d"]}},
+{"n": "County of Namur", "r": "C", "d": "M125.0 331.8L125.4 322.6L117.4 319.1L109.2 312.0L103.2 321.1L96.5 327.0L95.2 337.0L102.2 343.8L109.5 349.5L118.4 346.8L125.0 340.7Z", "c": [111.9, 331.8], "a": 835, "h": "Philip the Noble", "x": "Where the Sambre runs into the Meuse. The brassware of Dinant is sold from Novgorod to Lisbon, and the county is being pulled apart by Hainaut and Flanders.", "g": {"f": "#d6a62c", "ch": ["lion", "#2a2722"]}},
+{"n": "County of Loon", "r": "C", "d": "M149.7 301.2L151.0 291.8L142.4 289.4L135.2 285.7L128.1 290.0L123.1 296.8L122.6 305.8L127.9 312.7L135.1 317.5L142.4 313.1L150.5 310.2Z", "c": [137.3, 301.2], "a": 666, "h": "Louis II of Loon", "x": "A county held of the bishop of Liege, which the counts have spent two centuries pretending is not the case. The Haspengouw grain is the best in the Low Countries.", "g": {"f": "#d6a62c", "o": [["bars", "#b3272d", 10]]}},
+{"n": "Duchy of Limburg", "r": "D", "d": "M165.0 316.8L167.5 307.4L159.4 303.4L151.8 302.8L144.5 305.6L138.9 312.2L139.5 321.2L145.6 326.7L151.9 329.9L159.5 330.3L164.1 323.9Z", "c": [153.7, 316.8], "a": 666, "h": "Walram III of Limburg", "x": "A ducal title on a rock above the Vesdre with almost no duchy under it. The Limburgers hold the Rhine-Meuse road and sell passage to whoever is marching.", "g": {"f": "#efe9da", "ch": ["lion", "#b3272d"]}},
+{"n": "County of Zutphen", "r": "C", "d": "M178.6 231.6L176.8 222.7L169.9 217.4L161.5 214.8L155.1 221.0L148.9 227.0L151.0 235.6L156.1 241.1L161.5 248.5L169.2 244.2L174.4 238.8Z", "c": [163.8, 231.6], "a": 613, "h": "Otto I of Guelders", "x": "United with Guelders by marriage a century ago and still administered as a separate county, with its own law and its own town charter of 1190.", "g": {"f": "#efe9da", "ch": ["lion", "#b3272d"]}},
+{"n": "Lordship of Friesland", "r": "S", "d": "M168.3 168.0L165.5 156.2L157.3 146.9L145.2 145.9L136.5 153.7L126.3 161.2L130.8 173.4L133.2 186.4L145.2 190.2L157.2 188.8L161.7 177.2Z", "c": [148.2, 168.0], "a": 1232, "h": "No ruling house: the Frisian Freedom, sworn by district", "x": "No count, no duke, no lord. The Frisians govern themselves by assembly under a charter they say Charlemagne gave them, and they have drowned two armies sent to test it.", "g": {"f": "#2f5d8c", "o": [["bars", "#d6a62c", 7]]}},
+{"n": "County of Zeeland", "r": "C", "d": "M90.6 270.0L87.9 261.1L80.5 256.9L73.2 257.5L66.8 260.1L63.1 266.3L63.2 273.7L65.5 281.5L72.6 286.5L80.8 283.7L84.1 276.3Z", "c": [74.9, 270.0], "a": 613, "h": "William I of Holland", "x": "Islands, mudflats and shipping. Holland and Flanders have both claimed it for a century and the islanders have learned to pay whichever one has a fleet in the water.", "g": {"f": "#d6a62c", "ch": ["lion", "#2f5d8c"]}},
+{"n": "County of Bar", "r": "C", "d": "M141.8 433.8L135.6 425.4L131.0 415.8L121.2 418.8L113.0 421.3L107.6 428.9L106.8 438.9L114.7 444.2L121.4 447.1L128.5 446.0L138.3 444.1Z", "c": [123.2, 433.8], "a": 835, "h": "Theobald I of Bar", "x": "A county split by the border: one half held of the Emperor, the other of the King of France, and the count does homage twice and obeys neither.", "g": {"f": "#d6a62c", "o": [["bend", "#2f5d8c"]]}},
+{"n": "County of Vianden", "r": "C", "d": "M175.0 364.2L174.5 357.2L168.8 353.4L162.4 351.2L157.0 355.4L154.4 361.2L153.1 367.7L156.3 373.8L162.5 376.6L169.4 376.2L173.2 370.4Z", "c": [164.2, 364.2], "a": 426, "h": "Henry I of Vianden", "x": "A castle on a spur above the Our with a county attached that could be walked across in a morning, and a marriage into the Dutch counts that will make it matter.", "g": {"f": "#b3272d", "o": [["bars", "#d6a62c", 8]]}},
+{"n": "County of Salm", "r": "C", "d": "M206.8 451.8L203.9 446.5L200.6 441.5L194.5 439.3L188.2 442.1L186.4 448.8L187.3 454.6L189.2 460.3L194.7 462.6L201.3 463.6L205.8 458.4Z", "c": [196.2, 451.8], "a": 384, "h": "Henry III of Salm", "x": "A fortress in the high Vosges held of the dukes of Lorraine, with silver in the valley and a family that will split into Upper and Lower Salm and argue forever.", "g": {"f": "#b3272d", "o": [["bars", "#efe9da", 8]]}},
+{"n": "County of Sponheim", "r": "C", "d": "M228.3 368.4L228.5 360.7L222.6 355.9L215.5 355.6L208.1 357.2L204.5 364.4L203.5 372.7L209.1 378.4L215.7 380.0L223.1 382.1L228.2 375.9Z", "c": [217.2, 368.4], "a": 515, "h": "Gottfried III of Sponheim", "x": "Nahe wine, a silver mine at Stromberg and a family that has already put one of its branches on the ducal throne of Carinthia.", "g": {"f": "#2f5d8c", "o": [["lozengy", "#efe9da"]]}},
+{"n": "County of Kyburg", "r": "C", "d": "M274.6 512.4L272.0 506.1L268.5 499.3L261.3 500.6L254.4 502.0L247.4 507.6L247.5 517.2L254.8 522.2L260.7 528.4L268.7 526.0L273.3 519.5Z", "c": [262.9, 512.4], "a": 613, "h": "Ulrich III of Kyburg", "x": "The strongest county on the Swiss plateau, about to inherit half of what the Zahringen leave behind. When the Kyburgs die out the Habsburgs take the lot.", "g": {"f": "#d6a62c", "o": [["bend", "#2a2722"]], "ch": ["lion", "#2a2722"]}},
+{"n": "County of Toggenburg", "r": "C", "d": "M295.6 520.8L292.8 513.9L287.9 508.8L280.7 506.0L274.4 510.6L271.7 517.4L269.6 524.9L274.9 530.5L281.1 533.2L288.5 534.2L293.6 528.2Z", "c": [282.8, 520.8], "a": 470, "h": "Diethelm V of Toggenburg", "x": "A valley county in the pre-Alps with an abbey of St Gallen on one side and a Rhine valley on the other, and a mastiff on the shield.", "g": {"f": "#2a2722", "ch": ["bull", "#efe9da"]}},
+{"n": "County of Gruyere", "r": "C", "d": "M210.4 565.2L209.7 557.3L203.0 553.8L196.5 553.0L189.2 554.2L187.1 561.8L188.9 568.1L189.6 575.6L196.3 578.6L203.1 576.7L206.1 570.7Z", "c": [198.1, 565.2], "a": 470, "h": "Rudolf II of Gruyere", "x": "High pasture above the Saane with a crane on the arms and a cheese that will be worth more than the county.", "g": {"f": "#efe9da", "ch": ["lion2", "#b3272d"]}},
+{"n": "County of Neuchatel", "r": "C", "d": "M204.0 540.0L204.3 531.8L196.7 529.8L190.8 529.3L185.7 532.0L179.0 535.9L179.3 544.0L184.0 550.1L190.8 550.5L197.5 552.1L203.5 547.7Z", "c": [192.3, 540.0], "a": 515, "h": "Ulrich III of Neuchatel", "x": "A new castle on the lake shore, vineyards on the slope behind it, and a count who holds directly of the Emperor and intends to keep saying so.", "g": {"f": "#d6a62c", "o": [["chevronny", "#b3272d"]]}},
+{"n": "County of Montbeliard", "r": "C", "d": "M199.0 509.4L199.0 501.3L191.6 499.1L185.2 494.5L180.4 501.0L173.2 505.0L175.1 513.2L179.4 518.9L185.8 520.0L192.6 521.9L198.6 517.2Z", "c": [187.2, 509.4], "a": 515, "h": "Countess Thierry III", "x": "The gap between the Jura and the Vosges, which is to say the only easy road from the Rhine into Burgundy, with iron in the hills to pay for the tolls.", "g": {"f": "#b3272d", "o": [["bars", "#d6a62c", 6]]}},
+{"n": "County of Werdenberg", "r": "C", "d": "M304.6 532.2L301.3 525.7L296.9 520.2L290.0 519.4L286.0 525.2L282.2 529.2L280.7 535.6L285.1 540.3L290.1 543.8L296.2 542.5L302.4 539.5Z", "c": [291.7, 532.2], "a": 384, "h": "Rudolf I of Werdenberg", "x": "A Montfort cadet branch holding the Rhine valley where it turns north, and the narrows at Sargans that anyone moving between Chur and the lake has to use.", "g": {"f": "#efe9da", "ch": ["eagle", "#2a2722"]}},
+{"n": "Lordship of Uri", "r": "S", "d": "M268.6 547.2L269.5 540.0L263.0 537.8L257.6 536.8L252.4 539.2L248.0 543.8L249.5 550.2L252.4 555.2L257.1 560.7L263.3 557.2L269.2 554.2Z", "c": [259.0, 547.2], "a": 426, "h": "No ruling house: the men of the valley in assembly", "x": "The Reuss valley and the northern approach to the Gotthard, which has just been opened and changes everything. Frederick II grants them immediacy in 1231 and they never give it back.", "g": {"f": "#d6a62c", "ch": ["bull", "#2a2722"]}},
+{"n": "County of Aosta", "r": "C", "d": "M218.3 615.6L216.1 609.7L213.6 601.4L205.6 602.0L200.6 607.2L196.2 612.1L195.5 619.3L197.8 627.5L205.7 628.4L211.9 625.8L216.2 621.5Z", "c": [207.5, 615.6], "a": 515, "h": "Thomas I of Savoy", "x": "The valley below the Great and Little St Bernard, held by Savoy, with a charter of liberties the valley wrung out of them in 1191 and a Roman arch at the bottom of it.", "g": {"f": "#b3272d", "ch": ["cross", "#efe9da"]}},
+{"n": "County of Oldenburg", "r": "C", "d": "M256.0 171.6L255.4 162.6L248.4 157.3L240.3 158.0L232.9 160.2L230.7 168.0L226.7 176.4L234.2 181.4L239.8 189.3L247.2 183.3L252.5 178.6Z", "c": [242.2, 171.6], "a": 720, "h": "Maurice of Oldenburg", "x": "Marsh, moor and cattle between the Weser and the Ems, with a count who answers to nobody because nobody has thought it worth the trouble.", "g": {"f": "#d6a62c", "o": [["bars", "#b3272d", 5]]}},
+{"n": "County of Schauenburg", "r": "C", "d": "M288.1 220.2L286.3 212.7L280.5 208.3L273.5 206.6L268.3 211.5L264.5 216.8L262.1 224.3L268.3 228.8L273.3 235.6L279.5 229.8L287.6 228.6Z", "c": [275.3, 220.2], "a": 515, "h": "Adolf III of Schauenburg", "x": "A small county on the Weser whose counts are also counts of Holstein, which is the only reason anyone has heard of it. The nettle leaf is theirs.", "g": {"f": "#b3272d", "ch": ["nettle", "#efe9da"]}},
+{"n": "County of Hoya", "r": "C", "d": "M279.3 192.0L276.5 185.9L273.4 178.4L265.9 180.0L258.5 181.0L254.3 187.9L255.8 195.7L259.6 201.8L266.1 202.6L271.5 201.3L278.8 199.7Z", "c": [267.5, 192.0], "a": 470, "h": "Henry I of Hoya", "x": "A castle commanding the Weser crossing and a toll on everything moving between Bremen and the interior. That toll is the entire county economy.", "g": {"f": "#d6a62c", "o": [["bars", "#2a2722", 4]]}},
+{"n": "County of Henneberg", "r": "C", "d": "M343.5 331.8L341.0 324.5L335.5 319.9L328.6 319.1L319.9 319.1L315.3 327.1L315.1 336.5L321.8 342.2L328.2 347.2L335.0 342.7L341.2 339.2Z", "c": [330.3, 331.8], "a": 613, "h": "Poppo VII of Henneberg", "x": "The Thuringian forest on the Franconian side, with burgraves of Wurzburg for a title and a hen on the arms that is a bad pun on the name.", "g": {"f": "#d6a62c", "ch": ["nettle", "#2a2722"]}},
+{"n": "County of Schwarzburg", "r": "C", "d": "M367.9 321.0L368.7 314.0L363.9 308.4L356.4 306.5L349.5 310.1L348.2 317.8L345.8 324.9L350.0 331.3L356.7 333.6L363.0 331.6L369.5 328.5Z", "c": [358.4, 321.0], "a": 470, "h": "Henry II of Schwarzburg", "x": "Forest valleys south of Erfurt, held of the landgraves of Thuringia and governed as if they were not.", "g": {"f": "#d6a62c", "ch": ["lion", "#b3272d"]}},
+{"n": "County of Mansfeld", "r": "C", "d": "M382.5 264.6L377.6 258.4L372.8 254.6L366.7 251.2L359.3 253.3L356.6 260.9L357.4 268.1L359.9 275.2L366.5 279.5L372.7 274.4L378.7 271.5Z", "c": [368.5, 264.6], "a": 470, "h": "Burchard II of Mansfeld", "x": "Copper shale under the whole county, worked since the tenth century. Three centuries from now a miner's son will be born in Eisleben and split the Church.", "g": {"f": "#efe9da", "o": [["perfess", "#b3272d"]]}},
+{"n": "Burgraviate of Nuremberg", "r": "G", "d": "M374.1 382.8L375.8 373.9L368.6 369.0L360.7 368.1L352.9 370.8L352.2 379.5L351.1 386.4L353.0 394.7L361.0 395.5L367.4 393.8L375.5 391.5Z", "c": [362.7, 382.8], "a": 563, "h": "Frederick I of Zollern", "x": "A Swabian family just given the castellany of the imperial castle at Nuremberg. In five hundred years their descendants are kings in Prussia and emperors in Germany. Start here if you like long odds.", "g": {"f": "#efe9da", "o": [["perpale", "#2a2722"]], "ch": ["lion", "#2a2722"]}},
+{"n": "County of Oettingen", "r": "C", "d": "M349.9 420.6L348.5 414.9L345.7 407.6L338.2 406.8L333.0 411.9L326.5 416.4L328.7 424.1L331.1 431.6L338.2 434.3L345.1 432.4L350.6 427.8Z", "c": [340.1, 420.6], "a": 470, "h": "Ludwig II of Oettingen", "x": "The Ries basin and the roads across it, held by a family that has backed the Staufen in every quarrel and been paid for it in privileges.", "g": {"f": "#d6a62c", "o": [["bars", "#b3272d", 6]]}},
+{"n": "County of Wurttemberg", "r": "C", "d": "M295.6 435.0L291.6 427.1L285.6 422.0L278.3 422.1L270.5 423.4L263.8 429.9L267.1 439.0L269.8 447.6L278.3 447.8L286.0 448.9L290.5 442.1Z", "c": [280.0, 435.0], "a": 666, "h": "Ludwig II of Wurttemberg", "x": "A castle on a vine-covered hill and a county of about forty thousand people. When the Staufen fall this family picks up Swabia piece by piece and holds it for six hundred years.", "g": {"f": "#d6a62c", "ch": ["pass3", "#2a2722"]}},
+{"n": "County of Hohenberg", "r": "C", "d": "M276.8 459.6L277.2 452.0L270.1 450.1L264.4 447.9L256.7 448.2L255.5 456.3L254.8 463.1L258.3 469.0L264.2 472.6L271.5 472.4L276.3 466.6Z", "c": [266.0, 459.6], "a": 470, "h": "Burchard IV of Hohenberg", "x": "A Zollern cadet line on the upper Neckar, loyal to the Staufen and about to spend four generations slowly selling itself to the Habsburgs.", "g": {"f": "#efe9da", "o": [["perpale", "#b3272d"]]}},
+{"n": "County of Furstenberg", "r": "C", "d": "M257.1 483.0L256.5 476.4L251.1 473.2L244.9 468.1L237.7 471.8L237.3 480.0L235.8 486.4L238.1 493.8L245.1 496.4L252.4 495.9L257.8 490.4Z", "c": [246.9, 483.0], "a": 470, "h": "Egino IV of Urach", "x": "The Black Forest where the Danube starts, held by a branch of the Urach counts who are about to inherit the Zahringen name and most of their land.", "g": {"f": "#d6a62c", "ch": ["eagle", "#2f5d8c"]}},
+{"n": "County of Wertheim", "r": "C", "d": "M302.6 374.4L301.3 368.7L296.7 365.6L291.5 364.4L285.3 365.1L283.9 371.6L280.7 378.2L286.0 382.8L291.3 386.4L297.4 385.0L302.2 380.7Z", "c": [292.9, 374.4], "a": 384, "h": "Poppo I of Wertheim", "x": "Where the Tauber joins the Main, a castle above the junction and a toll under it, held of the bishops of Wurzburg with as little deference as can be managed.", "g": {"f": "#2f5d8c", "o": [["bars", "#d6a62c", 4]]}},
+{"n": "County of Leiningen", "r": "C", "d": "M246.6 386.4L243.7 380.8L240.2 375.7L233.7 372.5L228.1 377.3L224.4 382.9L226.3 389.3L227.8 395.9L234.2 396.7L239.8 396.3L244.2 392.3Z", "c": [235.6, 386.4], "a": 426, "h": "Frederick I of Leiningen", "x": "The eastern edge of the Palatine forest, with Rhine wine on the slope below the castle and an eagle on the shield taken from the Emperor's own.", "g": {"f": "#2f5d8c", "ch": ["eagle", "#efe9da"]}},
+{"n": "County of Zweibrucken", "r": "C", "d": "M219.4 405.0L218.5 398.8L214.6 393.1L208.1 395.4L200.6 394.2L197.0 401.1L197.2 408.8L201.4 414.9L208.0 415.7L213.9 415.4L220.0 412.2Z", "c": [209.4, 405.0], "a": 426, "h": "Henry II of Zweibrucken", "x": "Two bridges over the Schwarzbach, a castle between them, and a branch of the Saarbrucken counts who hold the southern Westrich and nothing else.", "g": {"f": "#efe9da", "ch": ["lion", "#b3272d"]}},
+{"n": "County of Tecklenburg", "r": "C", "d": "M238.7 226.8L236.4 220.1L231.5 215.5L224.7 212.9L218.1 216.3L215.3 223.3L215.1 230.4L217.3 238.2L225.1 237.6L231.3 237.8L237.3 234.1Z", "c": [226.6, 226.8], "a": 470, "h": "Otto I of Tecklenburg", "x": "A ridge fortress above the north German plain, held against Cologne, Munster and Osnabruck at once, with iron ore in the hill it stands on.", "g": {"f": "#b3272d", "o": [["bars", "#efe9da", 6]]}},
+{"n": "Lordship of Rugen", "r": "S", "d": "M457.8 94.8L454.6 88.0L451.0 79.9L442.5 79.2L434.8 82.8L429.7 90.2L431.5 98.9L433.3 108.7L442.9 107.4L450.7 109.0L457.0 103.3Z", "c": [444.6, 94.8], "a": 720, "h": "Jaromar I of Rugen", "x": "A Wendish princely house on an island of chalk cliffs, Christian for forty years, holding the Danish allegiance and the best herring grounds in the Baltic.", "g": {"f": "#2f5d8c", "ch": ["griffin", "#b3272d"]}}];
+RANKS.A=["Prince-archbishopric", "#9a4bb5"];
+RANKS.B=["Imperial abbey", "#6b7fc4"];
+RANKS.G=["Burgraviate", "#a8622f"];
+RANKS.S=["Lordship", "#7a8a4a"];
+RANKS.P=["Principality", "#c2456f"];
+RANKS.I=["Empire", "#8c1f26"];
+T=T.concat(T2).concat(T3);
 
 var labs=[], shields=[], cur=null, TGEO=[];
 T.forEach(function(t){
@@ -1321,6 +1431,220 @@ var TITLES2=["Council of Lubeck", "Council of Hamburg", "Council of Frankfurt", 
 RANKS.F=["Free imperial city", "#1f8f7a"];
 RG=RG.concat(RG2); SUBS=SUBS.concat(SUBS2); TITLES=TITLES.concat(TITLES2);
 
+var RG3=[
+["Bishopric of Wurzburg", 140, 12, 52, "va", 62, 74, 12, 70, "ger", ["wine", "grain"], 2, 0, 44],
+["Bishopric of Augsburg", 90, 11, 50, "pl", 64, 72, 14, 60, "ger", ["wool", "grain"], 2, 0, 50],
+["Bishopric of Konstanz", 70, 10, 48, "hl", 60, 74, 12, 45, "ger", ["wine", "fish"], 2, 0, 46],
+["Bishopric of Passau", 66, 10, 46, "fo", 54, 72, 14, 65, "ger", ["salt", "timber"], 2, 0, 42],
+["Bishopric of Freising", 42, 9, 46, "pl", 62, 74, 12, 55, "ger", ["grain", "wine"], 1, 0, 48],
+["Bishopric of Regensburg", 40, 10, 48, "va", 66, 72, 14, 60, "ger", ["salt", "grain"], 1, 0, 44],
+["Bishopric of Chur", 28, 7, 34, "al", 24, 74, 10, 50, "ger", ["iron", "timber"], 1, 0, 52],
+["Bishopric of Basel", 30, 9, 44, "hl", 62, 72, 14, 20, "ger", ["iron", "wine"], 1, 0, 50],
+["Bishopric of Worms", 24, 10, 48, "va", 72, 70, 16, 35, "ger", ["wine"], 1, 0, 54],
+["Bishopric of Verdun", 46, 9, 44, "hl", 56, 70, 16, -10, "wal", ["grain", "iron"], 1, 0, 48],
+["Bishopric of Metz", 80, 12, 50, "va", 64, 70, 16, 0, "wal", ["wine", "grain"], 2, 0, 40],
+["Bishopric of Toul", 36, 9, 42, "hl", 58, 70, 16, -5, "wal", ["grain", "wine"], 1, 0, 52],
+["Bishopric of Cambrai", 60, 16, 54, "pl", 70, 66, 22, -20, "wal", ["wool", "grain"], 2, 0, 46],
+["Bishopric of Lausanne", 32, 9, 42, "hl", 58, 72, 14, 15, "bur", ["wine", "fish"], 1, 0, 50],
+["Bishopric of Sion", 24, 6, 32, "al", 22, 74, 12, 25, "bur", ["iron", "wine"], 1, 0, 54],
+["Bishopric of Halberstadt", 66, 10, 46, "pl", 60, 70, 16, -15, "ger", ["grain", "silver"], 2, 0, 44],
+["Bishopric of Verden", 32, 8, 40, "mr", 54, 70, 16, -30, "ger", ["grain", "fish"], 1, 0, 50],
+["Bishopric of Ratzeburg", 20, 7, 36, "pl", 58, 70, 16, -30, "wnd", ["fish", "timber"], 1, 0, 46],
+["Bishopric of Schwerin", 24, 7, 36, "pl", 56, 70, 16, -25, "wnd", ["fish", "grain"], 1, 0, 48],
+["Bishopric of Naumburg", 28, 8, 42, "va", 60, 72, 14, 40, "ger", ["wine", "grain"], 1, 0, 52],
+["Bishopric of Brixen", 26, 6, 34, "al", 28, 72, 12, 55, "ger", ["silver", "wine"], 1, 0, 50],
+["Bishopric of Gurk", 18, 5, 32, "mt", 30, 72, 12, 50, "slv", ["iron", "lead"], 1, 0, 54],
+["Archbishopric of Besancon", 70, 11, 48, "hl", 56, 70, 16, 25, "bur", ["wine", "salt"], 2, 0, 46],
+["Archbishopric of Arles", 56, 13, 50, "mr", 66, 66, 20, -5, "bur", ["salt", "fish"], 2, 1, 50],
+["Abbey of Fulda", 46, 8, 42, "hl", 56, 76, 10, 60, "ger", ["timber", "grain"], 1, 0, 48],
+["Abbey of Kempten", 16, 8, 38, "hl", 52, 74, 12, 45, "ger", ["wool", "timber"], 1, 0, 52],
+["Abbey of Corvey", 20, 7, 40, "fo", 50, 74, 12, -20, "ger", ["grain", "timber"], 1, 0, 50],
+["Abbey of St Gallen", 24, 9, 44, "hl", 54, 74, 12, 40, "ger", ["wool", "timber"], 1, 0, 46],
+["Abbey of Reichenau", 9, 8, 42, "co", 56, 76, 10, 45, "ger", ["wine", "fish"], 1, 0, 54],
+["Abbey of Murbach", 12, 6, 38, "mt", 46, 74, 12, 55, "ger", ["wine", "timber"], 1, 0, 50],
+["Abbey of Essen", 14, 10, 44, "pl", 68, 74, 12, -15, "ger", ["iron", "grain"], 1, 0, 44],
+["Abbey of Quedlinburg", 15, 11, 46, "hl", 60, 74, 12, -10, "ger", ["silver", "grain"], 1, 0, 40],
+["Abbey of Hersfeld", 18, 8, 40, "hl", 54, 74, 12, 55, "ger", ["salt", "timber"], 1, 0, 52],
+["Abbey of Ellwangen", 11, 7, 38, "hl", 52, 74, 12, 60, "ger", ["timber", "iron"], 1, 0, 48],
+["Free City of Cologne", 40, 84, 78, "va", 86, 68, 22, -35, "ger", ["bank", "wool"], 1, 0, 0],
+["Free City of Nuremberg", 16, 76, 70, "hl", 72, 74, 14, 85, "ger", ["armour", "iron"], 1, 0, 0],
+["Free City of Ulm", 12, 74, 68, "va", 76, 72, 16, 80, "ger", ["wool", "grain"], 1, 0, 0],
+["Free City of Strasbourg", 15, 76, 70, "va", 80, 70, 18, 45, "ger", ["wine", "grain"], 1, 0, 0],
+["Free City of Goslar", 11, 72, 70, "hl", 64, 74, 14, 20, "ger", ["silver", "lead"], 1, 0, 0],
+["Free City of Colmar", 7, 70, 66, "va", 76, 72, 16, 70, "ger", ["wine"], 1, 0, 0],
+["Free City of Hagenau", 6, 68, 66, "fo", 74, 74, 14, 95, "ger", ["timber"], 1, 0, 0],
+["Free City of Schwabisch Hall", 6, 70, 66, "hl", 70, 74, 14, 75, "ger", ["salt"], 1, 0, 0],
+["Free City of Esslingen", 6, 70, 66, "va", 76, 72, 16, 80, "ger", ["wine"], 1, 0, 0],
+["Free City of Rothenburg", 5, 68, 64, "hl", 66, 74, 14, 90, "ger", ["wool"], 1, 0, 0],
+["Free City of Nordlingen", 5, 68, 64, "pl", 72, 74, 14, 75, "ger", ["wool", "grain"], 1, 0, 0],
+["Free City of Memmingen", 5, 68, 64, "pl", 70, 74, 14, 70, "ger", ["wool"], 1, 0, 0],
+["Free City of Lindau", 4, 70, 64, "co", 68, 76, 12, 60, "ger", ["fish", "wine"], 1, 1, 0],
+["Free City of Soest", 9, 72, 68, "pl", 76, 72, 16, -25, "ger", ["salt", "grain"], 1, 0, 0],
+["Free City of Gelnhausen", 4, 68, 64, "va", 74, 74, 14, 95, "ger", ["wine"], 1, 0, 0],
+["Free City of Schaffhausen", 5, 68, 64, "hl", 70, 74, 14, 35, "ger", ["wine", "fish"], 1, 0, 0],
+["Commune of Pavia", 45, 36, 74, "pl", 78, 62, 26, 85, "ita", ["grain", "silk"], 1, 0, 0],
+["Commune of Asti", 30, 34, 72, "hl", 72, 62, 26, -15, "ita", ["wine", "bank"], 1, 0, 0],
+["Commune of Alessandria", 24, 32, 68, "pl", 74, 60, 28, -45, "ita", ["grain"], 1, 0, 0],
+["Commune of Novara", 22, 30, 68, "pl", 74, 62, 26, -20, "ita", ["grain", "wool"], 1, 0, 0],
+["Commune of Como", 20, 32, 68, "al", 62, 62, 26, 65, "ita", ["iron", "silk"], 1, 0, 0],
+["Commune of Bergamo", 24, 30, 68, "hl", 66, 60, 28, 30, "ita", ["iron", "wool"], 1, 0, 0],
+["Commune of Lodi", 16, 30, 68, "pl", 76, 62, 26, 80, "ita", ["grain"], 1, 0, 0],
+["Commune of Reggio", 30, 30, 70, "pl", 74, 62, 26, -5, "ita", ["grain", "wool"], 1, 0, 0],
+["Commune of Vercelli", 18, 28, 66, "pl", 72, 60, 28, -10, "ita", ["grain"], 1, 0, 0],
+["Commune of Turin", 20, 28, 64, "pl", 68, 62, 26, 20, "ita", ["grain", "iron"], 1, 0, 0],
+["Commune of Arezzo", 22, 30, 68, "hl", 66, 60, 28, 55, "tus", ["wool", "iron"], 1, 0, 0],
+["Commune of Pistoia", 18, 30, 68, "hl", 68, 60, 28, -10, "tus", ["iron", "wool"], 1, 0, 0],
+["Commune of Volterra", 12, 28, 64, "hl", 58, 62, 26, 30, "tus", ["salt", "alum"], 1, 0, 0],
+["Commune of Ravenna", 22, 30, 66, "mr", 70, 58, 30, -30, "ita", ["salt", "fish"], 1, 1, 0],
+["Duchy of Spoleto", 70, 14, 46, "mt", 48, 58, 30, 70, "ita", ["timber", "iron"], 2, 0, 46],
+["March of Ancona", 60, 18, 52, "hl", 60, 58, 30, 55, "ita", ["fish", "wool"], 2, 1, 42],
+["County of Namur", 60, 12, 50, "va", 68, 68, 18, -20, "wal", ["iron", "grain"], 2, 0, 38],
+["County of Loon", 40, 10, 46, "pl", 70, 70, 16, -15, "dut", ["grain", "iron"], 1, 0, 42],
+["Duchy of Limburg", 42, 10, 48, "hl", 68, 70, 16, -10, "dut", ["iron", "timber"], 1, 0, 44],
+["County of Zutphen", 34, 9, 44, "fo", 62, 70, 16, -20, "dut", ["timber", "grain"], 1, 0, 40],
+["Lordship of Friesland", 70, 8, 38, "mr", 50, 58, 30, -40, "dut", ["fish", "grain"], 2, 1, 0],
+["County of Zeeland", 26, 14, 46, "co", 72, 64, 22, -25, "dut", ["fish", "wool"], 1, 1, 36],
+["County of Bar", 48, 9, 44, "hl", 60, 70, 16, -10, "wal", ["grain", "iron"], 1, 0, 48],
+["County of Vianden", 14, 7, 38, "fo", 58, 72, 14, 0, "wal", ["timber", "iron"], 1, 0, 42],
+["County of Salm", 11, 6, 36, "mt", 46, 72, 14, 15, "ger", ["timber", "silver"], 1, 0, 46],
+["County of Sponheim", 20, 8, 42, "hl", 62, 70, 16, 25, "ger", ["wine", "silver"], 1, 0, 44],
+["County of Kyburg", 34, 9, 44, "hl", 64, 72, 14, 30, "ger", ["grain", "timber"], 1, 0, 40],
+["County of Toggenburg", 16, 6, 36, "al", 42, 72, 14, 20, "ger", ["timber", "wool"], 1, 0, 44],
+["County of Gruyere", 14, 5, 34, "al", 40, 74, 12, 10, "bur", ["timber", "grain"], 1, 0, 46],
+["County of Neuchatel", 18, 7, 38, "hl", 58, 72, 14, 15, "bur", ["wine", "fish"], 1, 0, 42],
+["County of Montbeliard", 20, 8, 40, "hl", 62, 70, 16, 20, "bur", ["iron", "grain"], 1, 0, 0],
+["County of Werdenberg", 9, 5, 32, "al", 36, 72, 14, 25, "ger", ["timber", "iron"], 1, 0, 38],
+["Lordship of Uri", 8, 4, 28, "al", 26, 76, 10, 60, "ger", ["timber", "iron"], 1, 0, 0],
+["County of Aosta", 16, 6, 34, "al", 30, 72, 14, 10, "ita", ["timber", "iron"], 1, 0, 36],
+["County of Oldenburg", 34, 8, 38, "mr", 52, 68, 18, -30, "ger", ["grain", "fish"], 1, 1, 40],
+["County of Schauenburg", 20, 8, 40, "hl", 58, 70, 16, -30, "ger", ["grain", "timber"], 1, 0, 44],
+["County of Hoya", 16, 7, 36, "mr", 54, 70, 16, -25, "ger", ["grain", "fish"], 1, 0, 42],
+["County of Henneberg", 28, 8, 40, "hl", 54, 70, 16, 60, "ger", ["timber", "iron"], 1, 0, 46],
+["County of Schwarzburg", 18, 7, 38, "fo", 50, 70, 16, 30, "ger", ["timber", "silver"], 1, 0, 44],
+["County of Mansfeld", 20, 8, 42, "hl", 58, 70, 16, 25, "ger", ["copper", "silver"], 1, 0, 40],
+["Burgraviate of Nuremberg", 22, 9, 44, "hl", 66, 72, 14, 95, "ger", ["iron", "grain"], 1, 0, 32],
+["County of Oettingen", 16, 7, 38, "pl", 66, 72, 14, 70, "ger", ["grain", "wool"], 1, 0, 42],
+["County of Wurttemberg", 36, 9, 44, "hl", 68, 72, 14, 75, "ger", ["wine", "grain"], 1, 0, 38],
+["County of Hohenberg", 16, 7, 38, "hl", 58, 72, 14, 80, "ger", ["timber", "iron"], 1, 0, 40],
+["County of Furstenberg", 14, 6, 36, "fo", 52, 72, 14, 70, "ger", ["timber", "silver"], 1, 0, 0],
+["County of Wertheim", 11, 8, 42, "va", 68, 72, 14, 55, "ger", ["wine"], 1, 0, 44],
+["County of Leiningen", 14, 8, 42, "hl", 66, 72, 14, 45, "ger", ["wine", "iron"], 1, 0, 42],
+["County of Zweibrucken", 13, 7, 38, "fo", 58, 72, 14, 30, "ger", ["timber", "iron"], 1, 0, 38],
+["County of Tecklenburg", 16, 7, 38, "hl", 56, 70, 16, -25, "ger", ["iron", "timber"], 1, 0, 44],
+["Lordship of Rugen", 24, 6, 32, "co", 48, 68, 18, -20, "wnd", ["fish", "amber"], 1, 1, 46]];
+var SUBS3=[
+["Wurzburg", "Karlstadt", "Ochsenfurt", "Gerolzhofen"],
+["Dillingen", "Fussen", "Schwabmunchen"],
+["Konstanz", "Meersburg", "Radolfzell"],
+["Passau", "Vilshofen", "Hartkirchen"],
+["Freising", "Ismaning", "Innichen"],
+["Donaustauf", "Worth", "Hohenburg"],
+["Chur", "Fursten", "Chiavenna"],
+["Pruntrut", "Delsberg", "Laufen"],
+["Ladenburg", "Dirmstein"],
+["Verdun", "Dieue", "Hattonchatel"],
+["Metz", "Vic", "Marsal", "Nomeny"],
+["Toul", "Liverdun", "Blenod"],
+["Cambrai", "Cateau", "Crevecoeur"],
+["Lausanne", "Lucens", "Avenches"],
+["Sion", "Martigny", "Leuk"],
+["Halberstadt", "Oschersleben", "Osterwieck"],
+["Verden", "Rotenburg", "Dorverden"],
+["Ratzeburg", "Schonberg"],
+["Bulow", "Warin", "Rubow"],
+["Naumburg", "Zeitz", "Pforta"],
+["Brixen", "Bruneck", "Klausen"],
+["Gurk", "Althofen", "Friesach"],
+["Besancon", "Ornans", "Marnay", "Vesoul"],
+["Arles", "Salon", "Les Baux"],
+["Fulda", "Hammelburg", "Geisa"],
+["Kempten", "Durach"],
+["Hoxter", "Beverungen"],
+["St Gallen", "Rorschach", "Wil"],
+["Reichenau", "Allensbach"],
+["Murbach", "Gebweiler"],
+["Essen", "Steele"],
+["Quedlinburg", "Ditfurt"],
+["Hersfeld", "Vacha"],
+["Ellwangen", "Tannenburg"],
+["Koln", "Niederich", "Riehl"],
+["Nurnberg", "Wohrd", "Gostenhof"],
+["Ulm", "Sofingen"],
+["Strassburg", "Illkirch"],
+["Goslar", "Rammelsberg"],
+["Colmar", "Turckheim"],
+["Hagenau", "Bischwiller"],
+["Hall", "Steinbach"],
+["Esslingen", "Mettingen"],
+["Rothenburg", "Detwang"],
+["Nordlingen", "Baldingen"],
+["Memmingen", "Buxheim"],
+["Lindau", "Aeschach"],
+["Soest", "Werl"],
+["Gelnhausen", "Selbold"],
+["Schaffhausen", "Neuhausen"],
+["Pavia", "Voghera", "Broni"],
+["Asti", "Villanova", "Canelli"],
+["Alessandria", "Marengo"],
+["Novara", "Galliate"],
+["Como", "Lecco", "Menaggio"],
+["Bergamo", "Treviglio", "Clusone"],
+["Lodi", "Codogno"],
+["Reggio", "Guastalla", "Scandiano"],
+["Vercelli", "Santhia"],
+["Torino", "Rivoli", "Chieri"],
+["Arezzo", "Cortona", "Bibbiena"],
+["Pistoia", "Serravalle"],
+["Volterra", "Pomarance"],
+["Ravenna", "Cervia", "Classe"],
+["Spoleto", "Foligno", "Terni", "Rieti"],
+["Ancona", "Fermo", "Jesi", "Osimo"],
+["Namur", "Fosses", "Bouvignes"],
+["Borgloon", "Hasselt", "Beringen"],
+["Limbourg", "Wassenberg", "Montjoie"],
+["Zutphen", "Doesburg", "Lochem"],
+["Leeuwarden", "Dokkum", "Sneek", "Stavoren"],
+["Middelburg", "Zierikzee", "Veere"],
+["Bar-le-Duc", "Saint-Mihiel", "Ligny"],
+["Vianden", "Clervaux"],
+["Salm", "Senones"],
+["Sponheim", "Kreuznach", "Trarbach"],
+["Kyburg", "Winterthur", "Frauenfeld"],
+["Lichtensteig", "Wildhaus"],
+["Gruyeres", "Bulle"],
+["Neuchatel", "Boudry", "Valangin"],
+["Montbeliard", "Hericourt"],
+["Werdenberg", "Sargans"],
+["Altdorf", "Fluelen"],
+["Aosta", "Chatillon", "Verres"],
+["Oldenburg", "Delmenhorst", "Wildeshausen"],
+["Rinteln", "Stadthagen"],
+["Hoya", "Nienburg"],
+["Schleusingen", "Meiningen", "Themar"],
+["Schwarzburg", "Rudolstadt"],
+["Mansfeld", "Eisleben"],
+["Cadolzburg", "Schwabach", "Baiersdorf"],
+["Oettingen", "Wallerstein"],
+["Wirtemberg", "Beutelsbach", "Cannstatt"],
+["Rottenburg", "Horb"],
+["Donaueschingen", "Hufingen"],
+["Wertheim", "Freudenberg"],
+["Leiningen", "Durkheim"],
+["Zweibrucken", "Hornbach"],
+["Tecklenburg", "Ibbenburen"],
+["Garz", "Bergen", "Stralsund"]];
+var TITLES3=["Prince-Bishop of Wurzburg", "Prince-Bishop of Augsburg", "Prince-Bishop of Konstanz", "Prince-Bishop of Passau", "Prince-Bishop of Freising", "Prince-Bishop of Regensburg", "Prince-Bishop of Chur", "Prince-Bishop of Basel", "Prince-Bishop of Worms", "Prince-Bishop of Verdun", "Prince-Bishop of Metz", "Prince-Bishop of Toul", "Prince-Bishop of Cambrai", "Prince-Bishop of Lausanne", "Prince-Bishop of Sion", "Prince-Bishop of Halberstadt", "Prince-Bishop of Verden", "Prince-Bishop of Ratzeburg", "Prince-Bishop of Schwerin", "Prince-Bishop of Naumburg", "Prince-Bishop of Brixen", "Prince-Bishop of Gurk", "Prince-Archbishop of Besancon", "Prince-Archbishop of Arles", "Prince-Abbot of Fulda", "Prince-Abbot of Kempten", "Prince-Abbot of Corvey", "Prince-Abbot of St Gallen", "Prince-Abbot of Reichenau", "Prince-Abbot of Murbach", "Princess-Abbess of Essen", "Princess-Abbess of Quedlinburg", "Prince-Abbot of Hersfeld", "Prince-Abbot of Ellwangen", "Council of Cologne", "Council of Nuremberg", "Council of Ulm", "Council of Strasbourg", "Council of Goslar", "Council of Colmar", "Council of Hagenau", "Council of Hall", "Council of Esslingen", "Council of Rothenburg", "Council of Nordlingen", "Council of Memmingen", "Council of Lindau", "Council of Soest", "Council of Gelnhausen", "Council of Schaffhausen", "Consuls of Pavia", "Consuls of Asti", "Consuls of Alessandria", "Consuls of Novara", "Consuls of Como", "Consuls of Bergamo", "Consuls of Lodi", "Consuls of Reggio", "Consuls of Vercelli", "Consuls of Turin", "Consuls of Arezzo", "Consuls of Pistoia", "Consuls of Volterra", "Consuls of Ravenna", "Duke of Spoleto", "Margrave of Ancona", "Margrave of Namur", "Count of Loon", "Duke of Limburg", "Count of Zutphen", "Potestaat of the Frisians", "Count of Zeeland", "Count of Bar", "Count of Vianden", "Count of Salm", "Count of Sponheim", "Count of Kyburg", "Count of Toggenburg", "Count of Gruyere", "Count of Neuchatel", "Count of Montbeliard", "Count of Werdenberg", "Landammann of Uri", "Count of Aosta", "Count of Oldenburg", "Count of Schauenburg", "Count of Hoya", "Count of Henneberg", "Count of Schwarzburg", "Count of Mansfeld", "Burgrave of Nuremberg", "Count of Oettingen", "Count of Wurttemberg", "Count of Hohenberg", "Count of Furstenberg", "Count of Wertheim", "Count of Leiningen", "Count of Zweibrucken", "Count of Tecklenburg", "Prince of Rugen"];
+var LIEGE0={"Abbey of Kempten": "Duchy of Swabia", "Abbey of Reichenau": "Bishopric of Konstanz", "Abbey of Hersfeld": "Landgraviate of Thuringia", "Free City of Cologne": "Archbishopric of Cologne", "Free City of Strasbourg": "Bishopric of Strasbourg", "Free City of Soest": "Archbishopric of Cologne", "Commune of Turin": "County of Savoy", "County of Loon": "Bishopric of Liege", "County of Zutphen": "Duchy of Guelders", "County of Zeeland": "County of Holland", "County of Vianden": "County of Luxembourg", "County of Salm": "Duchy of Upper Lorraine", "County of Gruyere": "Duchy of Zahringen", "County of Aosta": "County of Savoy", "County of Schwarzburg": "Landgraviate of Thuringia", "County of Mansfeld": "Archbishopric of Magdeburg", "County of Wurttemberg": "Duchy of Swabia", "County of Hohenberg": "Duchy of Swabia", "County of Wertheim": "Bishopric of Wurzburg"};
+var RENAME0=[["Duchy of Carinthia", "Friesach", "Griffen"], ["County of Tyrol", "Brixen", "Imst"], ["County of Tyrol", "Hall", "Rattenberg"], ["Duchy of Bavaria", "Passau", "Deggendorf"], ["Duchy of Bavaria", "Freising", "Dingolfing"], ["Duchy of Swabia", "Ulm", "Donauworth"], ["Duchy of Swabia", "Esslingen", "Weinsberg"], ["Duchy of Swabia", "Konstanz", "Markdorf"], ["Duchy of Swabia", "Memmingen", "Leutkirch"], ["Duchy of Swabia", "Schwabisch Hall", "Bopfingen"], ["Duchy of Franconia", "Wurzburg", "Dettelbach"], ["Duchy of Franconia", "Nurnberg", "Lauf"], ["Duchy of Franconia", "Rothenburg", "Windsheim"], ["Archbishopric of Cologne", "Koln", "Kempen"], ["Archbishopric of Cologne", "Soest", "Attendorn"], ["Duchy of Upper Lorraine", "Metz", "Vaudemont"], ["Duchy of Upper Lorraine", "Toul", "Neufchateau"], ["Duchy of Upper Lorraine", "Verdun", "Stenay"], ["Bishopric of Strasbourg", "Strassburg", "Kochersberg"], ["Duchy of Guelders", "Zutphen", "Harderwijk"], ["Duchy of Guelders", "Doesburg", "Venlo"], ["Welf lands of Brunswick", "Goslar", "Munden"], ["Archbishopric of Bremen", "Verden", "Vegesack"], ["County of Holstein", "Oldenburg", "Plon"], ["Duchy of Pomerania", "Stralsund", "Treptow"], ["Duchy of Saxony", "Ratzeburg", "Molln"], ["Archbishopric of Magdeburg", "Halberstadt", "Wanzleben"], ["County of Savoy", "Aosta", "Annecy"], ["County of Burgundy", "Besancon", "Poligny"], ["County of Provence", "Arles", "Brignoles"], ["Commune of Milan", "Como", "Gallarate"], ["Commune of Milan", "Lodi", "Binasco"], ["Commune of Pisa", "Volterra", "Vicopisano"], ["Commune of Florence", "Pistoia", "Certaldo"]];
+/* The great duchies no longer hold the towns that belong to the sees, the
+   imperial cities and the communes now modelled beside them. Each seat goes
+   back to whoever actually held it, and the duke keeps another of his own. */
+RENAME0.forEach(function(e){
+ for(var i=0;i<T.length;i++){ if(T[i].n!==e[0]) continue;
+  var k=SUBS[i].indexOf(e[1]); if(k>=0) SUBS[i][k]=e[2]; break; }
+});
+RG=RG.concat(RG3); SUBS=SUBS.concat(SUBS3); TITLES=TITLES.concat(TITLES3);
+
 /* Who claims the crown in 1200, and what picking them means. */
 var CLAIMS={
  ph:{n:"Philip of Swabia",hs:"House of Hohenstaufen",ix:8,cr:"#b3272d",sign:1,
@@ -1391,7 +1715,7 @@ var IMPD=[
 /* ===================================================================
    ENGINE
    You rule one state. It is divided into its own regions. The other
-   fifty-eight run as states in their own right, and above all of them
+   hundred and eighty-two run as states in their own right, and above all of them
    there is an Empire with a king who wants things from you.
    =================================================================== */
 var G=null, RIDX={};
@@ -1436,6 +1760,7 @@ function initGame(natIx,recog){
   pendingBattle:null,battleDue:null,
   peaceOffer:null,peaceDemand:null,
   dipl:0,diplMax:3,
+  rank:null,liege:null,ld:0,ldPush:0,vassYrs:0,rupCool:0,sueCool:0,rankThin:0,liegeAsk:null,revoltAt:null,
   clim:30,climB:30,genius:null,chron:[],flags:{},strainRun:0,
   rnd:rnd,ev:null,over:null,em:{}};
 
@@ -1477,6 +1802,7 @@ function initGame(natIx,recog){
  hostInit();
  recalcAll();
  aiInit();
+ rankInit();
  G.dipl=G.diplMax;
  intelPass();
 
@@ -1572,6 +1898,12 @@ function bag(){
  /* imperial favour, or the lack of it */
  if(!G.king){ if(G.impFav>66)add({stab:5,mkt:5,leg:4},1);
    if(G.outlaw)add({stab:-14,mkt:-14,unr:9,leg:-12},1); }
+ /* what the rank itself is worth, and what holding of another man costs */
+ if(typeof RTIER!=="undefined"&&G.rank){
+  var RT=RTIER[rankRow(G.rank).t];
+  if(RT)add({prs:RT.prs,land:RT.land,tax:RT.tax,def:RT.land*0.4},1);
+  if(amVassal())add({prs:-7,leg:-6,cent:-5,unr:3,stab:-3},1);
+ }
  return M;
 }
 function m(M,k){return M[k]||0;}
@@ -1669,13 +2001,16 @@ function natAgg(M){
  if(G.king)inc+=3100*(G.leg/100)*(1+m(M,"tax")*0.006);   /* the Reichsgut, if you wear the crown */
  if(G.sub>0)inc+=G.sub;
  if(G.tribute)inc+=G.tribute;
+ if(typeof vassalDues==="function"&&G.states&&G.states.length){G.vinc=vassalDues();inc+=G.vinc;}
  inc*=(1-G.corr/160);
  G.income=inc;
 
  var up=0;for(var u in G.army){var ud=UID2[u];if(ud)up+=ud.u*G.army[u];}
  up*=(1+m(M,"upk")*0.012);
  up+=bu;
- up+=G.income*0.55+G.regions.length*42;
+ /* the fixed cost of administering a region scales with what there is to
+    administer: a lordship of two valleys does not keep a chancery */
+ up+=G.income*0.55+G.regions.length*Math.min(42,6+G.income*0.012);
  /* trade pays for itself or it does not */
  var TB=tradeBooks();G.TB=TB;
  G.trade.exp=TB.exp;G.trade.imp=TB.imp;G.trade.surplus=TB.surplus;G.trade.upk=TB.upk;
@@ -1683,6 +2018,7 @@ function natAgg(M){
  up+=TB.imp+TB.upk;
  if(G.debt>0)up+=G.debt*0.09;
  if(G.impTax)up+=G.impTax;
+ if(typeof tributeDue==="function"&&G.states&&G.states.length){G.vtrib=tributeDue();up+=G.vtrib;}
  G.upkeep=up;
  G.net=G.income-G.upkeep;
 
@@ -1760,7 +2096,9 @@ function tierOpen(cat,tier){
  for(var i=0;i<below.length;i++)if(!G.done[below[i].i])return false;
  return true;
 }
-function slotsTotal(){var M=G.M||{};return cl0(3+Math.round(m(M,"slot")),3,11);}
+function slotsTotal(){var M=G.M||{};
+ var rk=(typeof RTIER!=="undefined"&&G.rank)?RTIER[rankRow(G.rank).t].slot:0;
+ return cl0(3+Math.round(m(M,"slot"))+rk-(amVassal()?1:0),2,13);}
 function canStart(t){
  if(G.done[t.i]||G.queue.indexOf(t.i)>=0)return 0;
  if(G.queue.length>=slotsTotal())return 0;
@@ -1820,6 +2158,11 @@ function dipBlocked(six,act){
  if(G.dipl<=0)return "no envoy left this year";
  if(G.tr<a.c)return "not enough in the chamber";
  if(!indep(s)&&!isMine(s))return "they answer to somebody else now";
+ if(amVassal()){
+  if(a.k==="dn"&&six!==G.liege)return vassBlock("claim");
+  if(a.ally&&six!==G.liege&&!(G.states[six].liege===G.liege))
+   return "a man who holds of another may not swear his own alliances";
+ }
  var war=atWar(six);
  if(a.ally&&G.allies[six])return "already allied";
  if(a.i==="agent"&&s.spy)return "an agent is already there";
@@ -1865,6 +2208,8 @@ function powBlocked(pid,act){
  if(G.dipl<=0)return "no envoy left this year";
  if(G.tr<a.c)return "not enough in the chamber";
  if(a.need!==undefined&&cur<a.need)return "relations are not warm enough";
+ if(a.ally&&amVassal())return vassBlock("pow");
+ if(a.take&&amVassal())return vassBlock("claim");
  if(a.ally&&G.allies["p_"+pid])return "already allied";
  if(a.i==="brk"&&cur<=-45)return "relations are already broken off";
  return "";
@@ -2000,7 +2345,7 @@ function endTurn(){
   else if(res==="demand"&&G.peaceDemand===null)G.peaceDemand=+wix;
   /* losing badly enough costs you a region, not just prestige */
   var w2=G.wars[wix];
-  if(w2&&w2.sc<=-52&&G.yr-(w2.lastLoss||0)>=3){
+  if(w2&&!w2.rev&&w2.sc<=-52&&G.yr-(w2.lastLoss||0)>=3){
    loseRegion(+wix);w2.sc=-8;w2.lastLoss=G.yr;w2.took=(w2.took||0)+1;
    if(G.over)return G;}
  }
@@ -2057,6 +2402,8 @@ function endTurn(){
  empTurn();
  deaths();
 
+ if(typeof rankTurn==="function")rankTurn();
+ if(typeof revoltWatch==="function")revoltWatch();
  recalcAll();intelPass();
  strain();
  if(!G.over)drawEvent();
@@ -2423,6 +2770,15 @@ function aiWarDecide(s){
  var cands=aiNbr(s).filter(function(j){
   var o=G.states[j];
   if(!o||!indep(o)||aiAllied(s.ix,j)||atWarPair(s.ix,j))return 0;
+  /* a man who holds of somebody is that somebody's business. Picking on him
+     means answering to his lord, so it is only done to the badly protected. */
+  if(typeof isVass==="function"&&isVass(j)){
+   var lx=liegeOf(j);
+   if(lx===s.ix)return 0;
+   if(aiAllied(s.ix,lx))return 0;
+   var L=G.states[lx];
+   if(L&&indep(L)&&tierOf(lx)>=tierOf(s.ix)&&(o.ld||0)<58)return 0;
+  }
   if(j===G.nat)return 1;
   return 1;});
  if(!cands.length)return;
@@ -2442,6 +2798,10 @@ function aiWarDecide(s){
   want+=regionsLeft(o)>0?0:-999;
   /* the Empire frowns on it, and a strong emperor frowns harder */
   if(G.laws&&G.laws.lland)want-=14;
+  if(typeof isVass==="function"&&isVass(j)){
+   var lq=liegeOf(j),LQ=G.states[lq];
+   want-=18+(LQ?LQ.army*1.6:0)-((o.ld||0)*0.22);
+  }
   want*=P.aggr;
   want+=(G.rnd()-0.5)*26;
   if(want>bestScore){bestScore=want;best=j;}
@@ -2572,7 +2932,8 @@ function pickNeighbour(){
  return G.states[near[Math.floor(G.rnd()*near.length)]];
 }
 function shortName(n){
- return String(n).replace(/^(Duchy|County|Kingdom|Margraviate|Landgraviate|Lordship|Bishopric|Archbishopric|Patriarchate|Dauphine|March|Commune|Marquisate|Palatinate|Free City|Principality) of /,"");
+ return String(n).replace(/^(Duchy|County|Kingdom|Margraviate|Landgraviate|Lordship|Bishopric|Archbishopric|Patriarchate|Dauphine|March|Commune|Marquisate|Palatinate|Free City|Principality|Abbey|Burgraviate|Empire|Republic) of /,"")
+  .replace(/^Abbey of /,"").replace(/^Free City of /,"");
 }
 function evCtx(e){
  var C={};
@@ -2636,7 +2997,23 @@ function canDeclare(ix){
  if(!s||isMine(s)||atWar(ix))return 0;
  if(armyCount()<1)return 0;
  if(regionsLeft(s)<1)return 0;
- return 1;
+ return declBlock(ix)?0:1;
+}
+/* rank decides who you are allowed to pick a fight with, and how many at once */
+function declBlock(ix){
+ var s=G.states[ix];
+ if(!s)return "not possible";
+ if(amVassal())return (ix===G.liege)?
+   "renouncing your homage is done from the Standing pane" :
+   ("you hold of "+shortName(myLiege().n)+"; a war of your own is a revolt");
+ if(s.liege===G.nat)return "he is your own man; revoke the fief first";
+ var cap=RTIER[myTier()].wars;
+ if(warCount()>=cap)return "a "+rankRow(myRank()).sh.toLowerCase()+" cannot run more than "+
+   cap+" war"+(cap>1?"s":"")+" at once";
+ if(tierOf(ix)>myTier()+1&&!s.claim)
+   return "nobody would follow a "+rankRow(myRank()).sh.toLowerCase()+
+    " against a "+rankRow(rankKey(ix)).sh.toLowerCase()+" without a claim entered first";
+ return "";
 }
 function declareWar(ix){
  if(!canDeclare(ix))return "";
@@ -2664,10 +3041,17 @@ function warRound(ix){
  var theirs=s.army*8+s.dev*0.5+(s.rule?s.rule.sk[1]*3:12);
  /* whoever is defending is fighting on their own castles and their own roads */
  if(w.def)mine+=G.def*0.9+30; else theirs+=30;
+ /* a rising is a different war: fought in your own country, with whoever else
+    has renounced, against a lord who may have his hands full elsewhere */
+ if(w.rev){
+  var RS=revStrength();
+  theirs*=RS.scale; mine+=25+G.regions.length*5;
+ }
  /* shock swings a battle hard either way; siegecraft tells against their works */
  var swing=34+dk.shock*0.8;
  var roll=(mine-theirs)*0.3+dk.sieg*0.35+(G.rnd()-0.5)*swing;
  if(roll>0)roll+=dk.raid*0.22;
+ if(w.rev)roll*=1.5;            /* a rising is settled quickly or not at all */
  w.sc=cl0(w.sc+roll,-100,100);w.yrs++;
  /* war costs money, men and patience */
  var cost=Math.round((G.income*0.16+armyCount()*22)*cl0(1+dk.camp*0.012,0.5,2));
@@ -2728,6 +3112,25 @@ function annex(ix){
 }
 function makePeace(ix,terms){
  var s=G.states[ix],w=G.wars[ix];if(!w)return"";
+ if(w.rev&&amVassal()&&ix===G.liege){
+  if(terms==="annex"||terms==="tribute"){
+   delete G.wars[ix];
+   freeMe("<b>"+shortName(s.n)+" gives it up.</b> The homage is renounced for good and you hold of the Empire alone.");
+   return "You are free of "+shortName(s.n)+".";
+  }
+  if(terms==="submit"||terms==="cede"){
+   delete G.wars[ix];
+   s.rel=cl0(s.rel+30,0,100);G.ld=cl0((G.ld||0)-52,0,100);
+   var loss=Math.round(G.income*1.1);G.tr=Math.max(0,G.tr-loss);
+   chron(G.yr,"<b>You submit again to "+shortName(s.n)+".</b> The homage is renewed on worse terms than before and a fine of "+fmt(loss)+" marks is assessed on the realm.");
+   demote("A rising put down is a title forfeit in all but name.");
+   recalcAll();return "You submit.";
+  }
+  delete G.wars[ix];
+  s.rel=cl0(s.rel+12,0,100);G.ld=cl0((G.ld||0)-16,0,100);
+  chron(G.yr,"<b>The rising ends where it began.</b> You are still "+shortName(s.n)+"'s man and both of you are poorer.");
+  recalcAll();return "Nothing settled.";
+ }
  var msg="";
  if(terms==="annex"){var r=annex(ix);msg=r?r.n+" is ceded to you.":"Nothing more to take.";}
  else if(terms==="tribute"){var amt=Math.round(s.gdp*0.35);G.tr+=amt;
@@ -3008,18 +3411,22 @@ function bar(){
  if(G.king)items.push(["Rome",pc(G.pap),cls(G.pap)]);
  else items.push([G.outlaw?"BANNED":"Imperial favour",G.outlaw?"\u2014":pc(G.impFav),G.outlaw?"b":cls(G.impFav)]);
  items.push(["Envoys",G.dipl+"/"+G.diplMax,G.dipl?"w":""]);
+ items.push(["Rank",(RANKT[myRank()]||{sh:"?"}).sh,""]);
+ if(amVassal())items.push(["Liberty",Math.round(G.ld||0),(G.ld||0)>60?"b":(G.ld||0)>35?"w":"g"]);
  if(G.debtLvl)items.splice(3,0,["Debt",fmt(G.debt)+"m",G.debt>G.debtCap?"b":""]);
  $("stats").innerHTML=items.map(function(i){
   return '<div class="st"><div class="k">'+i[0]+'</div><div class="v '+i[2]+'">'+i[1]+'</div></div>';}).join("");
  $("reign").textContent=G.ruler.n;
  $("subt").innerHTML=esc(G.ruler.title)+" \u00b7 "+esc(techLevelName(G.lvl))+
+   (amVassal()?' \u00b7 <span class="b">holds of '+esc(shortName(myLiege().n))+'</span>':
+     ' \u00b7 immediate of the Empire')+
    (G.strainList&&G.strainList.length?' <span class="b">\u00b7 '+G.strainList.length+' strain</span>':'');
  $("end").disabled=!!G.over;
  paintMil();
 }
 
 /* ---- tabs ---- */
-var TABS=[["realm","Realm"],["ledger","Ledger"],["research","Research"],["laws","Laws"],
+var TABS=[["realm","Realm"],["ledger","Ledger"],["standing","Standing"],["research","Research"],["laws","Laws"],
  ["gov","Government"],["trade","Trade"],["diplo","Diplomacy"],["mil","Military"],
  ["court","Court"],["chron","Chronicle"]];
 var tab="realm";
@@ -3028,7 +3435,8 @@ function buildTabs(){
  TABS.forEach(function(t){
   var b=document.createElement("button");b.className="tab";b.setAttribute("role","tab");
   b.setAttribute("aria-selected",t[0]===tab?"true":"false");
-  var dot=(t[0]==="research"&&G&&G.queue.length<slotsTotal())||(t[0]==="diplo"&&G&&G.dipl>0);
+  var dot=(t[0]==="research"&&G&&G.queue.length<slotsTotal())||(t[0]==="diplo"&&G&&G.dipl>0)
+   ||(t[0]==="standing"&&G&&((G.rank&&!rupBlocked())||(amVassal()&&!sueBlocked())));
   b.innerHTML=esc(t[1])+(dot?'<span class="dot"></span>':'');
   b.onclick=function(){tab=t[0];buildTabs();showPane();};w.appendChild(b);
  });
@@ -3036,7 +3444,7 @@ function buildTabs(){
 function showPane(){
  TABS.forEach(function(t){var p=$("p-"+t[0]);if(p)p.hidden=(t[0]!==tab);});
  $("body").scrollTop=0;
- ({realm:paneRealm,ledger:paneLedger,research:paneResearch,laws:paneLaws,gov:paneGov,
+ ({realm:paneRealm,ledger:paneLedger,standing:paneStanding,research:paneResearch,laws:paneLaws,gov:paneGov,
    trade:paneTrade,diplo:paneDiplo,mil:paneMil,court:paneCourt,chron:paneChron}[tab]||function(){})();
 }
 function sh(t,r){return '<div class="sh"><h3>'+esc(t)+'</h3>'+(r?'<span class="hr">'+esc(r)+'</span>':'')+'</div>';}
@@ -3265,17 +3673,22 @@ function paneDiplo(){
  }else if(dipMode==="states"){
   var list=G.states.slice().filter(function(s){return !isMine(s);})
    .sort(function(a,b){return b.rel-a.rel;});
-  h+='<p class="fine" style="margin-bottom:8px">Fifty-eight states. Tap one to deal with it. What you can see of each depends on whether you have anyone there.</p>';
+  h+='<p class="fine" style="margin-bottom:8px">'+(G.states.length-1)+
+   ' states. Tap one to deal with it. What you can see of each depends on whether you have anyone there, and a man who holds of another is approached through his lord.</p>';
   list.forEach(function(s){
    var al=G.allies[s.ix], sel=dipSel===s.ix;
    h+='<div class="tr" style="cursor:pointer" data-dsel="'+s.ix+'"><div class="trh">'+
-    '<span class="n">'+esc(s.n.replace(/^(Duchy|County|Kingdom|Margraviate|Landgraviate|Lordship|Bishopric|Archbishopric|Patriarchate|Dauphine|March|Commune|Marquisate|Palatinate|Free City|Principality) of /,""))+
+    '<span class="n">'+esc(shortName(s.n))+
     (al?' <span class="pill g">allied</span>':'')+(s.claim?' <span class="pill b">claim</span>':'')+
-    (s.spy?' <span class="pill w">agent</span>':'')+'</span>'+
+    (s.spy?' <span class="pill w">agent</span>':'')+
+    (s.liege===G.nat?' <span class="pill g">your man</span>':
+     (isVass(s.ix)?' <span class="pill mu">vassal</span>':''))+'</span>'+
     '<span class="pill '+cls(s.rel)+'">'+esc(word(s.rel,W_REL))+'</span></div>'+
-    '<div class="d">'+(s.intel<1?'<i>rumour only</i>':
-      esc(s.rule?s.rule.n:"\u2014")+' \u00b7 '+fmt(s.pop)+
-      (s.intel>=2?' \u00b7 '+s.army+' companies':''))+'</div>';
+    '<div class="d">'+esc(rankRow(rankKey(s.ix)).sh)+' \u00b7 '+
+      (s.intel<1?'<i>rumour only</i>':
+       esc(s.rule?s.rule.n:"\u2014")+' \u00b7 '+fmt(s.pop)+
+       (s.intel>=2?' \u00b7 '+s.army+' companies':''))+
+      (isVass(s.ix)?' \u00b7 holds of '+esc(shortName(G.states[liegeOf(s.ix)].n)):'')+'</div>';
    if(sel){
     h+='<div class="btns" style="margin-top:6px">';
     DIPA.forEach(function(a){
@@ -3382,9 +3795,11 @@ function paneLaws(){
  var h=sh("Laws","tech-gated, across your state");
  h+='<p class="lead">Four groups. A law takes effect at once, but what it is worth depends on how far your officers can actually reach.</p>';
  Object.keys(LAWG).forEach(function(g){
-  h+='<div class="sh" style="margin-top:15px"><h3 style="font-size:15px">'+esc(LAWG[g])+'</h3></div>';
+  var lg=lawGate(g);
+  h+='<div class="sh" style="margin-top:15px"><h3 style="font-size:15px">'+esc(LAWG[g])+'</h3>'+
+   (lg?'<span class="hr" style="color:var(--bad)">'+esc(lg)+'</span>':'')+'</div>';
   LAWS.filter(function(l){return l.g===g;}).forEach(function(l){
-   var on=G.laws[l.i],gat=l.req&&!G.done[l.req];
+   var on=G.laws[l.i],gat=(l.req&&!G.done[l.req])||!!lg;
    h+='<div class="tr"><div class="trh"><span class="n">'+esc(l.n)+'</span>'+
     (on?'<span class="pill g">in force</span>':gat?'<span class="pill mu">needs '+esc(TID[l.req]?TID[l.req].n:l.req)+'</span>':'<span class="pill w">available</span>')+'</div>'+
     '<div class="d">'+esc(l.d)+'</div>'+effHtml(l.e,l.i);
@@ -3635,11 +4050,24 @@ function stateModal(t){
  var ix=T.indexOf(t), s=G?G.states[ix]:null;
  if(!s){return;}
  CURT=t;
- var h='<div class="ey">'+esc(RANKS[t.r][0])+'</div>'+
+ var rk=rankKey(ix);
+ var h='<div class="ey">'+esc(rankRow(rk).n)+' \u00b7 tier '+rankRow(rk).t+'</div>'+
   '<div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:8px">'+armsSVG(t.g,50)+
   '<div><h2 style="margin-bottom:2px">'+esc(t.n)+'</h2>'+
   '<p style="margin:0;font-size:12px;color:var(--ink-3)">'+esc(s.me?"Your own state":(s.rule?s.rule.n:t.h))+'</p></div></div>';
  h+='<p>'+esc(t.x)+'</p>';
+ if(isVass(ix)){
+  var lq=liegeOf(ix);
+  h+='<div class="card"><h4>Holds of '+esc(shortName(G.states[lq].n))+'</h4>'+
+   '<p style="margin:0 0 6px;font-size:12.5px;line-height:1.6;color:var(--ink-2)">'+
+   (lq===G.nat?"Your own man. He pays you and brings men when he is called, and he would rather not.":
+    "Not his own master. Whoever wants anything from him deals with his lord first, and whoever attacks him answers to his lord.")+'</p>'+
+   ((lq===G.nat||s.intel>=2)?('<div class="kv"><span class="k">Liberty desire</span><span class="v '+
+     ((s.ld||0)>60?"b":(s.ld||0)>35?"w":"g")+'">'+Math.round(s.ld||0)+'</span></div>'+
+     barHtml(s.ld||0,(s.ld||0)>60?"bad":(s.ld||0)>35?"warn":"good")):'')+'</div>';
+ }else if(vassalsOf(ix).length){
+  h+=kvw("Men who hold of him",vassalsOf(ix).map(function(j){return shortName(G.states[j].n);}).join(", "));
+ }
  if(s.me){
   h+='<div class="card hi"><h4>You rule here</h4><p style="margin:0;font-size:12.5px;line-height:1.6;color:var(--ink-2)">'+
    G.regions.length+' regions, '+fmt(G.pop)+' souls. The Realm tab lists each of them, with its buildings.</p></div>'+
@@ -3698,10 +4126,16 @@ function stateModal(t){
  if(canMarchTo(ix))
   h+='<button class="btn sm" id="mmarch" style="border-color:var(--gold);color:var(--gold)">March the host here</button>';
  if(!atWar(ix)&&!isMine(s)){
-  h+='<button class="btn sm" id="mwar"'+(canDeclare(ix)?'':' disabled')+
+  var db=declBlock(ix);
+  var dw=canDeclare(ix);
+  h+='<button class="btn sm" id="mwar"'+(dw?'':' disabled')+
+   ' title="'+esc(db||"A war declared without a claim entered costs prestige, papal goodwill and imperial favour.")+'"'+
    ' style="border-color:var(--blood);color:var(--blood)">Declare war'+
-   (s.claim?' \u00b7 on your claim':' \u00b7 without a claim')+'</button>';
+   (s.claim?' \u00b7 on your claim':' \u00b7 without a claim')+
+   (db?' <span style="opacity:.6">\u00b7 '+esc(db)+'</span>':'')+'</button>';
  }
+ if(canVassalise(ix))
+  h+='<button class="btn sm p" id="mvass">Take his homage instead</button>';
  DIPA.forEach(function(a){
   var why=dipBlocked(ix,a.i);
   if(why==="your own"||why==="not possible")return;
@@ -3722,6 +4156,9 @@ function stateModal(t){
  if(wb)wb.onclick=function(){var msg=declareWar(ix);
   bar();paintMap();buildTabs();if(tab==="diplo")paneDiplo();
   stateModal(t);if(msg)toast(msg);};
+ var vb=$("mvass");
+ if(vb)vb.onclick=function(){var msg=vassalise(ix);bar();paintMap();buildTabs();showPane();
+  closeModal();if(msg)toast(msg);};
  var ng=$("mnego"); if(ng)ng.onclick=function(){negoModal(ix);};
  var mh=$("mmarch");
  if(mh)mh.onclick=function(){var msg=orderMarch(ix);closeModal();bar();paintMap();
@@ -3746,7 +4183,20 @@ function difficulty(ix){
  if(ix===CLAIMS.ph.ix)score+=5;          /* a crown is worth something */
  if(ix===CLAIMS.ot.ix)score-=4;          /* and Otto's is worth less */
  if(r[12])score+=1.5;                    /* a coast is an escape and a trade route */
+ /* a lord above you is a roof over your head and a lid on your head */
+ if(liege0(ix)>=0)score+=4.5;
+ score+=(tier0(ix)-3)*1.6;
  return score;
+}
+/* Before a game exists there is no G, so rank and liege have to be read off
+   the tables directly. */
+function rank0(ix){return T[ix]?T[ix].r:"C";}
+function tier0(ix){return (RANKT[rank0(ix)]||RANKT.C).t;}
+function liege0(ix){
+ var n=LIEGE0[T[ix].n]||LIEGE1[T[ix].n]||null;
+ if(!n)return -1;
+ var j=nameIx(n);
+ return (j>=0&&j!==ix)?j:-1;
 }
 function diffBand(ix){
  var d=difficulty(ix);
@@ -3809,12 +4259,15 @@ function selNation(ix){
 }
 function selBar(){
  $("stats").innerHTML='<div class="st"><div class="k">Year</div><div class="v">1200</div></div>'+
-  '<div class="st"><div class="k">States</div><div class="v">59</div></div>'+
+  '<div class="st"><div class="k">States</div><div class="v">'+T.length+'</div></div>'+
   '<div class="st" style="min-width:auto"><div class="k">Choose</div>'+
   '<div class="v" style="font-size:12px;color:#ffffffb0">pick a state on the map</div></div>';
  $("reign").textContent="The Double Election";
- $("subt").textContent=selIx===null?"Fifty-nine states. Pick one on the map or from the list.":
-   TITLES[selIx]+" \u00b7 "+SUBS[selIx].length+" regions \u00b7 "+diffBand(selIx)[0].toLowerCase()+" to hold";
+ $("subt").textContent=selIx===null?
+   T.length+" states of the Empire. Pick one on the map or from the list.":
+   TITLES[selIx]+" \u00b7 "+(RANKT[T[selIx].r]?RANKT[T[selIx].r].sh:"")+
+   (liege0(selIx)>=0?", vassal":", immediate")+" \u00b7 "+SUBS[selIx].length+" regions \u00b7 "+
+   diffBand(selIx)[0].toLowerCase()+" to hold";
  $("end").textContent=selIx===null?"Choose a state":
    (selIx===CLAIMS.ph.ix||selIx===CLAIMS.ot.ix)?"Begin":"Begin uncommitted";
  $("end").disabled=selIx===null;
@@ -3828,7 +4281,8 @@ function selPanel(){
   h+='<div class="card hi" id="seldet" style="margin-bottom:14px">';
   h+='<div style="display:flex;gap:11px;align-items:flex-start;margin-bottom:7px">'+armsSVG(t.g,44)+
     '<div style="min-width:0"><h4 style="font-size:17px;margin-bottom:1px">'+esc(TITLES[ix])+'</h4>'+
-    '<div style="font-size:11.5px;color:var(--ink-3)">'+esc(r[0])+' \u00b7 '+RANKS[t.r][0]+'</div></div></div>';
+    '<div style="font-size:11.5px;color:var(--ink-3)">'+esc(r[0])+' \u00b7 '+
+    esc(RANKT[t.r]?RANKT[t.r].n:RANKS[t.r][0])+' \u00b7 tier '+tier0(ix)+' of 7</div></div></div>';
   h+='<p style="margin:0 0 9px;font-size:12.5px;line-height:1.6;color:var(--ink-2)">'+
     esc(bk?bk.p:t.x)+'</p>';
   h+='<div class="kv"><span class="k">To hold</span><span class="v wd" style="color:'+db[1]+'">'+db[0]+'</span></div>';
@@ -3838,6 +4292,16 @@ function selPanel(){
   h+=kvw("Country",CULT[r[9]]+", "+TERR[r[4]][0].toLowerCase());
   h+=kvw("Resources",r[10].map(function(k){return RES[k][0];}).join(", ")||"none of note");
   h+=kvw("Ruler in 1200",t.h);
+  h+=kvw("Standing",tierWord(tier0(ix))+", "+RTIER[tier0(ix)].dipl+" envoys a year, "+
+   RTIER[tier0(ix)].wars+" war"+(RTIER[tier0(ix)].wars>1?"s":"")+" at once");
+  var lg=liege0(ix);
+  if(lg>=0){
+   h+='<div class="kv"><span class="k">Holds of</span><span class="v wd b">'+
+    esc(shortName(RG[lg][0]))+'</span></div>';
+   h+='<p class="fine" style="margin:4px 0 0">A vassal. You cannot declare a war of your own, swear your own alliances abroad, press a claim or be raised in rank until you are free of him, and a share of your revenue goes up the chain every year. In exchange nobody attacks you without answering to him. Getting out is the game.</p>';
+  }else{
+   h+='<div class="kv"><span class="k">Holds of</span><span class="v wd g">the Empire alone</span></div>';
+  }
   h+=kvw("Neighbours",nb.slice(0,4).join(", "));
   if(claim){
    h+='<p style="margin:10px 0 0"><span class="pill b">Crowned king of the Romans</span></p>';
@@ -3853,7 +4317,8 @@ function selPanel(){
  }else{
   h+='<div class="sh"><h3>The Holy Roman Empire, 1200</h3></div>';
   h+='<p class="lead">Henry VI died at Messina in 1197 leaving a son of three in Sicily, and the princes did what the elective crown allows: they elected two kings. Philip of Swabia was crowned at Mainz, Otto of Brunswick at Aachen.</p>';
-  h+='<p class="lead">Take any of the fifty-nine states on the map. Tap one to read what you would be taking on.</p>';
+  h+='<p class="lead">Take any of the '+T.length+' states on the map: a kingdom, a duchy, a prince-bishopric, an imperial abbey, a free city, a Lombard commune, or a county of four thousand souls that holds of somebody else and would rather not. Tap one to read what you would be taking on.</p>';
+  h+='<p class="lead">Rank is not decoration. It sets how many envoys you have in a year, how many wars you may run, which laws you are competent to make and whom you are allowed to attack at all. Seven tiers run from a lordship to the Empire itself, and the Empire raises a man who has made himself worth raising.</p>';
  }
 
  /* suggested starts */
@@ -3874,8 +4339,10 @@ function selPanel(){
    'style="width:100%;font:inherit;font-size:13px;padding:7px 9px;border:1px solid var(--rule);'+
    'border-radius:5px;background:var(--panel);color:var(--ink);margin-bottom:7px">';
  h+='<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:9px">';
- [["all","All"],["K","Kingdoms"],["D","Duchies"],["E","Church"],["T","Communes"],
-  ["F","Free cities"],["C","Counties"],["M","Marches"],["big","Great"],["small","Small"]].forEach(function(f){
+ [["all","All"],["K","Kingdoms"],["D","Duchies"],["P","Principalities"],["E","Bishoprics"],
+  ["A","Archbishoprics"],["B","Abbeys"],["T","Communes"],["R","Republics"],
+  ["F","Free cities"],["C","Counties"],["M","Marches"],["S","Lordships"],
+  ["imm","Immediate"],["vas","Vassals"],["big","Great"],["small","Small"]].forEach(function(f){
   h+='<button class="btn sm'+(selFilter===f[0]?" p":"")+'" data-sf="'+f[0]+'">'+f[1]+'</button>';});
  h+='</div>';
 
@@ -3883,7 +4350,9 @@ function selPanel(){
  var list=RG.map(function(_,i){return i;}).filter(function(i){
   if(selFilter==="big"&&RG[i][1]<250)return 0;
   if(selFilter==="small"&&RG[i][1]>=150)return 0;
-  if(["K","D","E","T","C","M","L","F"].indexOf(selFilter)>=0&&T[i].r!==selFilter)return 0;
+  if(selFilter==="vas"&&liege0(i)<0)return 0;
+  if(selFilter==="imm"&&liege0(i)>=0)return 0;
+  if(RANKT[selFilter]&&T[i].r!==selFilter)return 0;
   if(!q)return 1;
   return (RG[i][0]+" "+TITLES[i]+" "+SUBS[i].join(" ")+" "+T[i].h).toLowerCase().indexOf(q)>=0;
  }).sort(function(a,b){return RG[b][1]-RG[a][1];});
@@ -3894,8 +4363,9 @@ function selPanel(){
    '<div class="trh" style="gap:9px"><span style="flex:0 0 auto">'+armsSVG(t3.g,18)+'</span>'+
    '<span class="n">'+esc(TITLES[i])+'</span>'+
    '<span class="pill" style="color:'+db3[1]+'">'+db3[0]+'</span></div>'+
-   '<div class="d">'+esc(shortName(RG[i][0]))+' \u00b7 '+fmt(RG[i][1]*1000)+' \u00b7 '+
-   SUBS[i].length+' regions \u00b7 '+esc(CULT[RG[i][9]])+'</div></div>';
+   '<div class="d">'+esc(RANKT[t3.r]?RANKT[t3.r].sh:"")+' \u00b7 '+fmt(RG[i][1]*1000)+' \u00b7 '+
+   SUBS[i].length+' regions \u00b7 '+esc(CULT[RG[i][9]])+
+   (liege0(i)>=0?' \u00b7 holds of '+esc(shortName(RG[liege0(i)][0])):' \u00b7 immediate')+'</div></div>';
  });
 
  $("p-realm").innerHTML=h;
@@ -4877,7 +5347,7 @@ function negoModal(ix){
   {i:"tribute",n:"They pay tribute",d:"Silver, and they keep their land.",ask:26},
   {i:"annex",n:"They cede a region",d:"One province, sworn over.",ask:48},
   {i:"annex2",n:"They cede two regions",d:"As much as a war is usually worth.",ask:72},
-  {i:"vassal",n:"They become a client",d:"Their foreign policy follows yours.",ask:84},
+  {i:"vassal",n:"They do homage to you",d:"They keep the land and hold it of you: tribute every year, men when you call, and a grievance for as long as it lasts.",ask:70},
   {i:"submit",n:"You pay them off",d:"Buy your way out of a war you are losing.",ask:-30},
   {i:"cede",n:"You cede a region",d:"Give one up and end it.",ask:-50}
  ];
@@ -4906,6 +5376,7 @@ function negoModal(ix){
  terms.forEach(function(t){
   if((t.i==="annex"||t.i==="annex2")&&regionsLeft(s)<(t.i==="annex2"?2:1))return;
   if(t.i==="cede"&&G.regions.length<2)return;
+  if(t.i==="vassal"&&(amVassal()||tierOf(ix)>myTier()||G.states[ix].liege===G.nat))return;
   var ch=accept(t);
   h+='<button class="opt" data-ng="'+t.i+'"><span class="ot">'+esc(t.n)+
    ' <span class="pill '+(ch>62?"g":ch>32?"w":"b")+'">'+Math.round(ch)+'%</span></span>'+
@@ -4923,8 +5394,15 @@ function negoModal(ix){
     if(id==="annex2"){makePeace(ix,"annex");if(G.wars[ix]===undefined){/*already closed*/}
       if(regionsLeft(s)>0){G.wars[ix]={sc:60,yrs:w.yrs};makePeace(ix,"annex");}
       msg="Two regions ceded.";}
-    else if(id==="vassal"){G.allies[ix]=1;s.rel=cl0(s.rel+30,0,100);
-      makePeace(ix,"tribute");msg=stName(ix)+" accepts your lead.";}
+    else if(id==="vassal"){
+      s.liege=G.nat;s.ld=cl0(32+G.rnd()*24,0,100);s.vassYrs=0;s.claim=0;
+      s.rel=cl0(s.rel+24,0,100);G.prs=cl0(G.prs+7,0,100);
+      delete G.wars[ix];
+      if(G.peaceOffer===ix)G.peaceOffer=null;
+      if(G.peaceDemand===ix)G.peaceDemand=null;
+      chron(G.yr,"<b>"+stName(ix)+" does homage.</b> The territory stays in its own hands and its lord is your man, which is a great deal cheaper than garrisoning it.");
+      recalcAll();
+      msg=stName(ix)+" holds of you now.";}
     else msg=makePeace(ix,id);
     closeModal();bar();paintMap();buildTabs();showPane();if(msg)toast(msg);save();
    }else{
@@ -4949,7 +5427,7 @@ var pickSort="pop";
 function startScreen(){
  var h='<div class="ey">The Holy Roman Empire \u00b7 1200</div><h2>Choose Your State</h2>'+
  '<p>Henry VI died at Messina in 1197 leaving a son of three in Sicily, and the princes did what the elective crown allows: they elected two kings. Philip of Swabia was crowned at Mainz, Otto of Brunswick at Aachen. Every state below has to decide what to do about that.</p>'+
- '<p>Take any of the fifty-nine. Swabia and Brunswick make you a crowned claimant; everything else makes you a prince with a choice to make.</p>'+
+ '<p>Take any of the '+T.length+'. Swabia and Brunswick make you a crowned claimant; everything else makes you a prince, a bishop, an abbot, a city or a vassal with a choice to make.</p>'+
  '<div style="display:flex;gap:5px;margin:0 0 10px;flex-wrap:wrap">'+
   '<button class="btn sm'+(pickSort==="pop"?" p":"")+'" data-so="pop">By size</button>'+
   '<button class="btn sm'+(pickSort==="name"?" p":"")+'" data-so="name">By name</button>'+
@@ -4968,7 +5446,7 @@ function startScreen(){
    (claim?' \u00b7 <b style="color:var(--blood)">claims the crown</b>':'')+'</span>'+
    '<span class="od" style="margin-top:5px">'+esc(t.h)+'</span></button>';
  });
- h+='<p class="fine">One turn is one year. The other fifty-eight states run whether you watch them or not, and you are told only what your own court could find out.</p>';
+ h+='<p class="fine">One turn is one year. The other '+(T.length-1)+' states run whether you watch them or not, and you are told only what your own court could find out.</p>';
  modal(h);
  Array.prototype.forEach.call($("mbody").querySelectorAll("[data-so]"),function(b){
   b.onclick=function(){pickSort=b.getAttribute("data-so");startScreen();};});
@@ -5046,30 +5524,33 @@ function overModal(){
 /* ================= SAVE ================= */
 function save(){
  try{
-  var s={v:3,yr:G.yr,turn:G.turn,nat:G.nat,ruler:G.ruler,recog:G.recog,impFav:G.impFav,
+  var s={v:4,yr:G.yr,turn:G.turn,nat:G.nat,ruler:G.ruler,recog:G.recog,impFav:G.impFav,
    outlaw:G.outlaw,emp:G.emp,king:G.king,tr:G.tr,sub:G.sub,leg:G.leg,pap:G.pap,prs:G.prs,
    debt:G.debt,debtLvl:G.debtLvl,infl:G.infl,cent:G.cent,taxRate:G.taxRate,
    done:G.done,laws:G.laws,doct:G.doct,doctSel:G.doctSel,queue:G.queue,qleft:G.qleft,
    army:G.army,builds:G.builds,offices:G.offices,court:G.court,powers:G.powers,allies:G.allies,
    dipl:G.dipl,clim:G.clim,climB:G.climB,genius:G.genius,wars:G.wars,badRun:G.badRun,trade:G.trade,
    host:G.host,cheats:G.cheats,acted:G.acted,
+   rank:G.rank,liege:G.liege,ld:G.ld,ldPush:G.ldPush,vassYrs:G.vassYrs,rupCool:G.rupCool,sueCool:G.sueCool,rankThin:G.rankThin,demoAt:G.demoAt,liegeAsk:G.liegeAsk,revoltAt:G.revoltAt,
    awars:G.awars,aallies:G.aallies,news:(G.news||[]).slice(0,80),pendingAttack:G.pendingAttack,chron:G.chron.slice(0,120),
    flags:G.flags,strainRun:G.strainRun,over:G.over,em:G.em,
    rg:G.regions.map(function(r){return[r.pop,r.stab,r.unr,r.farms,r.bld,r.shifted,r.dev,r.urb,r.n,r.conq?1:0,r.res,r.terr,r.acc,r.towns,r.coast,r.cap];}),
    st:G.states.map(function(x){return[x.pop,x.rel,x.imp,x.intel,x.army,x.claim,x.fear,x.spy?1:0,
-     x.rule?x.rule.n:"",x.rule?x.rule.age:0,x.rule?x.rule.tr:[],x.rule?x.rule.sk:[],x.rule?(x.rule.comm||0):0,x.align,x.dev,x.taken||0,x.ownerIx,x.ai,x.tech,x.claims,x.hostile,Math.round(x.trs||0)];})};
+     x.rule?x.rule.n:"",x.rule?x.rule.age:0,x.rule?x.rule.tr:[],x.rule?x.rule.sk:[],x.rule?(x.rule.comm||0):0,x.align,x.dev,x.taken||0,x.ownerIx,x.ai,x.tech,x.claims,x.hostile,Math.round(x.trs||0),
+     x.rank,x.liege,Math.round(x.ld||0),x.vassYrs||0,x.hostage?1:0,x.wed?1:0];})};
   localStorage.setItem("rex1200",JSON.stringify(s));
  }catch(x){}
 }
 function load(){
  try{
   var raw=localStorage.getItem("rex1200");if(!raw)return 0;
-  var s=JSON.parse(raw);if(!s||s.v!==3||s.nat===undefined)return 0;
+  var s=JSON.parse(raw);if(!s||s.v!==4||s.nat===undefined)return 0;
   initGame(s.nat,s.recog);
   ["yr","turn","ruler","recog","impFav","outlaw","emp","king","tr","sub","leg","pap","prs",
    "debt","debtLvl","infl","cent","taxRate","done","laws","doct","doctSel","queue","qleft",
    "army","builds","offices","court","powers","allies","dipl","clim","climB","genius","chron",
-   "flags","strainRun","over","em","wars","badRun","awars","aallies","news","pendingAttack","trade","host","cheats","acted"].forEach(function(k){if(s[k]!==undefined)G[k]=s[k];});
+   "flags","strainRun","over","em","wars","badRun","awars","aallies","news","pendingAttack","trade","host","cheats","acted",
+   "rank","liege","ld","ldPush","vassYrs","rupCool","sueCool","rankThin","demoAt","liegeAsk","revoltAt"].forEach(function(k){if(s[k]!==undefined)G[k]=s[k];});
   if(s.rg&&s.rg.length>G.regions.length){
    for(var q=G.regions.length;q<s.rg.length;q++){var a2=s.rg[q];
     G.regions.push({ix:q,nat:G.nat,n:a2[8]||("Region "+q),cap:a2[15]||0,pop:a2[0],urb:a2[7],
@@ -5087,11 +5568,902 @@ function load(){
    x.align=a[13];x.dev=a[14];if(a[15]!==undefined)x.taken=a[15];if(a[16]!==undefined)x.ownerIx=a[16];
    if(a[17]!==undefined)x.ai=a[17];if(a[18]!==undefined)x.tech=a[18];
    if(a[19]!==undefined)x.claims=a[19]||[];if(a[20]!==undefined)x.hostile=a[20];if(a[21]!==undefined)x.trs=a[21];
+   if(a[22]!==undefined&&a[22])x.rank=a[22];if(a[23]!==undefined)x.liege=a[23];
+   if(a[24]!==undefined)x.ld=a[24];if(a[25]!==undefined)x.vassYrs=a[25];
+   if(a[26]!==undefined)x.hostage=a[26];if(a[27]!==undefined)x.wed=a[27];
    if(x.me)x.rule=G.ruler;});
+  if(typeof rankSync==="function")rankSync();
   G.rnd=mulberry(1200+s.nat*37+s.turn*7);
   recalcAll();intelPass();
   return 1;
  }catch(x){return 0;}
+}
+
+/* ===================== RANK, VASSALAGE AND LIBERTY =====================
+   Every estate of the Empire has a rank, and the rank is not decoration. It
+   sets how many envoys you have in a year, how much weight your word carries,
+   which laws you are allowed to make, how many wars you can run at once and
+   whom you are permitted to attack at all. Below the ranks sit the men who
+   hold of somebody else: a vassal has most of this taken off him, pays for
+   the privilege, and spends every year of it wanting out.
+   ====================================================================== */
+
+/* The ladders. One for the secular princes, one for the Church, one for the
+   towns. `up` is what the Empire raises this rank to; `dn` is what is left of
+   it when the Empire, or a neighbour, takes it down. */
+var RANKT={
+ I:{n:"Empire",              sh:"Empire",       t:7,k:"sec"},
+ K:{n:"Kingdom",             sh:"Kingdom",      t:6,k:"sec",up:"I",dn:"D"},
+ D:{n:"Duchy",               sh:"Duchy",        t:5,k:"sec",up:"K",dn:"P"},
+ P:{n:"Principality",        sh:"Principality", t:4,k:"sec",up:"D",dn:"M"},
+ V:{n:"Palatinate",          sh:"Palatinate",   t:4,k:"sec",up:"D",dn:"M"},
+ M:{n:"Margraviate",         sh:"Margraviate",  t:3,k:"sec",up:"P",dn:"C"},
+ L:{n:"Landgraviate",        sh:"Landgraviate", t:3,k:"sec",up:"P",dn:"C"},
+ C:{n:"County",              sh:"County",       t:2,k:"sec",up:"M",dn:"S"},
+ G:{n:"Burgraviate",         sh:"Burgraviate",  t:2,k:"sec",up:"M",dn:"S"},
+ S:{n:"Lordship",            sh:"Lordship",     t:1,k:"sec",up:"C"},
+ Y:{n:"Patriarchate",        sh:"Patriarchate", t:6,k:"chr",dn:"A"},
+ A:{n:"Prince-archbishopric",sh:"Archbishopric",t:5,k:"chr",up:"Y",dn:"E"},
+ E:{n:"Prince-bishopric",    sh:"Bishopric",    t:4,k:"chr",up:"A",dn:"B"},
+ B:{n:"Imperial abbey",      sh:"Abbey",        t:3,k:"chr",up:"E",dn:"S"},
+ W:{n:"Serene Republic",     sh:"Republic",     t:5,k:"urb",dn:"R"},
+ R:{n:"Republic",            sh:"Republic",     t:4,k:"urb",up:"W",dn:"F"},
+ F:{n:"Free imperial city",  sh:"Free city",    t:3,k:"urb",up:"R",dn:"T"},
+ T:{n:"Free commune",        sh:"Commune",      t:2,k:"urb",up:"F",dn:"S"}
+};
+RANKS.V=["Palatinate", "#b5456a"];
+RANKS.Y=["Patriarchate", "#b05fd0"];
+RANKS.W=["Serene Republic", "#1aa58c"];
+RANKS.R=["Republic", "#2b9b84"];
+
+/* What each step of the ladder is actually worth. */
+var RTIER=[null,
+ {w:"Petty",    dipl:1,slot:0,wars:1,prs:-9, land:-7,tax:-1,fav:-10,lawT:1},
+ {w:"Minor",    dipl:2,slot:0,wars:1,prs:-4, land:-3,tax:0, fav:-5, lawT:2},
+ {w:"Middling", dipl:2,slot:0,wars:2,prs:0,  land:2, tax:0, fav:0,  lawT:3},
+ {w:"Princely", dipl:3,slot:1,wars:2,prs:6,  land:7, tax:2, fav:6,  lawT:4},
+ {w:"Great",    dipl:4,slot:1,wars:3,prs:12, land:13,tax:4, fav:12, lawT:4},
+ {w:"Royal",    dipl:5,slot:2,wars:4,prs:20, land:20,tax:7, fav:20, lawT:4},
+ {w:"Imperial", dipl:6,slot:3,wars:5,prs:30, land:30,tax:10,fav:30, lawT:4}];
+/* which group of laws a prince of that standing is competent to make */
+var LAWT={sol:1,min:1,eco:3,gov:4};
+
+/* The ranks in the shipped tables were a rough cut. Sort them out: an
+   archbishop is not a bishop, a palatine is not a count, and Mecklenburg in
+   1200 is a lordship whatever its lords would prefer. */
+var RANKFIX={"Patriarchate of Aquileia":"Y","Palatinate of the Rhine":"V",
+ "Principality of Anhalt":"P","Lordship of Mecklenburg":"S","March of Carniola":"M",
+ "Duchy of Guelders":"D","Dauphine of Viennois":"P","Commune of Milan":"R",
+ "Commune of Genoa":"R","Commune of Pisa":"R","Commune of Florence":"R",
+ "Commune of Bologna":"R","Julich, Berg and Cleves":"C","County of Lippe":"S",
+ "Marquisate of Montferrat":"M","Marquisate of Saluzzo":"M","Duchy of Spoleto":"D",
+ "County of Flanders":"C","Lordship of Rugen":"S","Lordship of Friesland":"S",
+ "Lordship of Uri":"S"};
+T.forEach(function(t){
+ if(RANKFIX[t.n]){t.r=RANKFIX[t.n];return;}
+ if(/^Archbishopric/.test(t.n))t.r="A";
+});
+
+/* Who held of whom in 1200, over and above what came with the new states. */
+var LIEGE1={
+ "Duchy of Styria":"Duchy of Austria",
+ "March of Carniola":"Duchy of Carinthia",
+ "County of Tyrol":"Bishopric of Trent",
+ "Julich, Berg and Cleves":"Archbishopric of Cologne",
+ "Bishopric of Merseburg":"Margraviate of Meissen",
+ "Bishopric of Naumburg":"Margraviate of Meissen",
+ "Bishopric of Eichstatt":"Duchy of Bavaria",
+ "Bishopric of Freising":"Duchy of Bavaria",
+ "Bishopric of Gurk":"Archbishopric of Salzburg",
+ "County of Lippe":"Paderborn and Osnabruck",
+ "Abbey of Quedlinburg":"Archbishopric of Magdeburg",
+ "County of Zeeland":"County of Holland",
+ "County of Loon":"Bishopric of Liege",
+ "County of Mansfeld":"Archbishopric of Magdeburg",
+ "County of Hohenberg":"Duchy of Swabia",
+ "County of Toggenburg":"Abbey of St Gallen",
+ "Bishopric of Verden":"Archbishopric of Bremen",
+ "Bishopric of Ratzeburg":"Archbishopric of Bremen",
+ "Bishopric of Schwerin":"Lordship of Mecklenburg",
+ "Commune of Lodi":"Commune of Milan"
+};
+var NIX={};
+T.forEach(function(t,i){NIX[t.n]=i;});
+function nameIx(n){return NIX[n]===undefined?-1:NIX[n];}
+
+/* ---------- reading a rank ---------- */
+function rankKey(ix){var s=G&&G.states[ix];return (s&&s.rank)||(T[ix]?T[ix].r:"C");}
+function rankRow(k){return RANKT[k]||RANKT.C;}
+function tierOf(ix){return rankRow(rankKey(ix)).t;}
+function rankName(k){return rankRow(k).n;}
+function myRank(){return G.rank||T[G.nat].r;}
+function myTier(){return rankRow(myRank()).t;}
+function myTierRow(){return RTIER[myTier()];}
+function nextRank(k){return rankRow(k).up||null;}
+function prevRank(k){return rankRow(k).dn||null;}
+
+/* ---------- vassalage ---------- */
+function liegeOf(ix){var s=G&&G.states[ix];return (s&&s.liege!==undefined)?s.liege:null;}
+function isVass(ix){var l=liegeOf(ix);return l!==null&&l!==undefined;}
+function amVassal(){return G.liege!==null&&G.liege!==undefined;}
+function myLiege(){return amVassal()?G.states[G.liege]:null;}
+function vassalsOf(ix){var out=[];G.states.forEach(function(s){
+ if(s.liege===ix&&indep2(s))out.push(s.ix);});return out;}
+/* a conquered state is nobody's vassal; it is somebody's province */
+function indep2(s){return s.ownerIx===null||s.ownerIx===undefined;}
+function myVassals(){return vassalsOf(G.nat);}
+
+/* the top of your own chain: who you would really be fighting */
+function overlordOf(ix,depth){
+ var l=liegeOf(ix),n=0;
+ while(l!==null&&l!==undefined&&n<8){ix=l;l=liegeOf(ix);n++;}
+ return ix;
+}
+
+/* What a vassal owes, as a share of its revenue. A great man under a greater
+   one pays less, because he is harder to squeeze. */
+function tribRate(six){
+ var vix=(six===undefined)?G.nat:six;
+ var lx=liegeOf(vix); if(lx===null||lx===undefined)return 0;
+ var gap=cl0(tierOf(lx)-tierOf(vix),0,6);
+ var ld=(vix===G.nat)?(G.ld||0):(G.states[vix].ld||0);
+ return cl0(0.07+gap*0.022-ld*0.0006,0.02,0.22);
+}
+function tributeDue(){
+ if(!amVassal())return 0;
+ return Math.round(G.income*tribRate());
+}
+/* and what yours pay you */
+function vassalDues(){
+ var sum=0;
+ myVassals().forEach(function(j){var s=G.states[j];
+  sum+=s.gdp*tribRate(j)*2.2*(1-cl0((s.ld||0)/140,0,0.7));});
+ return Math.round(sum);
+}
+/* how many men a vassal brings when called */
+function vassalLevy(){
+ var n=0;myVassals().forEach(function(j){var s=G.states[j];
+  n+=Math.round(s.army*cl0(1-(s.ld||0)/110,0.1,1));});
+ return n;
+}
+
+/* ---------- liberty desire ---------- */
+function ldTarget(vix){
+ var v=(vix===G.nat);
+ var s=G.states[vix], lx=liegeOf(vix);
+ if(lx===null||lx===undefined)return 0;
+ var L=G.states[lx];
+ var vt=tierOf(vix), lt=tierOf(lx);
+ var vpop=v?G.pop:s.pop, lpop=(lx===G.nat)?G.pop:L.pop;
+ var str=cl0(vpop/Math.max(1,lpop)*100,0,160);
+ var yrs=v?(G.vassYrs||0):(s.vassYrs||0);
+ var rel=v?(L.rel||50):(s.rel||50);
+ /* The baseline is high, because a man who holds of another man wants not to.
+    What good treatment and a daunting lord buy is quiet, not contentment, and
+    what decides whether the wanting turns into anything is the odds, which are
+    worked out separately when he acts. */
+ var t=38
+   + yrs*0.32
+   + (4-cl0(lt-vt,0,4))*5            /* a near-equal chafes most */
+   - cl0(lt-vt,0,4)*3                /* and a very great lord is daunting */
+   + str*0.18
+   - (rel-50)*0.30                   /* how he has actually been treated */
+   + (v?(G.prs-40)*0.25:0)
+   + (v?G.unr*0.10:0)
+   - (lx===G.nat?0:(L.rule?L.rule.sk[0]:4)*1.3)
+   + ((G.wars&&G.wars[lx])?22:0)
+   + (v?(G.ldPush||0):0);
+ if(lx===G.nat)t-=G.prs*0.16+G.leg*0.07;
+ if(v&&G.outlaw)t+=14;
+ return cl0(t,0,100);
+}
+
+/* ---------- standing: what the Empire thinks you are worth ---------- */
+function techFrac(){
+ var n=0,tot=0;for(var i=0;i<TECH.length;i++)tot+=TECH[i].tiers.length*2;
+ for(var k in G.done)n++;
+ return tot?n/tot:0;
+}
+function standing(){
+ var v=G.regions.length*1.9
+  + Math.max(0,Math.log(Math.max(1,G.pop/7000))*6.2)
+  + G.prs*0.20 + G.leg*0.13 + G.impFav*0.11
+  + techFrac()*22 + (G.king?10:0)
+  + Math.min(8,G.tr/4200) + Math.min(6,myVassals().length*1.6)
+  - (G.outlaw?15:0) - Math.min(11,G.debt/2600)
+  - (amVassal()?9:0);
+ return cl0(v,0,100);
+}
+
+/* What the Empire asks before it will raise you a step. Indexed by the tier
+   you are asking to reach. */
+var RUP=[null,null,
+ {reg:3, pop:40000,  prs:24,leg:22,fav:38,gold:700,  st:20},
+ {reg:5, pop:110000, prs:34,leg:32,fav:46,gold:2100, st:32},
+ {reg:7, pop:250000, prs:46,leg:44,fav:55,gold:4800, st:45},
+ {reg:10,pop:520000, prs:58,leg:55,fav:63,gold:10500,st:58},
+ {reg:14,pop:950000, prs:70,leg:67,fav:73,gold:21000,st:71,pap:55},
+ {reg:19,pop:1700000,prs:84,leg:81,fav:87,gold:44000,st:85,pap:70,king:1}];
+
+/* A free city of fifteen thousand outranks a county of forty, and an abbey is
+   not judged on acres. The thresholds are read against the kind of estate. */
+function kindScale(k){return {urb:0.26,chr:0.58,sec:1}[rankRow(k||myRank()).k]||1;}
+function scaleReq(R,k){
+ var f=kindScale(k);
+ return {reg:Math.max(2,Math.round(R.reg*(f<1?0.62:1))),pop:Math.round(R.pop*f),
+  prs:R.prs,leg:R.leg,fav:R.fav,gold:Math.round(R.gold*(f<1?0.8:1)),st:R.st,
+  pap:R.pap,king:R.king};
+}
+function rupReq(){
+ var up=nextRank(myRank());if(!up)return null;
+ var t=rankRow(up).t, R=RUP[t];if(!R)return null;
+ return {rank:up,tier:t,R:scaleReq(R,up)};
+}
+function rupChecks(){
+ var q=rupReq();if(!q)return null;
+ var R=q.R, out=[];
+ out.push(["Regions held",G.regions.length,R.reg,G.regions.length>=R.reg,fmt(R.reg)]);
+ out.push(["Population",Math.round(G.pop),R.pop,G.pop>=R.pop,fmt(R.pop)]);
+ out.push(["Prestige",Math.round(G.prs),R.prs,G.prs>=R.prs,Math.round(R.prs)]);
+ out.push(["Legitimacy",Math.round(G.leg),R.leg,G.leg>=R.leg,Math.round(R.leg)]);
+ out.push(["Imperial favour",Math.round(G.impFav),R.fav,G.king||G.impFav>=R.fav,Math.round(R.fav)]);
+ out.push(["Standing",Math.round(standing()),R.st,standing()>=R.st,Math.round(R.st)]);
+ out.push(["In the chamber",Math.round(G.tr),R.gold,G.tr>=R.gold,fmt(R.gold)]);
+ if(R.pap!==undefined)out.push(["Papal goodwill",Math.round(G.pap),R.pap,G.pap>=R.pap,Math.round(R.pap)]);
+ if(R.king)out.push(["Crowned king of the Romans",G.king?"yes":"no",1,!!G.king,"required"]);
+ return {q:q,rows:out,ok:out.every(function(r){return r[3];})};
+}
+function rupBlocked(){
+ var c=rupChecks();
+ if(!c)return "there is nothing above this";
+ if(amVassal())return "you hold of somebody else; be free first";
+ if(G.outlaw)return "you are under the ban of the Empire";
+ if(G.rupCool&&G.yr<G.rupCool)return "the court will not hear it again until "+G.rupCool;
+ if(!c.ok)return "the Empire will not hear it yet";
+ return "";
+}
+function petitionRank(){
+ if(rupBlocked())return "";
+ var c=rupChecks(), q=c.q;
+ G.tr-=q.R.gold; G.acted["rank"]=1;
+ var odds=cl0(34+(standing()-q.R.st)*1.5+(G.impFav-50)*0.4+G.prs*0.2
+   +(G.king?16:0)+G.ruler.sk[0]*1.6,12,94);
+ if(G.rnd()*100<odds){
+  var old=rankName(myRank());
+  G.rank=q.rank;
+  G.title=newTitle(q.rank);
+  G.ruler.title=G.title;
+  G.prs=cl0(G.prs+11,0,100);G.leg=cl0(G.leg+8,0,100);G.impFav=cl0(G.impFav-6,0,100);
+  rankSync();recalcAll();
+  chron(G.yr,"<b>The Empire raises you.</b> What was a "+old.toLowerCase()+" is a "+
+   rankName(q.rank).toLowerCase()+", and you are styled "+G.title+" from the reading of the charter.");
+  return "Raised to "+rankName(q.rank)+".";
+ }
+ G.tr+=Math.round(q.R.gold*0.5);
+ G.impFav=cl0(G.impFav-4,0,100);G.rupCool=G.yr+3;
+ chron(G.yr,"<b>The petition is refused.</b> The chancery keeps half the fee and the matter may not be raised again for three years.");
+ return "Refused.";
+}
+function newTitle(k){
+ var seat=SUBS[G.nat][0], base=TITLES[G.nat];
+ var of=base.replace(/^[^ ]+( of | )?/,"");
+ if(/ of /.test(base))of=base.slice(base.indexOf(" of ")+4);
+ var head={I:"Emperor of",K:"King of",D:"Duke of",P:"Prince of",V:"Count Palatine of",
+  M:"Margrave of",L:"Landgrave of",C:"Count of",G:"Burgrave of",S:"Lord of",
+  Y:"Patriarch of",A:"Archbishop of",E:"Bishop of",B:"Abbot of",
+  W:"Doge of",R:"Gonfalonier of",T:"Consuls of"}[k];
+ if(!head)return base;
+ if(k==="T")return "Consuls of "+of;
+ return head+" "+of;
+}
+function demote(why){
+ var dn=prevRank(myRank());
+ if(!dn){ return ""; }
+ var old=rankName(myRank());
+ G.rank=dn;G.title=newTitle(dn);G.ruler.title=G.title;
+ G.prs=cl0(G.prs-14,0,100);G.leg=cl0(G.leg-10,0,100);
+ G.rupCool=G.yr+2;
+ rankSync();recalcAll();
+ chron(G.yr,"<b>The style is taken off you.</b> "+why+" What was a "+old.toLowerCase()+
+  " is written down as a "+rankName(dn).toLowerCase()+", and nobody at the Diet corrects it.");
+ return "Reduced to "+rankName(dn)+".";
+}
+/* the floor under your present rank: hold less than this for three years and
+   the Empire stops pretending */
+function rankFloor(){
+ var R=RUP[myTier()];if(!R)return null;
+ var f=kindScale();
+ return {reg:Math.max(1,Math.round(R.reg*0.45*(f<1?0.62:1))),pop:Math.round(R.pop*0.4*f)};
+}
+
+/* ---------- what being somebody's man costs you ---------- */
+/* the one list the UI reads out, so the player can see what is switched off */
+function vassLocks(){
+ var out=[];
+ if(!amVassal())return out;
+ out.push(["War","You may not declare war on anybody but your own liege. That is called a revolt."]);
+ out.push(["Foreign alliances","No power outside the Empire will treat with a man who is not his own master."]);
+ out.push(["Claims and tribute","Pressing a claim and demanding tribute are acts of a sovereign. They are not open to you."]);
+ out.push(["Governmental law","Your liege legislates for his own realm. You administer yours."]);
+ out.push(["Elevation","The Empire will not raise a man who already has a lord. Be free first, or be released."]);
+ out.push(["Research","One fewer thing can be worked on at a time."]);
+ out.push(["Tribute",pc(tribRate()*100)+" of revenue goes up the chain every year."]);
+ return out;
+}
+function vassBlock(what){
+ if(!amVassal())return "";
+ if(what==="war")return "you hold of "+shortName(myLiege().n)+"; a war of your own is a revolt";
+ if(what==="pow")return "no power outside the Empire will ally with another man's vassal";
+ if(what==="claim")return "pressing a claim is an act of a sovereign";
+ if(what==="gov")return "your liege legislates; you administer";
+ return "";
+}
+
+/* ---------- getting out ---------- */
+/* Building the faction that would follow you out. It is money, land and
+   promises, spent on your own men rather than on anybody else's. */
+function pushCost(){return Math.round(60+G.income*0.12);}
+function sueCost(){return Math.round(80+G.income*0.25);}
+function pushBlocked(){
+ if(!amVassal())return "you hold of nobody";
+ if(G.acted&&G.acted.push)return "already done this year";
+ if(G.tr<pushCost())return "not enough in the chamber";
+ if((G.ldPush||0)>=34)return "the ground is as ready as it will get";
+ return "";
+}
+function pushLiberty(){
+ if(pushBlocked())return "";
+ var c=pushCost();
+ G.tr-=c;G.acted.push=1;
+ var gain=5+Math.round(G.ruler.sk[0]*0.7+G.rnd()*4);
+ G.ldPush=cl0((G.ldPush||0)+gain,0,34);
+ G.ld=cl0((G.ld||0)+gain*0.6,0,100);
+ var L=myLiege();if(L)L.rel=cl0(L.rel-3,0,100);
+ chron(G.yr,"<b>The knights are bound to you</b> by grants, remissions and a quiet word about what happens afterwards. "+
+  fmt(c)+" marks, and your household is readier than it was.");
+ recalcAll();
+ return "Liberty desire +"+Math.round(gain*0.6)+".";
+}
+function sueBlocked(){
+ if(!amVassal())return "you hold of nobody";
+ if(G.acted&&G.acted.sue)return "already tried this year";
+ var L=myLiege();
+ if(G.wars&&G.wars[G.liege])return "you are in revolt; finish it";
+ if((G.ld||0)<45)return "there is no appetite for it yet";
+ if(G.sueCool&&G.yr<G.sueCool)return "the matter was put to him in "+(G.sueCool-3)+" and may not be reopened yet";
+ if(G.tr<sueCost())return "the chancery and the court both expect to be paid";
+ return "";
+}
+function sueIndep(){
+ if(sueBlocked())return "";
+ var L=myLiege(), cost=sueCost();
+ G.tr-=cost;G.acted.sue=1;G.dipl=Math.max(0,G.dipl-1);
+ var odds=cl0(6+(G.ld||0)*0.30+G.prs*0.20+G.impFav*0.18+G.ruler.sk[0]*1.8
+   +cl0(G.pop/Math.max(1,L.pop),0,1.6)*35-tierOf(G.liege)*4.5,3,86);
+ if(G.rnd()*100<odds){
+  freeMe("<b>"+shortName(L.n)+" releases you.</b> The homage is cancelled in writing, the fee is paid, and you hold of the Empire and nobody else.");
+  return "You are free.";
+ }
+ L.rel=cl0(L.rel-9,0,100);G.ld=cl0((G.ld||0)+7,0,100);G.sueCool=G.yr+3;
+ chron(G.yr,"<b>"+shortName(L.n)+" refuses to release you.</b> The money is spent and the asking is remembered on both sides.");
+ return "Refused.";
+}
+function freeMe(msg){
+ var L=myLiege();
+ if(L)L.rel=cl0(L.rel-4,0,100);
+ G.states[G.nat].liege=null;G.liege=null;G.ld=0;G.vassYrs=0;
+ G.impFav=cl0(G.impFav+6,0,100);G.prs=cl0(G.prs+9,0,100);
+ if(G.wars&&L&&G.wars[L.ix])delete G.wars[L.ix];
+ rankSync();recalcAll();
+ chron(G.yr,msg);
+}
+/* What a rising would actually be worth, so it can be read before it is tried */
+function revStrength(){
+ if(!amVassal())return {mine:0,theirs:0,risers:0,busy:0,scale:1,odds:0};
+ var L=myLiege();
+ var risers=0;
+ vassalsOf(G.liege).forEach(function(j){
+  if(j!==G.nat&&(G.states[j].ld||0)>52)risers++;});
+ var busy=0;(G.awars||[]).forEach(function(w){if(w.a===G.liege||w.b===G.liege)busy++;});
+ var scale=cl0(1-risers*0.13-busy*0.21-(L.taken||0)*0.07,0.26,1);
+ var mine=G.land+G.def*0.8+30+G.regions.length*5+armyCount()*9;
+ var theirs=(L.army*8+L.dev*0.5+(L.rule?L.rule.sk[1]*3:12))*scale;
+ return {mine:Math.round(mine),theirs:Math.round(theirs),risers:risers,busy:busy,
+  scale:scale,odds:cl0(50+(mine-theirs)*0.5,2,96)};
+}
+function revoltBlocked(){
+ if(!amVassal())return "you hold of nobody";
+ if(G.wars&&G.wars[G.liege])return "you are already in revolt";
+ if(armyCount()<1)return "you have nothing in the field";
+ if((G.ld||0)<40)return "your own men would not follow you into it";
+ return "";
+}
+function revolt(){
+ if(revoltBlocked())return "";
+ var L=myLiege(), lx=G.liege;
+ G.wars=G.wars||{};G.wars[lx]={sc:0,yrs:0,rev:1,def:1};
+ G.revoltAt=lx;
+ L.rel=cl0(L.rel-60,0,100);
+ G.prs=cl0(G.prs+5,0,100);G.impFav=cl0(G.impFav-12,0,100);G.leg=cl0(G.leg-8,0,100);
+ /* his other men watch, and some of them join in */
+ var joined=[];
+ vassalsOf(lx).forEach(function(j){if(j===G.nat)return;
+  var o=G.states[j];
+  if((o.ld||0)>52&&G.rnd()<0.45){o.rose=1;o.ld=cl0(o.ld+10,0,100);joined.push(shortName(o.n));}});
+ chron(G.yr,"<b>You renounce your homage to "+shortName(L.n)+".</b> The oath is read out and burned."+
+  (joined.length?" "+joined.join(" and ")+" "+(joined.length>1?"rise":"rises")+" with you.":
+   " Nobody else has moved."));
+ recalcAll();
+ return "In revolt against "+shortName(L.n)+".";
+}
+
+/* ---------- your own men ---------- */
+var VACT=[
+ {i:"priv",n:"Grant a privilege",c:260,ld:-13,rel:7,
+  d:"A market right, a remission, a wood. It costs revenue and buys quiet."},
+ {i:"hostage",n:"Take his heir to court",c:0,ld:-9,rel:-9,
+  d:"Raised in your household, educated at your expense, and a guarantee of his father's conduct."},
+ {i:"wed",n:"Marry into the house",c:620,ld:-20,rel:14,
+  d:"A daughter and a dower. The slowest instrument and the one that holds."},
+ {i:"squeeze",n:"Raise his tribute",c:0,ld:16,rel:-14,gold:1,
+  d:"A levy over and above the ordinary dues, assessed by your men, not his."},
+ {i:"summon",n:"Call him to the host",c:0,ld:11,rel:-7,levy:1,
+  d:"Forty days' service with what he can mount. He will come, and he will remember."},
+ {i:"raise",n:"Raise him a step",c:900,ld:-26,rel:20,up:1,
+  d:"Petition the Empire to confirm a higher style for him, and pay the chancery for it. A man who has just been made a margrave does not renounce his homage that year."},
+ {i:"reduce",n:"Reduce his style",c:0,ld:21,rel:-22,down:1,
+  d:"Have the chancery write him down a step. Cheaper than revoking the fief and nearly as insulting."},
+ {i:"revoke",n:"Revoke his title",c:0,ld:34,rel:-40,strip:1,
+  d:"Declare the fief forfeit and take it in hand. Every other man you hold watches this."}
+];
+function vactBlocked(six,act){
+ var a=VACT.filter(function(x){return x.i===act;})[0];
+ if(!a)return "not possible";
+ var s=G.states[six];
+ if(!s||s.liege!==G.nat)return "he is not your man";
+ if(G.acted&&G.acted["v"+six+":"+act])return "already done this year";
+ if(G.tr<a.c)return "not enough in the chamber";
+ if(a.levy&&(s.ld||0)>82)return "he would not come";
+ if(a.i==="hostage"&&s.hostage)return "his heir is already at your court";
+ if(a.i==="wed"&&s.wed)return "the houses are already joined";
+ if(a.strip&&myVassals().length<1)return "nothing to revoke";
+ if(a.up){
+  if(!nextRank(rankKey(six)))return "there is nothing above his rank";
+  if(rankRow(nextRank(rankKey(six))).t>=myTier())return "you cannot raise a man to your own standing";
+ }
+ if(a.down&&!prevRank(rankKey(six)))return "there is nothing below his rank";
+ return "";
+}
+function doVact(six,act){
+ if(vactBlocked(six,act))return "";
+ var a=VACT.filter(function(x){return x.i===act;})[0], s=G.states[six];
+ G.acted["v"+six+":"+act]=1;G.tr-=a.c;
+ var msg="";
+ s.ld=cl0((s.ld||0)+a.ld,0,100);
+ s.rel=cl0((s.rel||50)+a.rel,0,100);
+ if(a.i==="hostage")s.hostage=1;
+ if(a.i==="wed"){s.wed=1;G.allies[six]=1;}
+ if(a.gold){var amt=Math.round(s.gdp*0.14);G.tr+=amt;msg=fmt(amt)+" marks come in from "+shortName(s.n)+".";}
+ if(a.levy){var n=Math.max(1,Math.round(s.army*0.5));
+  G.army.serj=(G.army.serj||0)+n;msg=n+" companies of serjeants come up from "+shortName(s.n)+".";}
+ if(a.up){
+  var nk=nextRank(rankKey(six));s.rank=nk;
+  G.prs=cl0(G.prs+3,0,100);
+  msg=shortName(s.n)+" is confirmed a "+rankRow(nk).sh.toLowerCase()+", and holds of you still.";
+ }
+ if(a.down){
+  var pk=prevRank(rankKey(six));s.rank=pk;
+  msg=shortName(s.n)+" is written down a "+rankRow(pk).sh.toLowerCase()+". He has read the charter.";
+  myVassals().forEach(function(j){if(j!==six)G.states[j].ld=cl0((G.states[j].ld||0)+6,0,100);});
+ }
+ if(a.strip){
+  s.liege=null;s.ld=100;s.rel=0;s.claim=1;
+  /* and the rest of them take note */
+  myVassals().forEach(function(j){G.states[j].ld=cl0((G.states[j].ld||0)+17,0,100);});
+  msg=shortName(s.n)+" is declared forfeit, and is now an enemy with a grievance.";
+ }
+ if(!msg)msg=shortName(s.n)+(a.ld<0?" is quieter for it.":" has taken note.");
+ chron(G.yr,"<b>"+a.n+"</b> \u00b7 "+shortName(s.n)+". "+msg);
+ recalcAll();
+ return msg;
+}
+
+/* ---------- offering a defeated enemy vassalage instead of annexation ---------- */
+function canVassalise(ix){
+ var s=G.states[ix];if(!s||isMine(s)||!indep2(s))return 0;
+ if(s.liege===G.nat)return 0;
+ if(tierOf(ix)>myTier())return 0;
+ if(!(G.wars&&G.wars[ix]))return 0;
+ return G.wars[ix].sc>=45?1:0;
+}
+function vassalise(ix){
+ if(!canVassalise(ix))return "";
+ var s=G.states[ix];
+ s.liege=G.nat;s.ld=cl0(34+G.rnd()*22,0,100);s.vassYrs=0;s.rel=cl0(s.rel+22,0,100);s.claim=0;
+ if(G.wars&&G.wars[ix])delete G.wars[ix];
+ if(G.peaceOffer===ix)G.peaceOffer=null;
+ if(G.peaceDemand===ix)G.peaceDemand=null;
+ G.prs=cl0(G.prs+7,0,100);
+ chron(G.yr,"<b>"+shortName(s.n)+" does homage.</b> The territory stays in its own hands and its lord is your man, which is cheaper than garrisoning it.");
+ recalcAll();
+ return shortName(s.n)+" is your vassal.";
+}
+
+/* ---------- the yearly pass ---------- */
+function rankSync(){
+ var s=G.states[G.nat];if(!s)return;
+ s.rank=myRank();s.liege=amVassal()?G.liege:null;s.ld=G.ld||0;
+ G.diplMax=cl0(myTierRow().dipl+(amVassal()?-1:0)+Math.round((G.ruler.sk[0]-5)*0.3),1,7);
+}
+function rankTurn(){
+ if(!G||G.over)return;
+ /* your own liberty, and your own men's */
+ if(amVassal()){
+  G.vassYrs=(G.vassYrs||0)+1;
+  var t=ldTarget(G.nat);
+  G.ld=cl0((G.ld||0)+(t-(G.ld||0))*0.2,0,100);
+  liegeYear();
+ }else{G.ld=0;G.vassYrs=0;}
+
+ G.states.forEach(function(s){
+  if(s.me||!indep2(s))return;
+  if(!isVass(s.ix)){s.ld=0;s.vassYrs=0;return;}
+  s.vassYrs=(s.vassYrs||0)+1;
+  var t2=ldTarget(s.ix);
+  s.ld=cl0((s.ld||0)+(t2-(s.ld||0))*0.18,0,100);
+  if(s.liege===G.nat){ if(s.ld>=72&&G.rnd()<0.045+(s.ld-72)*0.006)vassalRises(s); }
+  else if(s.ld>=60&&G.rnd()<(s.ld-60)*0.0045)aiVassalBreaks(s);
+ });
+
+ /* a great man who has beaten a small neighbour may take his homage instead */
+ if(G.rnd()<0.30)aiVassalise();
+ if(G.rnd()<0.14)aiVassalise();
+
+ if(G.ldPush)G.ldPush=Math.max(0,G.ldPush-1.5);
+ /* a rank is only kept up if there is something under it */
+ rankCheck();
+ rankSync();
+}
+/* what your liege wants out of you this year */
+function liegeYear(){
+ var L=myLiege();if(!L)return;
+ if(G.wars&&G.wars[G.liege])return;             /* in revolt, he is not asking */
+ if(G.rnd()>0.26)return;
+ var kinds=[
+  {i:"money",n:"A levy on top of the dues",d:"His chamber is short and you are the nearest thing to a reserve he has.",
+   cost:function(){return Math.round(G.income*0.28);}},
+  {i:"host",n:"Forty days in his host",d:"He is marching and your knights are owed to the muster.",
+   cost:function(){return 0;}},
+  {i:"court",n:"Attendance at his court",d:"Come in person, stand where you are put, and be seen to do it.",
+   cost:function(){return Math.round(G.income*0.08);}},
+  {i:"ward",n:"Your heir as his ward",d:"Raised in his household. A courtesy that is also a hostage.",
+   cost:function(){return 0;}}
+ ];
+ var d=kinds[Math.floor(G.rnd()*kinds.length)];
+ G.liegeAsk={i:d.i,n:d.n,d:d.d,c:d.cost(),from:shortName(L.n)};
+}
+function liegeAnswer(yes){
+ var a=G.liegeAsk;if(!a)return "";
+ var L=myLiege();G.liegeAsk=null;
+ if(yes){
+  if(a.c)G.tr=Math.max(0,G.tr-a.c);
+  if(a.i==="host"){var k=Object.keys(G.army).filter(function(u){return G.army[u]>0;});
+   if(k.length){var u=k[0];G.army[u]--;if(!G.army[u])delete G.army[u];}}
+  if(a.i==="ward")G.wardOut=1;
+  L.rel=cl0(L.rel+9,0,100);G.ld=cl0((G.ld||0)-7,0,100);
+  G.prs=cl0(G.prs-(a.i==="court"?3:1),0,100);
+  chron(G.yr,"<b>"+a.n+"</b> is granted to "+shortName(L.n)+". It is noted, and it is not thanked for.");
+  recalcAll();return "Granted.";
+ }
+ L.rel=cl0(L.rel-14,0,100);G.ld=cl0((G.ld||0)+9,0,100);G.prs=cl0(G.prs+3,0,100);
+ if(L.rel<8&&G.rnd()<0.09&&!atWar(G.liege)){
+  chron(G.yr,"<b>"+shortName(L.n)+" declares your fief forfeit</b> and is coming to take it.");
+  G.wars=G.wars||{};G.wars[G.liege]={sc:0,yrs:0,rev:1,def:1};
+ }else if(L.rel<22&&G.rnd()<0.4){
+  var fine=Math.round(G.income*0.45);G.tr=Math.max(0,G.tr-fine);
+  chron(G.yr,"<b>"+a.n+"</b> is refused, and "+shortName(L.n)+
+   "'s men come and take "+fmt(fine)+" marks out of the chamber instead. Nothing is said about it afterwards.");
+ }else chron(G.yr,"<b>"+a.n+"</b> is refused. "+shortName(L.n)+" says nothing, which is worse.");
+ recalcAll();return "Refused.";
+}
+/* one of your own men goes up */
+function vassalRises(s){
+ s.liege=null;s.rose=1;s.rel=cl0(s.rel-30,0,100);s.claim=1;s.ld=100;
+ G.prs=cl0(G.prs-8,0,100);G.leg=cl0(G.leg-5,0,100);
+ myVassals().forEach(function(j){G.states[j].ld=cl0((G.states[j].ld||0)+9,0,100);});
+ G.wars=G.wars||{};
+ if(!G.wars[s.ix]&&armyCount()>0)G.wars[s.ix]={sc:0,yrs:0,rev:1};
+ chron(G.yr,"<b>"+shortName(s.n)+" renounces its homage.</b> The oath is burned in the market place and your other men are watching to see what happens next.");
+ recalcAll();
+}
+function aiVassalBreaks(s){
+ var lx=s.liege;if(lx===null||lx===undefined)return;
+ var L=G.states[lx];
+ var odds=cl0((s.ld-50)*1.2+(s.army-L.army)*5,4,88);
+ if(G.rnd()*100<odds){
+  s.liege=null;s.ld=0;s.vassYrs=0;
+  news("<b>"+stName(s.ix)+"</b> has thrown off "+stName(lx)+" and holds of the Empire alone.",[s.ix,lx]);
+ }else{
+  s.ld=cl0(s.ld-34,0,100);s.army=Math.max(0,s.army-1);
+  news("<b>"+stName(lx)+"</b> has put down a rising in "+stName(s.ix)+".",[s.ix,lx]);
+ }
+}
+/* the hierarchy grows: a winner takes homage rather than land */
+function aiVassalise(){
+ var big=G.states.filter(function(s){return !s.me&&indep2(s)&&!isVass(s.ix)&&tierOf(s.ix)>=4;});
+ if(!big.length)return;
+ var L=big[Math.floor(G.rnd()*big.length)];
+ var cand=aiNbr(L).filter(function(j){var o=G.states[j];
+  return o&&!o.me&&indep2(o)&&!isVass(j)&&tierOf(j)<tierOf(L.ix)&&o.pop<L.pop*0.45
+   &&(o.hostile||0)<60&&!atWarPair(L.ix,j);});
+ if(!cand.length)return;
+ var j2=cand[Math.floor(G.rnd()*cand.length)], o2=G.states[j2];
+ if(G.rnd()*100>cl0(26+(L.army-o2.army)*4,6,74))return;
+ o2.liege=L.ix;o2.ld=cl0(28+G.rnd()*26,0,100);o2.vassYrs=0;
+ news("<b>"+stName(j2)+"</b> has done homage to "+stName(L.ix)+".",[j2,L.ix]);
+}
+/* keeping or losing the style */
+function rankCheck(){
+ var f=rankFloor();if(!f)return;
+ var thin=(G.regions.length<f.reg)||(G.pop<f.pop);
+ if(thin||G.outlaw)G.rankThin=(G.rankThin||0)+1; else G.rankThin=0;
+ if(G.rankThin>=3&&prevRank(myRank())&&G.yr-(G.demoAt||0)>=6){
+  G.rankThin=0;G.demoAt=G.yr;
+  demote(G.outlaw?"You have been three years under the ban.":
+   "There is not enough left of the realm to carry the title.");
+ }
+}
+
+/* ---------- initialisation ---------- */
+function rankInit(){
+ G.rank=T[G.nat].r;
+ G.ld=0;G.ldPush=0;G.vassYrs=0;G.rupCool=0;G.sueCool=0;G.rankThin=0;G.demoAt=0;G.liegeAsk=null;G.revoltAt=null;
+ G.states.forEach(function(s){
+  s.rank=T[s.ix].r;
+  var ln=LIEGE0[s.n]||LIEGE1[s.n]||null;
+  var li=ln?nameIx(ln):-1;
+  s.liege=(li>=0&&li!==s.ix)?li:null;
+  s.ld=s.liege===null?0:Math.round(18+((s.ix*7717)%34));
+  s.vassYrs=s.liege===null?0:Math.round((s.ix*53)%26);
+  s.hostage=0;s.wed=0;s.rose=0;
+ });
+ G.liege=G.states[G.nat].liege;
+ if(amVassal()){
+  G.ld=Math.min(38,G.states[G.nat].ld);G.states[G.nat].ld=G.ld;
+  G.vassYrs=G.states[G.nat].vassYrs;
+  G.impFav=Math.round(G.impFav*0.75);
+ }
+ /* a king of the Romans holds of nobody, whatever the tables said */
+ if(G.king){G.liege=null;G.states[G.nat].liege=null;G.ld=0;}
+ rankSync();
+}
+
+/* ================= STANDING: rank, liege and liberty ================= */
+function rankCol(k){return (RANKS[k]&&RANKS[k][1])||"var(--ink-3)";}
+function rankPill(k){return '<span class="pill" style="color:'+rankCol(k)+'">'+esc(rankRow(k).sh)+'</span>';}
+function ladderOf(k){
+ var kind=rankRow(k).k, out=[];
+ for(var kk in RANKT)if(RANKT[kk].k===kind)out.push(kk);
+ out.sort(function(a,b){return RANKT[a].t-RANKT[b].t;});
+ return out;
+}
+function tierWord(t){return RTIER[t]?RTIER[t].w:"";}
+
+function paneStanding(){
+ var k=myRank(), t=myTier(), R=RTIER[t];
+ var h=sh("Standing",tierWord(t).toLowerCase()+" rank");
+ h+='<div class="card hi" style="margin-bottom:13px">';
+ h+='<div style="display:flex;gap:11px;align-items:flex-start;margin-bottom:7px">'+armsSVG(T[G.nat].g,42)+
+  '<div style="min-width:0"><h4 style="font-size:17px;margin-bottom:1px">'+esc(G.title)+'</h4>'+
+  '<div style="font-size:11.5px;color:var(--ink-3)">'+esc(rankRow(k).n)+
+  ' \u00b7 tier '+t+' of 7 \u00b7 '+esc(tierWord(t))+'</div></div></div>';
+ h+=kv("Standing",Math.round(standing())+" / 100");
+ h+=barHtml(standing(),standing()<32?"bad":standing()<58?"warn":"good");
+ h+=kv("Envoys a year",G.diplMax);
+ h+=kv("Wars at once",R.wars);
+ h+=kv("Extra research slots",sgn(R.slot+(amVassal()?-1:0)));
+ h+=kvw("Laws open to you",Object.keys(LAWG).filter(function(g){return lawTierOK(g);})
+   .map(function(g){return LAWG[g];}).join(", ")||"the minor ones only");
+ h+=kv("Field strength from rank",sgn(R.land));
+ h+=kv("Prestige from rank",sgn(R.prs));
+ h+='</div>';
+
+ /* the ladder */
+ h+='<div class="sh"><h3 style="font-size:15px">The ladder</h3><span class="hr">'+
+   esc({sec:"secular",chr:"of the Church",urb:"of the towns"}[rankRow(k).k])+'</span></div>';
+ var lad=ladderOf(k);
+ lad.forEach(function(kk){
+  var me=kk===k, R2=RTIER[RANKT[kk].t];
+  h+='<div class="tr"'+(me?' style="background:var(--panel-2)"':'')+'><div class="trh">'+
+   '<span class="n" style="color:'+rankCol(kk)+'">'+esc(RANKT[kk].n)+'</span>'+
+   (me?'<span class="pill g">you are here</span>':
+    RANKT[kk].t<RANKT[k].t?'<span class="pill mu">behind you</span>':
+    '<span class="pill w">tier '+RANKT[kk].t+'</span>')+'</div>'+
+   '<div class="d">'+R2.wars+' war'+(R2.wars>1?'s':'')+' at once \u00b7 '+R2.dipl+
+   ' envoys \u00b7 '+(R2.slot?('+'+R2.slot+' research slot'+(R2.slot>1?'s':'')+' \u00b7 '):'')+
+   'field '+sgn(R2.land)+' \u00b7 prestige '+sgn(R2.prs)+'</div></div>';
+ });
+
+ /* elevation */
+ var c=rupChecks();
+ h+='<div class="sh" style="margin-top:16px"><h3 style="font-size:15px">Elevation</h3></div>';
+ if(!c)h+='<p class="lead">There is nothing above this rank. What is left is to keep it.</p>';
+ else{
+  h+='<p class="lead">The Empire raises a man who has made himself worth raising. These are what the chancery looks at before it will draw the charter for a '+
+   esc(rankRow(c.q.rank).n.toLowerCase())+'.</p>';
+  c.rows.forEach(function(r){
+   h+='<div class="kv"><span class="k">'+esc(r[0])+'</span><span class="v '+(r[3]?"g":"b")+'">'+
+    (r[3]?"\u2713 ":"\u00d7 ")+esc(String(typeof r[1]==="number"?fmt(r[1]):r[1]))+
+    ' <span style="opacity:.6">of '+esc(String(r[4]))+'</span></span></div>';
+  });
+  var bl=rupBlocked();
+  h+='<div class="btns"><button class="btn p" id="brankup"'+(bl?' disabled':'')+'>Petition the Empire \u00b7 '+
+    fmt(c.q.R.gold)+' marks</button></div>';
+  if(bl)h+='<p class="fine">'+esc(cap1(bl))+'.</p>';
+ }
+ var fl=rankFloor();
+ if(fl)h+='<p class="fine" style="margin-top:8px">Below '+fl.reg+' region'+(fl.reg===1?'':'s')+' or '+fmt(fl.pop)+
+   ' souls for three years and the title is written down a step. '+
+   (G.rankThin?('You have been under it for '+G.rankThin+' year'+(G.rankThin>1?'s':'')+'.'):'')+'</p>';
+
+ /* your liege */
+ h+=standLiege();
+ /* your men */
+ h+=standVassals();
+ $("p-standing").innerHTML=h;
+ wireStanding();
+}
+
+function standLiege(){
+ if(!amVassal())
+  return '<div class="sh" style="margin-top:16px"><h3 style="font-size:15px">Your lord</h3></div>'+
+   '<p class="lead">You hold of the Empire and of nobody else. Whatever the Emperor asks of you he asks as Emperor, and there is no man standing between.</p>';
+ var L=myLiege(), h='';
+ h+='<div class="sh" style="margin-top:16px"><h3 style="font-size:15px">Your lord</h3>'+
+   '<span class="hr">'+esc(rankRow(rankKey(G.liege)).sh)+'</span></div>';
+ h+='<div class="card">';
+ h+='<div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:6px">'+armsSVG(T[G.liege].g,34)+
+  '<div style="min-width:0"><h4 style="font-size:15px;margin-bottom:1px">'+esc(TITLES[G.liege])+'</h4>'+
+  '<div style="font-size:11.5px;color:var(--ink-3)">'+esc(L.rule?L.rule.n:L.n)+'</div></div></div>';
+ h+=kv("His regard for you",Math.round(L.rel),cls(L.rel));
+ h+=kv("Tribute you owe",pc(tribRate()*100)+" \u00b7 "+fmt(tributeDue())+" marks");
+ h+=kv("Years as his man",G.vassYrs||0);
+ h+='<div class="kv"><span class="k">Liberty desire</span><span class="v '+
+   ((G.ld||0)>60?"b":(G.ld||0)>35?"w":"g")+'">'+Math.round(G.ld||0)+'</span></div>';
+ h+=barHtml(G.ld||0,(G.ld||0)>60?"bad":(G.ld||0)>35?"warn":"good");
+ h+='<p class="fine">'+esc(ldWord(G.ld||0))+'</p>';
+ h+='</div>';
+
+ h+='<div class="sh" style="margin-top:13px"><h3 style="font-size:15px">What is closed to you</h3></div>';
+ vassLocks().forEach(function(l){
+  h+='<div class="tr"><div class="trh"><span class="n">'+esc(l[0])+'</span>'+
+   '<span class="pill b">closed</span></div><div class="d">'+esc(l[1])+'</div></div>';
+ });
+
+ h+='<div class="sh" style="margin-top:13px"><h3 style="font-size:15px">Getting out</h3></div>';
+ var sb=sueBlocked(), rb=revoltBlocked();
+ var pb=pushBlocked();
+ h+='<div class="tr"><div class="trh"><span class="n">Bind the knights to you</span>'+
+  (pb?'<span class="pill mu">'+esc(pb)+'</span>':'<span class="pill w">open</span>')+'</div>'+
+  '<div class="d">Grants, remissions and a quiet word about what happens when the homage is gone. It does not free you; it makes your own men willing to be freed.</div>'+
+  '<div class="kv"><span class="k">Ground prepared</span><span class="v">'+Math.round(G.ldPush||0)+' of 34</span></div>'+
+  (pb?'':'<div class="btns"><button class="btn" id="bpush">Bind them \u00b7 '+fmt(pushCost())+' marks</button></div>')+'</div>';
+ h+='<div class="tr"><div class="trh"><span class="n">Sue to be released</span>'+
+  (sb?'<span class="pill mu">'+esc(sb)+'</span>':'<span class="pill w">open</span>')+'</div>'+
+  '<div class="d">Buy the cancellation of your homage: a fee to him, a fee to the chancery, and an argument at the Diet. Expensive, lawful, and it does not burn the country.</div>'+
+  (sb?'':'<div class="btns"><button class="btn" id="bsue">Sue \u00b7 '+fmt(sueCost())+' marks</button></div>')+'</div>';
+ h+='<div class="tr"><div class="trh"><span class="n">Renounce the homage</span>'+
+  (rb?'<span class="pill mu">'+esc(rb)+'</span>':'<span class="pill b">war</span>')+'</div>'+
+  '<div class="d">Burn the oath and hold what you have against him. His other men may rise with you. If he beats you he will take the style off you and fine the realm.</div>'+
+  (function(){var RS=revStrength();
+   return '<div class="kv"><span class="k">A rising would stand</span><span class="v '+
+    (RS.odds>58?"g":RS.odds>34?"w":"b")+'">'+Math.round(RS.odds)+' in a hundred</span></div>'+
+    '<p class="fine">You could put '+fmt(RS.mine)+' into the field against his '+fmt(RS.theirs)+
+    (RS.risers?('. '+RS.risers+' of his other men are ready to rise with you'):'. None of his other men would move')+
+    (RS.busy?('. He has '+RS.busy+' other war'+(RS.busy>1?'s':'')+' on his hands'):'')+'.</p>';})()+
+  (rb?'':'<div class="btns"><button class="btn d" id="brev">Revolt against '+esc(shortName(L.n))+'</button></div>')+'</div>';
+ return h;
+}
+function ldWord(v){
+ if(v<18)return "The arrangement suits you well enough, and nobody at your court says otherwise out loud.";
+ if(v<35)return "Your household grumbles about the dues and the summonses. Nothing more than that.";
+ if(v<52)return "Your men talk openly about what the realm would be if it held of nobody.";
+ if(v<70)return "Your council is divided between those who want it put to him and those who want it put to the sword.";
+ if(v<85)return "Your knights are waiting for a word. If you do not give it they will find another lord who will.";
+ return "This cannot hold another five years. Either he releases you or you take it.";
+}
+
+function standVassals(){
+ var vs=myVassals();
+ var h='<div class="sh" style="margin-top:16px"><h3 style="font-size:15px">Your own men</h3>'+
+  '<span class="hr">'+(vs.length?vs.length+" holding of you":"none")+'</span></div>';
+ if(!vs.length){
+  h+='<p class="lead">Nobody holds of you. A state beaten badly enough in war may be offered homage instead of annexation, which costs nothing to garrison and brings men and money every year.</p>';
+  return h;
+ }
+ h+=kv("Dues from your men",fmt(vassalDues())+" marks");
+ h+=kv("Men they would bring",vassalLevy()+" companies");
+ vs.forEach(function(j){
+  var s=G.states[j], ld=Math.round(s.ld||0);
+  h+='<div class="tr"><div class="trh" style="gap:8px">'+
+   '<span style="flex:0 0 auto">'+armsSVG(T[j].g,18)+'</span>'+
+   '<span class="n">'+esc(shortName(s.n))+'</span>'+rankPill(rankKey(j))+
+   '<span class="pill '+(ld>60?"b":ld>35?"w":"g")+'">liberty '+ld+'</span></div>'+
+   '<div class="d">'+fmt(s.pop)+' \u00b7 '+s.army+' companies \u00b7 regard '+Math.round(s.rel)+
+   ' \u00b7 '+(s.vassYrs||0)+' years your man'+(s.hostage?' \u00b7 heir at your court':'')+
+   (s.wed?' \u00b7 married into your house':'')+'</div>'+
+   barHtml(100-ld,ld>60?"bad":ld>35?"warn":"good")+
+   '<div class="btns">';
+  VACT.forEach(function(a){
+   var bl=vactBlocked(j,a.i);
+   h+='<button class="btn sm'+(a.strip?" d":"")+'" data-va="'+j+':'+a.i+'"'+
+    (bl?' disabled title="'+esc(bl)+'"':' title="'+esc(a.d)+(a.c?" "+fmt(a.c)+" marks":"")+'"')+
+    '>'+esc(a.n)+'</button>';
+  });
+  h+='</div></div>';
+ });
+ return h;
+}
+function wireStanding(){
+ var p=$("p-standing");
+ var b1=$("brankup");if(b1)b1.onclick=function(){var m2=petitionRank();bar();paneStanding();if(m2)toast(m2);};
+ var b2=$("bsue");if(b2)b2.onclick=function(){var m2=sueIndep();bar();paneStanding();if(m2)toast(m2);};
+ var b3=$("brev");if(b3)b3.onclick=function(){var m2=revolt();bar();paneStanding();if(m2)toast(m2);};
+ var b4=$("bpush");if(b4)b4.onclick=function(){var m2=pushLiberty();bar();paneStanding();if(m2)toast(m2);};
+ Array.prototype.forEach.call(p.querySelectorAll("[data-va]"),function(b){
+  b.onclick=function(){var a=b.getAttribute("data-va").split(":");
+   var m2=doVact(+a[0],a[1]);bar();paneStanding();if(m2)toast(m2);};});
+}
+
+/* a law group you are not grand enough to legislate for */
+function lawTierOK(g){
+ var need=LAWT[g]||1;
+ if(amVassal()&&g==="gov")return 0;
+ return myTier()>=need;
+}
+function lawGate(g){
+ if(amVassal()&&g==="gov")return "your liege legislates; you administer";
+ var need=LAWT[g]||1;
+ if(myTier()<need)return "no "+rankRow(myRank()).sh.toLowerCase()+" legislates on this";
+ return "";
+}
+
+/* the liege's demand, as an event card */
+function liegeAskModal(){
+ var a=G.liegeAsk;if(!a)return;
+ modal('<h2>'+esc(a.from)+' asks</h2>'+
+  '<p class="lead">'+esc(a.n)+'. '+esc(a.d)+'</p>'+
+  (a.c?'<div class="kv"><span class="k">It will cost</span><span class="v">'+fmt(a.c)+' marks</span></div>':'')+
+  '<div class="kv"><span class="k">Granting it</span><span class="v g">his regard +9, liberty -7</span></div>'+
+  '<div class="kv"><span class="k">Refusing it</span><span class="v b">his regard -14, liberty +9</span></div>'+
+  '<p class="fine">A lord who is refused often enough declares the fief forfeit and comes for it.</p>'+
+  '<div class="btns"><button class="btn p" id="bask1">Grant it</button>'+
+  '<button class="btn d" id="bask0">Refuse</button></div>');
+ $("bask1").onclick=function(){var m2=liegeAnswer(1);closeModal();bar();showPane();if(m2)toast(m2);};
+ $("bask0").onclick=function(){var m2=liegeAnswer(0);closeModal();bar();showPane();if(m2)toast(m2);};
+}
+
+
+/* ---- a revolt is settled by the fighting, not by a pane ---- */
+function revoltWatch(){
+ if(!G||G.over||!amVassal())return;
+ var lx=G.liege, w=G.wars&&G.wars[lx];
+ if(!w||!w.rev)return;
+ if(w.sc>=50&&G.rnd()<0.6){
+  delete G.wars[lx];
+  freeMe("<b>The rising has carried.</b> "+shortName(G.states[lx].n)+
+   " cannot bring another host into the field this year and the homage is renounced for good.");
+  return;
+ }
+ if(w.sc<=-50&&G.rnd()<0.6){
+  delete G.wars[lx];
+  var L=G.states[lx];
+  L.rel=cl0(L.rel+26,0,100);G.ld=cl0((G.ld||0)-48,0,100);
+  var loss=Math.round(G.income*1.2);G.tr=Math.max(0,G.tr-loss);
+  chron(G.yr,"<b>The rising is broken.</b> "+shortName(L.n)+
+   " takes your submission, a fine of "+fmt(loss)+" marks, and your word in writing.");
+  demote("A rising put down is a title forfeit in all but name.");
+ }
 }
 
 /* ================= BOOT ================= */
@@ -5106,7 +6478,9 @@ function endYear(){
  if(!G||G.over)return;
  endTurn();bar();paintMap();buildTabs();showPane();
  if(G.over){overModal();save();return;}
- if(G.ev)eventModal();else save();
+ if(G.ev)eventModal();
+ else if(G.liegeAsk)liegeAskModal();
+ else save();
 }
 function boot(){
  indexTech();
