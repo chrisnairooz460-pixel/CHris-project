@@ -985,25 +985,27 @@ var UNITS=[
    buys loyalty cheaply, appointing anyone else is an insult that is remembered.
    =================================================== */
 var OFFICES=[
- {i:"chan",n:"Arch-Chancellor of Germany",trad:"Archbishopric of Mainz",sk:4,
+ {i:"chan",n:"Arch-Chancellor of Germany",trad:"Archbishopric of Mainz",sk:4,imp:1,
   d:"Keeper of the seal and the chancery. Everything written in the king's name passes him.",e:{corr:7,acc:5}},
- {i:"chit",n:"Arch-Chancellor of Italy",trad:"Archbishopric of Cologne",sk:4,
+ {i:"chit",n:"Arch-Chancellor of Italy",trad:"Archbishopric of Cologne",sk:4,imp:1,
   d:"The crown's authority south of the Alps, in theory.",e:{italy:9,acc:4}},
- {i:"chbu",n:"Arch-Chancellor of Burgundy",trad:"Archbishopric of Trier",sk:4,
+ {i:"chbu",n:"Arch-Chancellor of Burgundy",trad:"Archbishopric of Trier",sk:4,imp:1,
   d:"The same office for the Rhone and the Jura.",e:{burg:9,acc:3}},
- {i:"mars",n:"Arch-Marshal",trad:"Duchy of Saxony",sk:1,
-  d:"Musters the host and keeps order in the camp.",e:{land:7,upk:-5}},
- {i:"camb",n:"Arch-Chamberlain",trad:"Margraviate of Brandenburg",sk:2,
-  d:"The chamber and its revenue.",e:{tax:7,corr:4}},
- {i:"stew",n:"Arch-Steward",trad:"Palatinate of the Rhine",sk:2,
-  d:"The household, the crown lands and the king's table.",e:{tax:6,stab:5}},
- {i:"cupb",n:"Arch-Cupbearer",trad:"Kingdom of Bohemia",sk:0,
-  d:"Ceremonial, and a seat at the election that matters a great deal.",e:{loyal:7,elec:6}},
- {i:"vicr",n:"Imperial Vicar",trad:"",sk:0,req:"lvicar",
+ {i:"mars",n:"Arch-Marshal",trad:"Duchy of Saxony",sk:1,imp:1,
+  d:"Musters the host and keeps order in the camp.",e:{land:11,upk:-7,attr:5}},
+ {i:"camb",n:"Arch-Chamberlain",trad:"Margraviate of Brandenburg",sk:2,imp:1,
+  d:"The chamber and its revenue.",e:{tax:9,corr:7,coin:-3}},
+ {i:"stew",n:"Arch-Steward",trad:"Palatinate of the Rhine",sk:2,imp:1,
+  d:"The household, the crown lands and the king's table.",e:{tax:7,stab:7,sol:4}},
+ {i:"cupb",n:"Arch-Cupbearer",trad:"Kingdom of Bohemia",sk:0,imp:1,
+  d:"Ceremonial, and a seat at the election that matters a great deal.",e:{loyal:9,elec:8,fav:7,prs:3}},
+ {i:"vicr",n:"Imperial Vicar",trad:"",sk:0,imp:1,req:"lvicar",
   d:"Deputy with the crown's authority where the king is not.",e:{acc:8,cent:6}},
  {i:"spym",n:"Master of the Signet",trad:"",sk:3,req:"esp5a",
   d:"The courier network, the ciphers and the money that is never written down.",e:{esp:11,infl:7}}
 ];
+
+var OID={};OFFICES.forEach(function(o){OID[o.i]=o;});
 
 /* ===================== CHARACTERS =====================
    Skills, in order: Diplomacy, Martial, Stewardship, Intrigue, Learning, Piety.
@@ -1807,7 +1809,7 @@ function initGame(natIx,recog){
   pendingBattle:null,battleDue:null,
   peaceOffer:null,peaceDemand:null,
   dipl:0,diplMax:3,
-  rank:null,liege:null,ld:0,ldPush:0,vassYrs:0,rupCool:0,sueCool:0,rankThin:0,liegeAsk:null,revoltAt:null,
+  offHeld:{},offGrant:{},rank:null,liege:null,ld:0,ldPush:0,vassYrs:0,rupCool:0,sueCool:0,rankThin:0,liegeAsk:null,revoltAt:null,
   clim:30,climB:30,genius:null,chron:[],flags:{},strainRun:0,
   rnd:rnd,ev:null,over:null,em:{}};
 
@@ -1941,7 +1943,8 @@ function bag(){
  LAWS.forEach(function(l){if(G.laws[l.i])add(l.e,1);});
  DOCT.forEach(function(d){if(doctOn(d.i))add(d.e,1);});
  OFFICES.forEach(function(o){var h=G.offices[o.i];if(h===undefined||h===null)return;
-   var c=G.court[h];if(!c)return;add(o.e,0.5+c.sk[o.sk]*0.08);});
+   var c=G.court[h];if(!c)return;
+   add(o.e,(typeof offW==="function")?offW(o,c):0.5+c.sk[o.sk]*0.08);});
  (G.ruler.tr||[]).forEach(function(t){if(TRAITS[t])add(TRAITS[t].e,1);});
  if(G.genius)add(G.genius.e,1);
  add(G.em,1);
@@ -2069,6 +2072,7 @@ function natAgg(M){
  if(G.debt>0)up+=G.debt*0.09;
  if(G.impTax)up+=G.impTax;
  if(typeof tributeDue==="function"&&G.states&&G.states.length){G.vtrib=tributeDue();up+=G.vtrib;}
+ if(typeof offPayTotal==="function"&&G.court&&G.court.length){G.offPay=offPayTotal();up+=G.offPay;}
  G.upkeep=up;
  G.net=G.income-G.upkeep;
 
@@ -2318,7 +2322,8 @@ function empTurn(){
  }else if(G.emp.res==="ot"&&G.yr>=1215){G.emp.res="fr";
   chron(G.yr,"Otto IV is finished. <b>Frederick II</b>, the boy from Palermo, is king of the Romans and means to be emperor.");}
  /* favour drifts toward what you have actually done */
- var t=cl0(34+(G.recog?12:-9)+G.prs*0.2+(G.outlaw?-40:0),0,100);
+ var M=G.M||{};
+ var t=cl0(34+(G.recog?12:-9)+G.prs*0.2+m(M,"fav")*0.9+(G.outlaw?-40:0),0,100);
  G.impFav+=(t-G.impFav)*0.1;
  if(G.impFav<9&&!G.outlaw&&G.rnd()<0.25){G.outlaw=1;
   chron(G.yr,"You are put to the <b>imperial ban</b>. Your vassals are absolved, your tolls are void and anyone may take what they can hold.");}
@@ -2454,6 +2459,7 @@ function endTurn(){
 
  if(typeof rankTurn==="function")rankTurn();
  if(typeof revoltWatch==="function")revoltWatch();
+ if(typeof offActs==="function"){offActs();offPower();offTidy();}
  recalcAll();intelPass();
  strain();
  if(!G.over)drawEvent();
@@ -2499,6 +2505,12 @@ function deaths(){
  G.court.forEach(function(c,i){if(G.rnd()*100<lifeOdds(c)){
   var nm=CFN[Math.floor(G.rnd()*CFN.length)]+" "+CSN[Math.floor(G.rnd()*CSN.length)];
   var sk=[];for(var j=0;j<6;j++)sk.push(2+Math.floor(G.rnd()*8));
+  /* a post does not pass to whoever happens to take his seat at table */
+  var lost=null;
+  for(var k in G.offices)if(G.offices[k]===i){lost=k;delete G.offices[k];}
+  if(lost&&typeof OID!=="undefined"&&OID[lost])
+   chron(G.yr,"<b>"+c.n+"</b> is dead, and "+OID[lost].n.replace(/^Arch-/,"")+
+    " is vacant until you fill it.");
   G.court[i]={n:nm,age:23+Math.floor(G.rnd()*22),sk:sk,
    tr:[TPOOL[Math.floor(G.rnd()*TPOOL.length)],TPOOL[Math.floor(G.rnd()*TPOOL.length)]]};
  }});
@@ -3106,7 +3118,7 @@ function warRound(ix){
  /* war costs money, men and patience */
  var cost=Math.round((G.income*0.16+armyCount()*22)*cl0(1+dk.camp*0.012,0.5,2));
  G.tr=Math.max(0,G.tr-cost);
- if(G.rnd()<cl0(0.42-dk.attr*0.012,0.1,0.7)){
+ if(G.rnd()<cl0(0.42-dk.attr*0.012-m(G.M||{},"attr")*0.012,0.08,0.7)){
   var us=Object.keys(G.army).filter(function(u){return G.army[u]>0;});
   if(us.length){var u=us[Math.floor(G.rnd()*us.length)];G.army[u]--;if(!G.army[u])delete G.army[u];}
  }
@@ -3492,7 +3504,8 @@ function buildTabs(){
   var b=document.createElement("button");b.className="tab";b.setAttribute("role","tab");
   b.setAttribute("aria-selected",t[0]===tab?"true":"false");
   var dot=(t[0]==="research"&&G&&G.queue.length<slotsTotal())||(t[0]==="diplo"&&G&&G.dipl>0)
-   ||(t[0]==="standing"&&G&&((G.rank&&!rupBlocked())||(amVassal()&&!sueBlocked())));
+   ||(t[0]==="standing"&&G&&((G.rank&&!rupBlocked())||(amVassal()&&!sueBlocked())))
+   ||(t[0]==="gov"&&G&&typeof offVacant==="function"&&offVacant());
   b.innerHTML=esc(t[1])+(dot?'<span class="dot"></span>':'');
   b.onclick=function(){tab=t[0];buildTabs();showPane();};w.appendChild(b);
  });
@@ -3506,7 +3519,7 @@ function showPane(){
 function sh(t,r){return '<div class="sh"><h3>'+esc(t)+'</h3>'+(r?'<span class="hr">'+esc(r)+'</span>':'')+'</div>';}
 function kv(k,v,c){return '<div class="kv"><span class="k">'+esc(k)+'</span><span class="v '+(c||"")+'">'+v+'</span></div>';}
 function kvw(k,v,c){return '<div class="kv"><span class="k">'+esc(k)+'</span><span class="v wd '+(c||"")+'">'+esc(v)+'</span></div>';}
-function barHtml(v,c){return '<div class="bar"><i style="width:'+cl0(v,0,100)+'%;background:var(--'+(c||"gold")+')"></i></div>';}
+function barHtml(v,c){return '<div class="bar"><i style="width:'+Math.round(cl0(v,0,100))+'%;background:var(--'+(c||"gold")+')"></i></div>';}
 
 /* ================= REALM: your regions ================= */
 function paneRealm(){
@@ -3897,19 +3910,7 @@ function paneGov(){
   h+='<p class="fine">Your own lands pass to your heir. What does not pass is the Empire\u2019s opinion of your house, which each new lord has to earn again.</p>';
  }
 
- h+='<div class="sec">'+sh("Your council","offices of your household");
- OFFICES.forEach(function(o){
-  if(o.req&&!G.done[o.req]&&!G.laws[o.req])return;
-  var hi=G.offices[o.i],c=hi!==undefined?G.court[hi]:null;
-  h+='<div class="tr"><div class="trh"><span class="n">'+esc(o.n.replace(/^Arch-/,"").replace(/ of (Germany|Italy|Burgundy)$/,""))+'</span>'+
-   (c?'<span class="pill g">filled</span>':'<span class="pill mu">vacant</span>')+'</div>'+
-   '<div class="d">'+esc(o.d)+'</div>'+
-   '<div class="d">'+(c?'<b>'+esc(c.n)+'</b> \u00b7 '+esc(SKN[o.sk])+' '+c.sk[o.sk]:'<i>Unfilled. Its work is not being done.</i>')+'</div>'+
-   '<div class="btns"><button class="btn sm" data-of="'+o.i+'">'+(c?"Reassign":"Appoint")+'</button>'+
-   (c?'<button class="btn sm" data-ofc="'+o.i+'">Leave vacant</button>':'')+'</div></div>';
- });
- h+='</div>';
-
+ h+=councilHtml();
  h+='<div class="sec">'+sh("Doctrine","the footing the host is on");
  h+='<p class="lead">One doctrine of each kind is in force at a time. The rest are known and waiting for a war that suits them.</p>';
  var dany=0;
@@ -3934,27 +3935,8 @@ function paneGov(){
  $("p-gov").innerHTML=h;
  Array.prototype.forEach.call($("p-gov").querySelectorAll("[data-dc]"),function(b){
   b.onclick=function(){setDoct(b.getAttribute("data-dc"));bar();paneGov();};});
- Array.prototype.forEach.call($("p-gov").querySelectorAll("[data-ofc]"),function(b){
-  b.onclick=function(){delete G.offices[b.getAttribute("data-ofc")];recalcAll();bar();paneGov();};});
- Array.prototype.forEach.call($("p-gov").querySelectorAll("[data-of]"),function(b){
-  b.onclick=function(){pickOffice(b.getAttribute("data-of"));};});
+ wireCouncil();
 }
-function pickOffice(oi){
- var o=OFFICES.filter(function(x){return x.i===oi;})[0];
- var h='<div class="ey">Appointment</div><h2>'+esc(o.n.replace(/^Arch-/,""))+'</h2>'+
-  '<p>'+esc(o.d)+' The office is worth most in the hands of someone with '+esc(SKN[o.sk].toLowerCase())+'.</p>';
- G.court.forEach(function(c,i){
-  h+='<button class="opt" data-ap="'+i+'"><span class="ot">'+esc(c.n)+'</span>'+
-   '<span class="od">Aged '+c.age+' \u00b7 '+esc(SKN[o.sk])+' <b>'+c.sk[o.sk]+'</b> \u00b7 '+esc(c.tr.join(", "))+'</span></button>';});
- h+='<div class="btns"><button class="btn" id="mclose">Leave it as it is</button></div>';
- modal(h);
- Array.prototype.forEach.call($("mbody").querySelectorAll("[data-ap]"),function(b){
-  b.onclick=function(){var i=+b.getAttribute("data-ap");G.offices[oi]=i;
-   chron(G.yr,"<b>"+G.court[i].n+"</b> is made "+o.n.replace(/^Arch-/,"")+".");
-   closeModal();recalcAll();bar();paneGov();};});
- $("mclose").onclick=closeModal;
-}
-
 /* ================= MILITARY ================= */
 function paneMil(){
  var h=sh("Military","raised in your towns");
@@ -4508,6 +4490,7 @@ var EFFL={
  pop:"Population growth",hea:"Health",cap:"Build caps",land:"Field strength",nav:"At sea",
  sie:"Siege",def:"Fortification",esp:"Espionage",infl:"Influence",coin:"Coin stability",
  slot:"Research slots",gen:"Learning",prs:"Prestige",pap:"Standing at Rome",leg:"Standing",
+ fav:"Imperial favour",
  cent:"Centralization",elec:"At an election",upk:"Army upkeep",loyal:"Relations abroad",
  plg:"Against plague",alp:"In the mountains",mrs:"In the marsh",frs:"In the forest",
  mtn:"Mining country",hil:"In the hills",east:"Settlement eastward",
@@ -5650,7 +5633,7 @@ function save(){
    army:G.army,builds:G.builds,offices:G.offices,court:G.court,powers:G.powers,allies:G.allies,
    dipl:G.dipl,clim:G.clim,climB:G.climB,genius:G.genius,wars:G.wars,badRun:G.badRun,trade:G.trade,
    host:G.host,cheats:G.cheats,acted:G.acted,
-   rank:G.rank,liege:G.liege,ld:G.ld,ldPush:G.ldPush,vassYrs:G.vassYrs,rupCool:G.rupCool,sueCool:G.sueCool,rankThin:G.rankThin,demoAt:G.demoAt,liegeAsk:G.liegeAsk,revoltAt:G.revoltAt,
+   offHeld:G.offHeld,offGrant:G.offGrant,rank:G.rank,liege:G.liege,ld:G.ld,ldPush:G.ldPush,vassYrs:G.vassYrs,rupCool:G.rupCool,sueCool:G.sueCool,rankThin:G.rankThin,demoAt:G.demoAt,liegeAsk:G.liegeAsk,revoltAt:G.revoltAt,
    awars:G.awars,aallies:G.aallies,news:(G.news||[]).slice(0,80),pendingAttack:G.pendingAttack,chron:G.chron.slice(0,120),
    flags:G.flags,strainRun:G.strainRun,over:G.over,em:G.em,
    rg:G.regions.map(function(r){return[r.pop,r.stab,r.unr,r.farms,r.bld,r.shifted,r.dev,r.urb,r.n,r.conq?1:0,r.res,r.terr,r.acc,r.towns,r.coast,r.cap];}),
@@ -5669,7 +5652,7 @@ function load(){
    "debt","debtLvl","infl","cent","taxRate","done","laws","doct","doctSel","queue","qleft",
    "army","builds","offices","court","powers","allies","dipl","clim","climB","genius","chron",
    "flags","strainRun","over","em","wars","badRun","awars","aallies","news","pendingAttack","trade","host","cheats","acted",
-   "rank","liege","ld","ldPush","vassYrs","rupCool","sueCool","rankThin","demoAt","liegeAsk","revoltAt"].forEach(function(k){if(s[k]!==undefined)G[k]=s[k];});
+   "offHeld","offGrant","rank","liege","ld","ldPush","vassYrs","rupCool","sueCool","rankThin","demoAt","liegeAsk","revoltAt"].forEach(function(k){if(s[k]!==undefined)G[k]=s[k];});
   if(s.rg&&s.rg.length>G.regions.length){
    for(var q=G.regions.length;q<s.rg.length;q++){var a2=s.rg[q];
     G.regions.push({ix:q,nat:G.nat,n:a2[8]||("Region "+q),cap:a2[15]||0,pop:a2[0],urb:a2[7],
@@ -6582,6 +6565,482 @@ function revoltWatch(){
   chron(G.yr,"<b>The rising is broken.</b> "+shortName(L.n)+
    " takes your submission, a fine of "+fmt(loss)+" marks, and your word in writing.");
   demote("A rising put down is a title forfeit in all but name.");
+ }
+}
+
+/* ===================== THE COUNCIL =====================
+   An office was a line in a table that added a number whatever you did with
+   it. It is a post now: it costs a stipend, only one man may hold it, how
+   many you may keep at all depends on your rank, several of them belong by
+   ancient right to somebody else and taking them is an insult, and the man
+   in the post does something every year that you read about afterwards.
+   ====================================================== */
+
+/* The arch-offices of the Empire belong to the electors. A prince who is not
+   the traditional holder needs the crown's leave to use the title. */
+var OFFIMP={chan:1,chit:1,chbu:1,cupb:1};
+/* and how many posts a realm of that standing can carry at all */
+var OFFCAP=[0,1,2,3,4,5,7,9];
+function offCap(){
+ var n=OFFCAP[myTier()]||2;
+ if(amVassal())n=Math.max(1,n-1);           /* your liege keeps his own council */
+ if(G.king)n+=2;
+ return n;
+}
+/* a post nobody is in, that you are allowed to fill: the tab says so */
+function offVacant(){
+ if(!G||!G.court||!G.court.length)return 0;
+ for(var i=0;i<OFFICES.length;i++){
+  var o=OFFICES[i];
+  if(o.req&&!G.done[o.req]&&!G.laws[o.req])continue;
+  if(offHolder(o.i))continue;
+  if(offBlocked(o.i))continue;
+  return 1;
+ }
+ return 0;
+}
+function offHeldCount(){var n=0;for(var k in G.offices)if(G.offices[k]!==undefined&&G.offices[k]!==null)n++;return n;}
+function offTrad(o){
+ if(!o.trad)return -1;
+ if(OFFTRADC[o.i]===undefined)OFFTRADC[o.i]=nameIx(o.trad);
+ return OFFTRADC[o.i];
+}
+var OFFTRADC={};
+function offMine(o){return offTrad(o)===G.nat;}
+/* Palatinate of the Rhine shortens to "the Rhine", which cannot start a
+   sentence or follow "restore it to". Such a house keeps its full style. */
+function offHouse(ix){
+ var n=shortName(G.states[ix].n);
+ return /^[a-z]/.test(n)?G.states[ix].n:n;
+}
+
+/* What a man is worth in a post. A fool is worse than an empty chair, which
+   is the whole point of having the appointment be a decision. */
+function offW(o,c){
+ if(!c)return 0;
+ var w=-0.25+c.sk[o.sk]*0.20;
+ if(offMine(o))w+=0.20;                      /* the office is his by right of your house */
+ if((c.pow||0)>62)w*=0.72;                   /* a man building a faction works for himself */
+ if(c.disg)w*=0.4;
+ return w;
+}
+function offHolder(oi){
+ var hi=G.offices[oi];
+ return (hi===undefined||hi===null)?null:(G.court[hi]||null);
+}
+/* the stipend: a post is a household on your books */
+/* A post has to pay for itself with the right man in it and not with the
+   wrong one, so the stipend sits between what a good appointment earns and
+   what a bad one does. */
+function offPay(o){return Math.round(45+G.income*0.006*(1+(o.imp?0.3:0)));}
+function offPayTotal(){
+ var t=0;OFFICES.forEach(function(o){if(offHolder(o.i))t+=offPay(o);});
+ return t;
+}
+/* the scaled effect, so the pane can print what the post is worth right now */
+function offEff(o,c){
+ var w=offW(o,c),e={};
+ for(var k in o.e)e[k]=Math.round(o.e[k]*w*10)/10;
+ return e;
+}
+
+/* ---------- may you fill it at all ---------- */
+function offBlocked(oi){
+ var o=OID[oi];if(!o)return "no such office";
+ if(o.req&&!G.done[o.req]&&!G.laws[o.req])return "not yet understood";
+ if(G.offGrant&&G.offGrant[oi]!==undefined)
+  return "granted to "+offHouse(G.offGrant[oi]);
+ if(OFFIMP[oi]&&!offMine(o)&&!G.king&&!(G.offHeld&&G.offHeld[oi]))
+  return "an arch-office of the Empire; the crown has not given it to you";
+ if(!offHolder(oi)&&offHeldCount()>=offCap())
+  return "a "+rankRow(myRank()).sh.toLowerCase()+" keeps "+offCap()+" posts, and they are all filled";
+ return "";
+}
+/* claiming an arch-office from the Emperor */
+function offClaimBlocked(oi){
+ var o=OID[oi];if(!o)return "no such office";
+ if(!OFFIMP[oi]||offMine(o)||G.king)return "there is nothing to ask for";
+ if(G.offHeld&&G.offHeld[oi])return "it is already yours to fill";
+ if(G.offGrant&&G.offGrant[oi]!==undefined)return "you have given it away";
+ if(G.acted&&G.acted["oc"+oi])return "already asked this year";
+ if(G.outlaw)return "you are under the ban";
+ if(G.impFav<58)return "the crown thinks too little of you to hear it";
+ if(G.tr<offClaimCost())return "not enough in the chamber";
+ return "";
+}
+function offClaimCost(){return Math.round(900+G.income*0.5);}
+function offClaim(oi){
+ if(offClaimBlocked(oi))return "";
+ var o=OID[oi],c=offClaimCost();
+ G.tr-=c;G.acted["oc"+oi]=1;G.dipl=Math.max(0,G.dipl-1);
+ var tr=offTrad(o);
+ var odds=cl0(12+(G.impFav-58)*1.3+G.prs*0.3+G.ruler.sk[0]*2+myTier()*4
+   -(tr>=0?G.states[tr].army*1.2:0),5,88);
+ if(G.rnd()*100<odds){
+  G.offHeld=G.offHeld||{};G.offHeld[oi]=1;
+  G.prs=cl0(G.prs+6,0,100);
+  if(tr>=0){G.states[tr].rel=cl0(G.states[tr].rel-26,0,100);G.states[tr].claim=1;}
+  chron(G.yr,"<b>The crown grants you "+o.n+".</b> The title is read out at the Hoftag"+
+   (tr>=0?", and "+offHouse(tr)+" sat through it without speaking.":"."));
+  recalcAll();
+  return o.n+" is yours to fill.";
+ }
+ G.impFav=cl0(G.impFav-3,0,100);
+ chron(G.yr,"<b>The crown will not give you "+o.n+".</b> The fee is kept and the asking is on record.");
+ recalcAll();
+ return "Refused.";
+}
+/* handing an office to the house that has always had it */
+function offGrantBlocked(oi){
+ var o=OID[oi];if(!o)return "no such office";
+ var tr=offTrad(o);
+ if(tr<0)return "no house has an ancient claim on it";
+ if(tr===G.nat)return "it is already yours by right";
+ if(G.offGrant&&G.offGrant[oi]!==undefined)return "already granted";
+ if(!G.king&&!(G.offHeld&&G.offHeld[oi]))return "it is not yours to give";
+ if(!indep(G.states[tr]))return offHouse(tr)+" no longer rules itself";
+ return "";
+}
+function offGrantTo(oi){
+ if(offGrantBlocked(oi))return "";
+ var o=OID[oi],tr=offTrad(o),s=G.states[tr];
+ G.offGrant=G.offGrant||{};G.offGrant[oi]=tr;
+ delete G.offices[oi];
+ s.rel=cl0(s.rel+34,0,100);s.claim=0;s.fear=0;
+ G.prs=cl0(G.prs+3,0,100);G.impFav=cl0(G.impFav+5,0,100);
+ if(G.rnd()*100<cl0(s.rel*0.6,10,80))G.allies[tr]=1;
+ chron(G.yr,"<b>"+o.n+" is restored to "+offHouse(tr)+".</b> You lose what the post was worth and gain a house that owes you for it.");
+ recalcAll();
+ return offHouse(tr)+" has the office, and the debt.";
+}
+function offRevoke(oi){
+ if(!G.offGrant||G.offGrant[oi]===undefined)return "";
+ var o=OID[oi],tr=G.offGrant[oi],s=G.states[tr];
+ delete G.offGrant[oi];
+ s.rel=cl0(s.rel-38,0,100);s.claim=1;
+ delete G.allies[tr];
+ G.prs=cl0(G.prs-5,0,100);G.impFav=cl0(G.impFav-7,0,100);
+ chron(G.yr,"<b>"+o.n+" is taken back from "+offHouse(tr)+".</b> Nothing about that will be forgotten.");
+ recalcAll();
+ return "Taken back.";
+}
+
+/* ---------- appointing, and the insult of it ---------- */
+function offAppoint(oi,ci){
+ var o=OID[oi],c=G.court[ci];if(!o||!c)return "";
+ if(offBlocked(oi))return "";
+ /* one man, one post */
+ for(var k in G.offices)if(G.offices[k]===ci&&k!==oi)delete G.offices[k];
+ var was=offHolder(oi);
+ G.offices[oi]=ci;
+ c.since=G.yr;
+ var msg="";
+ var tr=offTrad(o);
+ if(tr>=0&&tr!==G.nat&&!(G.offGrant&&G.offGrant[oi]!==undefined)){
+  var s=G.states[tr];
+  s.rel=cl0(s.rel-11,0,100);
+  G.impFav=cl0(G.impFav-2,0,100);
+  msg=offHouse(tr)+" held that office for a hundred years and has noticed.";
+ }
+ chron(G.yr,"<b>"+c.n+"</b> is made "+o.n.replace(/^Arch-/,"")+
+  (was?", in place of "+was.n:"")+". "+msg);
+ recalcAll();
+ return c.n+" takes the office.";
+}
+function offDismiss(oi){
+ var o=OID[oi],c=offHolder(oi);if(!c)return "";
+ delete G.offices[oi];
+ if((c.pow||0)>45){
+  c.disg=1;c.pow=cl0((c.pow||0)+14,0,100);
+  G.prs=cl0(G.prs-4,0,100);
+  chron(G.yr,"<b>"+c.n+" is put out of "+o.n.replace(/^Arch-/,"")+".</b> He had too many friends to go quietly, and he keeps them.");
+ }else chron(G.yr,"<b>"+c.n+"</b> is relieved of "+o.n.replace(/^Arch-/,"")+".");
+ recalcAll();
+ return c.n+" is out.";
+}
+
+/* ---------- what an officer actually does with his year ----------
+   The numbers in the table are what the post is worth standing still. This is
+   what the man in it does, and it is the part you read in the chronicle. */
+function offActs(){
+ if(!G||G.over)return;
+ OFFICES.forEach(function(o){
+  var c=offHolder(o.i);if(!c)return;
+  var sk=c.sk[o.sk], w=offW(o,c);
+  if(w<=0.05)return;                              /* an idle post produces nothing */
+  var odds=cl0(7+sk*3.4+(G.cent-26)*0.12,4,52);
+  if(G.rnd()*100>odds)return;
+  OFFACT[o.i](c,sk,w);
+ });
+}
+function pickState(f){
+ var pool=G.states.filter(function(s){return !s.me&&indep(s)&&(!f||f(s));});
+ return pool.length?pool[Math.floor(G.rnd()*pool.length)]:null;
+}
+function pickRegionAny(){
+ return G.regions[Math.floor(G.rnd()*G.regions.length)];
+}
+var OFFACT={
+ chan:function(c,sk){
+  if(G.rnd()<0.5){
+   var g=cl0(1.1+sk*0.28,1,5);G.leg=cl0(G.leg+g,0,100);
+   chron(G.yr,"<b>"+c.n+"</b> has a charter drawn and sealed confirming rights your house has claimed for a century and never written down. Standing in the Empire rises.");
+  }else{
+   var r=pickRegionAny();
+   r.unrDelta-=2.2;r.stab=cl0(r.stab+2.6,0,100);
+   chron(G.yr,"<b>"+c.n+"</b> settles a dispute over the <b>"+esc(r.n)+"</b> tolls by producing the original grant. Nobody enjoys being shown the document.");
+  }
+ },
+ chit:function(c,sk){
+  var s=pickState(function(x){return ["ita","tus"].indexOf(x.cult)>=0;});
+  if(!s)return;
+  s.rel=cl0(s.rel+4+sk*0.7,0,100);s.intel=Math.max(s.intel,1);
+  chron(G.yr,"<b>"+c.n+"</b> gets a notarial act out of "+shortName(s.n)+" acknowledging the Empire's rights there. It is worth exactly as much as the next army makes it worth.");
+ },
+ chbu:function(c,sk){
+  var s=pickState(function(x){return x.cult==="bur";});
+  if(!s)return;
+  s.rel=cl0(s.rel+4+sk*0.7,0,100);s.intel=Math.max(s.intel,1);
+  chron(G.yr,"<b>"+c.n+"</b> comes back over the Jura with homage sworn by "+shortName(s.n)+" and a bill for the journey.");
+ },
+ mars:function(c,sk){
+  if(armyCount()<14&&G.rnd()<0.55){
+   G.army.serj=(G.army.serj||0)+1;
+   chron(G.yr,"<b>"+c.n+"</b> has drilled the town levies through the winter and brings a company of serjeants into the field for nothing but their keep.");
+  }else{
+   G.em.land=(G.em.land||0)+2.5+sk*0.5;
+   chron(G.yr,"<b>"+c.n+"</b> has the muster reorganised: fewer carts, more remounts, and a camp that does not lose a man a day to the flux.");
+  }
+ },
+ camb:function(c,sk){
+  var amt=Math.round(G.income*(0.03+sk*0.011));
+  G.tr+=amt;
+  chron(G.yr,"<b>"+c.n+"</b> audits the chamber and finds "+fmt(amt)+" marks that had gone somewhere else. Two clerks are dismissed and one is hanged.");
+ },
+ stew:function(c,sk){
+  if(G.rnd()<0.5){
+   var amt=Math.round(G.income*(0.02+sk*0.008));
+   G.tr+=amt;
+   chron(G.yr,"<b>"+c.n+"</b> runs the household off the demesne for a season and saves "+fmt(amt)+" marks. The court eats worse and says so.");
+  }else{
+   var r=pickRegionAny();r.stab=cl0(r.stab+3.4,0,100);r.unrDelta-=2.4;
+   chron(G.yr,"<b>"+c.n+"</b> rides the demesne at <b>"+esc(r.n)+"</b> in person, hears the complaints and settles most of them on the spot.");
+  }
+ },
+ cupb:function(c,sk){
+  if(G.king){
+   G.leg=cl0(G.leg+1.4+sk*0.2,0,100);
+   chron(G.yr,"<b>"+c.n+"</b> has spent the year pouring wine for men who vote, and three of them have changed their minds about something.");
+  }else{
+   G.impFav=cl0(G.impFav+1.6+sk*0.3,0,100);
+   var s=pickState();
+   if(s)s.rel=cl0(s.rel+3+sk*0.5,0,100);
+   chron(G.yr,"<b>"+c.n+"</b> keeps your name in front of the court all year"+
+    (s?", and "+shortName(s.n)+" is warmer for it.":"."));
+  }
+ },
+ vicr:function(c,sk){
+  var r=pickRegionAny();
+  r.stab=cl0(r.stab+2.8,0,100);r.unrDelta-=2.6;
+  G.cent=cl0(G.cent+0.5+sk*0.08,0,100);
+  chron(G.yr,"<b>"+c.n+"</b> holds a court at <b>"+esc(r.n)+"</b> in your name and in your absence, and it is obeyed, which is the whole of the thing.");
+ },
+ spym:function(c,sk){
+  var dark=G.states.filter(function(s){return !s.me&&indep(s)&&s.intel<2;});
+  if(dark.length&&G.rnd()<0.6){
+   var s=dark[Math.floor(G.rnd()*dark.length)];
+   s.intel=Math.min(3,s.intel+1);
+   chron(G.yr,"<b>"+c.n+"</b> has a man in the chancery of "+shortName(s.n)+". What comes back is not flattering and it is accurate.");
+  }else{
+   var hostile=G.states.filter(function(s){return !s.me&&(s.claim||(s.hostile||0)>40);});
+   if(!hostile.length)return;
+   var h=hostile[Math.floor(G.rnd()*hostile.length)];
+   h.hostile=cl0((h.hostile||0)-14,0,100);h.fear=cl0((h.fear||0)+1,0,4);
+   chron(G.yr,"<b>"+c.n+"</b> intercepts a letter out of "+shortName(h.n)+" and shows it to the man it was about. Whatever was being arranged is not being arranged any more.");
+  }
+ }
+};
+
+/* ---------- a great officer builds his own house ---------- */
+function offPower(){
+ if(!G||G.over)return;
+ G.court.forEach(function(c){
+  var oi=null;
+  for(var k in G.offices)if(G.offices[k]===G.court.indexOf(c))oi=k;
+  if(!oi){c.pow=Math.max(0,(c.pow||0)-2.4);return;}
+  var o=OID[oi];
+  var yrs=G.yr-(c.since||G.yr);
+  var t=6+c.sk[3]*4.4+yrs*1.6+(o.imp?13:0)+offW(o,c)*11
+    -G.cent*0.24-G.prs*0.13-(c.disg?20:0);
+  if((c.tr||[]).indexOf("Ambitious")>=0)t+=20;
+  if((c.tr||[]).indexOf("Content")>=0)t-=20;
+  if((c.tr||[]).indexOf("Just")>=0)t-=10;
+  if((c.tr||[]).indexOf("Greedy")>=0)t+=11;
+  if((c.tr||[]).indexOf("Arrogant")>=0)t+=7;
+  c.pow=cl0((c.pow||0)+(cl0(t,0,100)-(c.pow||0))*0.2,0,100);
+  if(c.pow>66&&G.rnd()<0.16)offOversteps(c,oi,o);
+ });
+}
+function offOversteps(c,oi,o){
+ var roll=G.rnd();
+ if(roll<0.4){
+  var amt=Math.round(G.income*0.07);
+  G.tr=Math.max(0,G.tr-amt);
+  chron(G.yr,"<b>"+c.n+"</b> has been settling his own accounts out of the "+
+   o.n.replace(/^Arch-/,"").toLowerCase()+". "+fmt(amt)+" marks, and he will say it was owed to him.");
+ }else if(roll<0.72){
+  G.prs=cl0(G.prs-4,0,100);G.cent=cl0(G.cent-2.4,0,100);
+  chron(G.yr,"<b>"+c.n+"</b> has issued an order in your name that you did not give. It was a sensible order, which is the part that will keep you awake.");
+ }else{
+  var s=pickState();
+  if(s){s.rel=cl0(s.rel+10,0,100);s.intel=Math.max(s.intel,2);}
+  chron(G.yr,"<b>"+c.n+"</b> is corresponding with "+(s?shortName(s.n):"somebody")+
+   " on terms that are not yours to approve. Nothing has happened yet.");
+ }
+}
+
+/* ---------- the council, as a pane you can act on ---------- */
+function offShort(o){
+ var n=o.n.replace(/ of (Germany|Italy|Burgundy)$/," ($1)");
+ /* only a king, or the house that holds it by right, styles the post Arch- */
+ if(!G||(!G.king&&!offMine(o)&&!(G.offHeld&&G.offHeld[o.i])))n=n.replace(/^Arch-/,"");
+ return n;
+}
+function powWord(v){
+ if(v<20)return "A servant of the house.";
+ if(v<40)return "Known in his own right, and useful for it.";
+ if(v<60)return "He has a following of his own now.";
+ if(v<76)return "His name opens doors that yours does not.";
+ return "He is a power in the realm and the realm has noticed.";
+}
+function councilHtml(){
+ var used=offHeldCount(), cap=offCap();
+ var h='<div class="sec">'+sh("Your council",used+" of "+cap+" posts");
+ h+='<p class="lead">A post is worth what the man in it is worth. A fool in office is worse than an empty chair, one man may hold one post, and every post draws a stipend whether or not anything is done in it.</p>';
+ h+=kv("Stipends each year",fmt(offPayTotal())+" marks");
+ h+=kv("Posts a "+rankRow(myRank()).sh.toLowerCase()+" may keep",cap);
+ OFFICES.forEach(function(o){
+  if(o.req&&!G.done[o.req]&&!G.laws[o.req])return;
+  var c=offHolder(o.i), tr=offTrad(o), gr=G.offGrant&&G.offGrant[o.i];
+  var mine=offMine(o);
+  var w=offW(o,c);
+  h+='<div class="tr"><div class="trh"><span class="n">'+esc(offShort(o))+'</span>'+
+   (gr!==undefined&&gr!==null?'<span class="pill mu">granted away</span>':
+    c?'<span class="pill '+(w>1?"g":w>0.4?"w":"b")+'">'+
+      (w>1?"well held":w>0.4?"held":"held badly")+'</span>':
+    '<span class="pill mu">vacant</span>')+
+   (mine?'<span class="pill g">yours by right</span>':'')+'</div>';
+  h+='<div class="d">'+esc(o.d)+'</div>';
+  if(tr>=0&&!mine)
+   h+='<div class="d">Held since anyone can remember by <b>'+esc(offHouse(tr))+'</b>.</div>';
+  if(gr!==undefined&&gr!==null){
+   h+='<div class="d"><i>In the hands of '+esc(offHouse(gr))+
+    ', who is a friend for as long as it stays there.</i></div>';
+   h+='<div class="btns"><button class="btn sm d" data-ofr="'+o.i+'">Take it back</button></div></div>';
+   return;
+  }
+  if(c){
+   h+='<div class="d"><b>'+esc(c.n)+'</b> \u00b7 '+esc(SKN[o.sk])+' '+c.sk[o.sk]+
+    ' \u00b7 '+(G.yr-(c.since||G.yr))+' years in the post \u00b7 '+fmt(offPay(o))+' marks</div>';
+   h+=effHtml(offEff(o,c),"of"+o.i);
+   h+='<div class="kv"><span class="k">His standing</span><span class="v '+
+    ((c.pow||0)>70?"b":(c.pow||0)>45?"w":"g")+'">'+Math.round(c.pow||0)+'</span></div>';
+   h+=barHtml(c.pow||0,(c.pow||0)>70?"bad":(c.pow||0)>45?"warn":"good");
+   h+='<p class="fine">'+esc(powWord(c.pow||0))+'</p>';
+  }else{
+   var bl=offBlocked(o.i);
+   h+='<div class="d"><i>'+esc(bl?cap1(bl)+".":"Unfilled. Its work is not being done and nobody is doing it instead.")+'</i></div>';
+  }
+  h+='<div class="btns">';
+  var b2=offBlocked(o.i);
+  h+='<button class="btn sm" data-of="'+o.i+'"'+(b2&&!c?' disabled title="'+esc(b2)+'"':'')+'>'+
+   (c?"Replace him":"Appoint")+'</button>';
+  if(c)h+='<button class="btn sm" data-ofc="'+o.i+'">Dismiss him</button>';
+  var cb=offClaimBlocked(o.i);
+  if(OFFIMP[o.i]&&!mine&&!G.king&&!(G.offHeld&&G.offHeld[o.i]))
+   h+='<button class="btn sm p" data-ofq="'+o.i+'"'+(cb?' disabled title="'+esc(cb)+'"':'')+
+    '>Ask the crown for it \u00b7 '+fmt(offClaimCost())+'m</button>';
+  var gb=offGrantBlocked(o.i);
+  if(tr>=0&&!mine&&!gb)
+   h+='<button class="btn sm" data-ofg="'+o.i+'">Restore it to '+esc(offHouse(tr))+'</button>';
+  h+='</div></div>';
+ });
+ return h+'</div>';
+}
+function wireCouncil(){
+ var p=$("p-gov");
+ var go=function(f){return function(b){b.onclick=function(){
+   var m=f(b);bar();paneGov();if(m)toast(m);};};};
+ Array.prototype.forEach.call(p.querySelectorAll("[data-ofc]"),
+  go(function(b){return offDismiss(b.getAttribute("data-ofc"));}));
+ Array.prototype.forEach.call(p.querySelectorAll("[data-ofq]"),
+  go(function(b){return offClaim(b.getAttribute("data-ofq"));}));
+ Array.prototype.forEach.call(p.querySelectorAll("[data-ofg]"),
+  go(function(b){return offGrantTo(b.getAttribute("data-ofg"));}));
+ Array.prototype.forEach.call(p.querySelectorAll("[data-ofr]"),
+  go(function(b){return offRevoke(b.getAttribute("data-ofr"));}));
+ Array.prototype.forEach.call(p.querySelectorAll("[data-of]"),function(b){
+  b.onclick=function(){pickOffice(b.getAttribute("data-of"));};});
+}
+function pickOffice(oi){
+ var o=OID[oi];
+ var cur=G.offices[oi];
+ var h='<div class="ey">Appointment</div><h2>'+esc(offShort(o))+'</h2>'+
+  '<p>'+esc(o.d)+'</p>'+
+  '<p>The post is worth what the man is worth: it turns on his <b>'+esc(SKN[o.sk].toLowerCase())+
+  '</b>, and a man below the middling runs it worse than nobody at all. Whoever takes it leaves whatever else he holds.</p>';
+ var tr=offTrad(o);
+ if(tr>=0&&tr!==G.nat)
+  h+='<p class="fine">'+esc(offHouse(tr))+' has held this office by custom for generations. Putting your own man in it will be taken as it is meant.</p>';
+ var rows=G.court.map(function(c,i){return [i,c];});
+ rows.sort(function(a,b){return b[1].sk[o.sk]-a[1].sk[o.sk];});
+ rows.forEach(function(r){
+  var i=r[0],c=r[1];
+  var held=null;for(var k in G.offices)if(G.offices[k]===i)held=OID[k];
+  var w=offW(o,c);
+  h+='<button class="opt" data-ap="'+i+'"'+(i===cur?' disabled':'')+'><span class="ot">'+esc(c.n)+
+   ' <span class="pill '+(w>1?"g":w>0.4?"w":"b")+'">'+esc(SKN[o.sk])+' '+c.sk[o.sk]+'</span>'+
+   (i===cur?' <span class="pill mu">in post</span>':'')+'</span>'+
+   '<span class="od">Aged '+c.age+' \u00b7 '+esc((c.tr||[]).join(", "))+
+   (held&&i!==cur?' \u00b7 would leave '+esc(offShort(held)):'')+
+   ((c.pow||0)>45?' \u00b7 standing '+Math.round(c.pow):'')+
+   ' \u00b7 the post would be worth '+(w<=0.05?'nothing':Math.round(w*100)+'%')+' of its full value</span></button>';
+ });
+ h+='<div class="btns"><button class="btn" id="mclose">Leave it as it is</button></div>';
+ modal(h);
+ Array.prototype.forEach.call($("mbody").querySelectorAll("[data-ap]"),function(b){
+  b.onclick=function(){var m=offAppoint(oi,+b.getAttribute("data-ap"));
+   closeModal();bar();paneGov();if(m)toast(m);};});
+ $("mclose").onclick=closeModal;
+}
+
+
+/* a courtier who dies or is replaced must not leave a post pointing at nobody */
+function offTidy(){
+ for(var k in G.offices){
+  var i=G.offices[k];
+  if(i===undefined||i===null||!G.court[i]){delete G.offices[k];continue;}
+ }
+ /* an arch-office follows the crown. Lose the crown and you keep it only if
+    it is yours by right or the Emperor has granted it to you by name. */
+ OFFICES.forEach(function(o){
+  if(!OFFIMP[o.i]||!G.offices[o.i])return;
+  if(offMine(o)||G.king||(G.offHeld&&G.offHeld[o.i]))return;
+  var c=offHolder(o.i);
+  delete G.offices[o.i];
+  chron(G.yr,"<b>"+o.n+"</b> goes back to the crown"+(c?"; "+c.n+" is left with the title and none of the work":"")+".");
+ });
+ /* and a realm that has fallen in rank cannot keep the council it had */
+ var cap=offCap(), ks=Object.keys(G.offices);
+ while(ks.length>cap){
+  var worst=null,wv=1e9;
+  ks.forEach(function(k2){var w=offW(OID[k2],offHolder(k2));if(w<wv){wv=w;worst=k2;}});
+  if(!worst)break;
+  var o=OID[worst],c=offHolder(worst);
+  delete G.offices[worst];
+  chron(G.yr,"<b>"+(c?c.n:"The holder")+"</b> gives up "+o.n.replace(/^Arch-/,"")+
+   ". A realm of this standing is not allowed the council it had.");
+  ks=Object.keys(G.offices);
  }
 }
 
