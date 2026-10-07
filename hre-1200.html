@@ -185,6 +185,13 @@ body.sel .tr:hover{background:var(--panel-2)}
 #feed .fi{flex:0 0 auto;color:var(--fc,#a67c1c);font-size:13px;line-height:1.25}
 #feed .ft{flex:1;min-width:0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 #feed .ft b{color:#f0e4c4;font-weight:600}
+#feed .fdec{border-left-width:4px;border-color:var(--gold);background:rgba(44,33,8,.92);
+ box-shadow:0 4px 16px #0008}
+#feed .fdec:hover{background:rgba(60,45,11,.96);border-color:var(--gold2)}
+#feed .fdec .fi{color:var(--gold2)}
+#feed .fdec .ft{-webkit-line-clamp:4}
+#feed .fdl{display:block;margin-top:3px;font-size:10px;letter-spacing:.09em;
+ text-transform:uppercase;color:var(--gold2)}
 #feed .fmore{pointer-events:auto;cursor:pointer;background:rgba(14,13,10,.7);border:1px solid #ffffff1f;
  border-radius:4px;padding:4px 8px;color:#c9c2b0;font-size:10.5px;text-align:center}
 #feed .fmore:hover{color:#eccd7a;border-color:#a67c1c}
@@ -5910,7 +5917,9 @@ function negoModal(ix){
 
 /* ================= MODAL ================= */
 function modal(html){$("mbody").innerHTML=html;$("veil").hidden=false;$("modal").scrollTop=0;}
-function closeModal(){$("veil").hidden=true;}
+/* Shutting any window puts the column back in step with the year, so a
+   decision that has just been answered cannot leave its card behind. */
+function closeModal(){$("veil").hidden=true;if(typeof feed==="function")feed();}
 
 var pickSort="pop";
 function startScreen(){
@@ -5996,7 +6005,7 @@ function eventModal(){
    else{closeModal();afterEvent();}};});
 }
 function afterEvent(){
- bar();paintMap();buildTabs();showPane();
+ bar();paintMap();buildTabs();showPane();feed();
  if(G.over)overModal();
  save();
 }
@@ -7763,9 +7772,22 @@ function feed(){
  if(!w){var t=$("tools");if(!t)return;w=document.createElement("div");w.id="feed";t.appendChild(w);}
  if(!G){w.innerHTML="";return;}
  if(feedYr!==G.yr){feedYr=G.yr;feedX=[];}
+ /* A year that is asking you something says so at the head of the column, and
+    the answer is one tap away. It cannot be dismissed, because it is not news:
+    it is the year waiting on you, and the year does not turn until it is
+    answered. */
+ var dech="";
+ if(G.ev&&G.ev.o&&G.ev.o.length){
+  var DC=G.evC||{};
+  dech='<div class="fx fdec" id="fdec" title="Open it"><span class="fi">\u25C8</span>'+
+   '<span class="ft"><b>'+esc(subst(G.ev.h,DC))+'</b>'+
+   '<span class="fdl">A decision waits</span></span></div>';
+ }
+ var eb=$("end");
+ if(eb&&!document.body.classList.contains("sel"))eb.textContent=G.ev?"Decide":"End Year";
  var all=G.chron.filter(function(c){return c.y===G.yr;});
  var show=all.filter(function(c){return feedX.indexOf(c.t)<0;});
- if(!show.length){w.innerHTML="";return;}
+ if(!show.length){w.innerHTML=dech;if(dech)$("fdec").onclick=function(){eventModal();};return;}
  /* In a bad year half the Empire buries somebody, and seven cards all reading
     that a bishop you have never met is dead tell you nothing. So the column is
     dealt round the kinds rather than taken off the top: at most two of a kind,
@@ -7786,7 +7808,7 @@ function feed(){
   if(!added)break;
   round++;
  }
- var CAP=7, h="";
+ var CAP=7, h=dech;
  pickd.forEach(function(pr){
   var c=pr[0],k=pr[1];
   h+='<div class="fx" style="--fc:'+k[2]+'" data-ft="'+esc(c.t)+'" title="Dismiss">'+
@@ -7795,16 +7817,20 @@ function feed(){
  var rest=show.length-pickd.length;
  h+='<div class="fmore" id="fmore">'+(rest>0?rest+" more this year - open the chronicle":"Open the chronicle")+'</div>';
  w.innerHTML=h;
- Array.prototype.forEach.call(w.querySelectorAll(".fx"),function(d){
+ Array.prototype.forEach.call(w.querySelectorAll("[data-ft]"),function(d){
   d.onclick=function(){feedX.push(d.getAttribute("data-ft"));feed();};});
+ if($("fdec"))$("fdec").onclick=function(){eventModal();};
  $("fmore").onclick=function(){tab="chron";buildTabs();showPane();};
 }
 function endYear(){
  if(!G||G.over)return;
+ /* An event no longer takes the screen the moment it is drawn. It goes to the
+    head of the column and waits to be opened, which is what the button does
+    while one is outstanding, so nothing can be lost by leaving it. */
+ if(G.ev&&G.ev.o&&G.ev.o.length){eventModal();return;}
  endTurn();bar();paintMap();buildTabs();showPane();feed();
  if(G.over){overModal();save();return;}
  if(G.ageEv)ageModal();
- else if(G.ev)eventModal();
  else if(G.liegeAsk)liegeAskModal();
  else saveSoon();
 }
