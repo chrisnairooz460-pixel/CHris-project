@@ -732,15 +732,25 @@ hook("bc",function(){return scy;},function(v){scy=v;});
 hook("bw",function(){return sw;},function(v){sw=v;});
 document.getElementById("br").onclick=function(){sc=1;tx0=0;ty0=0;draw(1);};
 
-var pts={},last=null,ld=0;
-st.addEventListener("pointerdown",function(e){st.setPointerCapture(e.pointerId);pts[e.pointerId]=[e.clientX,e.clientY];last=[e.clientX,e.clientY];st.classList.add("drag");});
+var pts={},last=null,ld=0,cap=0,down=null;
+/* The pointer is caught once the hand has actually moved, not the instant it
+   goes down. Caught on the way down it also catches the pointerup, so the
+   click that follows is delivered to the stage instead of to the territory
+   under the finger, and with a mouse a state could not be opened by clicking
+   it at all. A touch screen keeps the target either way, which is why this
+   only ever showed on a desktop. Catching it on the first real movement keeps
+   a drag alive when it leaves the map, and leaves a plain click alone. */
+st.addEventListener("pointerdown",function(e){pts[e.pointerId]=[e.clientX,e.clientY];last=[e.clientX,e.clientY];down=[e.clientX,e.clientY];st.classList.add("drag");});
 st.addEventListener("pointermove",function(e){
   if(!(e.pointerId in pts))return;
   var ids=Object.keys(pts),r=stageRect(),k=Math.max(r.width/VW,r.height/VH);
+  if(!cap&&down&&(Math.abs(e.clientX-down[0])>3||Math.abs(e.clientY-down[1])>3)){
+    cap=1;try{st.setPointerCapture(e.pointerId);}catch(x){}
+  }
   if(ids.length===1){tx0+=(e.clientX-last[0])/k;ty0+=(e.clientY-last[1])/k;last=[e.clientX,e.clientY];pts[e.pointerId]=[e.clientX,e.clientY];draw();}
   else{pts[e.pointerId]=[e.clientX,e.clientY];var a=pts[ids[0]],b=pts[ids[1]],d=Math.hypot(a[0]-b[0],a[1]-b[1]);
     if(ld)zoom(((a[0]+b[0])/2-r.left)/k,((a[1]+b[1])/2-r.top)/k,d/ld);ld=d;}});
-function up(e){delete pts[e.pointerId];ld=0;last=null;st.classList.remove("drag");}
+function up(e){delete pts[e.pointerId];ld=0;last=null;cap=0;down=null;st.classList.remove("drag");}
 st.addEventListener("pointerup",up);st.addEventListener("pointercancel",up);
 function zoom(mx,my,f){var ns=Math.min(14,Math.max(1,sc*f));tx0=mx-(mx-tx0)*(ns/sc);ty0=my-(my-ty0)*(ns/sc);sc=ns;draw();}
 st.addEventListener("wheel",function(e){e.preventDefault();var r=stageRect(),k=Math.max(r.width/VW,r.height/VH);
@@ -7375,6 +7385,44 @@ function ageModal(){
    them are running, because a campaign you cheated at and forgot about is
    not worth keeping.
    ================================================== */
+/* ---- THE TAP CODE ----
+   A telephone has no tilde, and the cheats were unreachable without a
+   keyboard. The top right of the screen is the End Year button, so the corners
+   used are the map's own: touch the top right of the map, then the top left,
+   within two and a half seconds.
+   A tap in either corner patch will not open a state, so the code cannot
+   summon a window on its way through; panning, zooming and the overlay buttons
+   that sit in those corners all behave exactly as before. ---- */
+var CHCORN=96, chSeq=0, chAt=0, chHit=0;
+function chZone(e){
+  var r=stageRect();
+  if(e.clientY<r.top||e.clientY>r.top+CHCORN)return 0;
+  if(e.clientX>=r.right-CHCORN)return 1;
+  if(e.clientX<=r.left+CHCORN)return 2;
+  return 0;
+}
+addEventListener("pointerdown",function(e){
+  chHit=0;
+  if(!G||!$("veil").hidden)return;
+  var z=chZone(e);
+  if(!z){chSeq=0;return;}
+  chHit=1;
+  var now=Date.now();
+  if(chSeq===1&&z===2&&now-chAt<2500){chSeq=0;cheatModal();return;}
+  chSeq=(z===1)?1:0;
+  chAt=now;
+},true);
+/* the corner tap is swallowed only where it would have opened a state */
+addEventListener("click",function(e){
+  if(!chHit)return;
+  chHit=0;
+  var n=e.target,i=0;
+  while(n&&i++<4){
+    if(n.classList&&n.classList.contains("terr")){e.stopPropagation();e.preventDefault();return;}
+    n=n.parentNode;
+  }
+},true);
+
 var CHEATS=[
  {i:"instant",n:"Instant research",sw:1,
   d:"Anything put in the queue is understood at the end of the year."},
