@@ -31,8 +31,7 @@ h1{font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;font-size:25px
 svg#map{display:block;width:100%;height:100%}
 .terr{cursor:pointer}
 .terr path.f{transition:fill .25s,fill-opacity .14s}
-.terr path.s,.terr path.o,#vp>path{vector-effect:non-scaling-stroke}
-.terr:hover path.o{stroke-opacity:.85!important}
+.terr path.s,path.o,#vp>path{vector-effect:non-scaling-stroke}
 .terr.dim path.f{fill-opacity:.42!important}
 .terr.dim path.s{stroke-opacity:.5}
 text{font-family:Inter,sans-serif;paint-order:stroke;pointer-events:none}
@@ -488,16 +487,27 @@ T.forEach(function(t,i){ if(GEOD[i]){t.d=GEOD[i];t.c=GEOC[i];t.a=GEOA[i];t.r2=GE
 
 
 var labs=[], shields=[], cur=null, TGEO=[], armsHTML="", labTmp=[];
+/* A gold halo is drawn round the states you hold and round the one under the
+   pointer. It used to be a fourth copy of every frontier in the Empire, a
+   hundred and eighty-three paths sitting at stroke-opacity 0 and costing the
+   browser as much to rasterise as if they showed. Now the halo on a state you
+   hold is cut when that state first needs one, and the pointer has a single
+   path of its own that is given whichever frontier it is over. */
+function outl(e){
+  if(e.o2)return e.o2;
+  var p=el("path",{"class":"o",d:e.t.d,fill:"none",stroke:"#ffe9a8","stroke-width":2.2,
+    "stroke-opacity":"0","stroke-linejoin":"round","pointer-events":"none"});
+  e.g.appendChild(p); e.o2=p; return p;
+}
 T.forEach(function(t){
   var c=RANKS[t.r][1];
   var g=el("g",{"class":"terr",tabindex:"0",role:"button","aria-label":t.n});
   var ti=el("title",{});ti.textContent=t.n;g.appendChild(ti);
   var pf=el("path",{"class":"f",d:t.d,fill:c,"fill-opacity":"0.88"});
   var ps=el("path",{"class":"s",d:t.d,fill:"none",stroke:"#3b3024","stroke-width":1.15,"stroke-opacity":"0.8"});
-  var po=el("path",{"class":"o",d:t.d,fill:"none",stroke:"#ffe9a8","stroke-width":2.2,
-    "stroke-opacity":"0","stroke-linejoin":"round"});
-  g.appendChild(pf); g.appendChild(ps); g.appendChild(po);
-  TGEO.push({t:t,g:g,f:pf,s:ps,o2:po});
+  g.appendChild(pf); g.appendChild(ps);
+  g.__t=t;
+  TGEO.push({t:t,g:g,f:pf,s:ps});
   function pick(){
     if(typeof selMode!=="undefined"&&selMode){selNation(T.indexOf(t));return;}
     if(cur)cur.classList.remove("on");
@@ -535,6 +545,108 @@ CITY.forEach(function(c){var p=P(c[1],c[2]);
   gc.appendChild(el("circle",{cx:p[0],cy:p[1],r:2.6,fill:"#17160f",stroke:"#f4efe2","stroke-width":"1.1"}));
   var t=el("text",{x:p[0]+5,y:p[1]-4.5,fill:"#17160f",stroke:"#f4efe2"});
   t.textContent=c[0];gc.appendChild(t);cl.push(t);});
+
+/* ---- THE ARMS, DRAWN ONCE ----
+   A coat of arms is heraldry, not geometry: a field, its ordinaries and a
+   charge, eight or nine vector elements apiece. A hundred and eighty-three of
+   them live on the map comes to fifteen hundred elements that the browser
+   rasterises again on every single frame of a drag, and that alone was holding
+   a pan on a telephone at twenty-eight frames a second.
+   So each one is drawn once into a small bitmap and the map carries the
+   picture instead of the recipe, which costs a blit. All hundred and eighty-
+   three go into one sheet and are decoded in one pass, then cut out one at a
+   time in whatever gaps the browser has going spare, so the map is up and
+   answering from the first moment and merely becomes smoother a breath later.
+   If any step of it fails, the drawn arms stay exactly as they were. ---- */
+function idle(f){
+  if(typeof requestIdleCallback==="function")requestIdleCallback(f,{timeout:900});
+  else setTimeout(function(){f(null);},20);
+}
+/* The cutting out is chained on a plain timer rather than on idle time. Asked
+   for idle time it waited out its timeout again and again on a busy page and
+   took a dozen seconds to get through the set; a timer of zero still yields to
+   a touch and to the next frame, and gets through it in about three. */
+function soon(f){setTimeout(function(){f(null);},0);}
+function soon2(f){setTimeout(function(){f(null);},140);}
+var shRast=0;
+function shieldsToBitmaps(){
+  if(shRast||!shields.length||typeof XMLSerializer!=="function")return;
+  shRast=1;
+  /* 65 by 78 is the shield's own 100 by 120 at the size it is drawn, so
+     nothing is stretched and nothing is thrown away */
+  var CW=65,CH=78,COLS=14,ROWS=Math.ceil(shields.length/COLS),i,sheet;
+  try{
+    var ser=new XMLSerializer(),inner="";
+    for(i=0;i<shields.length;i++){
+      var sv=shields[i][0].cloneNode(true);
+      if(sv.tagName!=="svg"){shRast=0;return;}
+      sv.removeAttribute("style");
+      sv.setAttribute("x",(i%COLS)*CW); sv.setAttribute("y",Math.floor(i/COLS)*CH);
+      sv.setAttribute("width",CW); sv.setAttribute("height",CH);
+      inner+=ser.serializeToString(sv);
+    }
+    sheet='<svg xmlns="'+NS+'" width="'+(COLS*CW)+'" height="'+(ROWS*CH)+'">'+inner+"</svg>";
+  }catch(x){return;}
+  var img=new Image();
+  img.onload=function(){
+    var cv=document.createElement("canvas");
+    cv.width=CW;cv.height=CH;
+    var ctx=null;
+    try{ctx=cv.getContext("2d");}catch(x){}
+    if(!ctx)return;
+    var n=0;
+    function cut(dl){
+      /* Not a stroke of this while a finger or a mouse is down on the map.
+         Nothing here is urgent, and a drag is the one thing on the page that
+         must not be made to wait; with the drag ruled out the slice can be
+         generous, and the set is through in a few seconds rather than ten. */
+      for(var k in pts){soon2(cut);return;}
+      var t0=Date.now();
+      while(n<shields.length){
+        try{
+          ctx.clearRect(0,0,CW,CH);
+          ctx.drawImage(img,(n%COLS)*CW,Math.floor(n/COLS)*CH,CW,CH,0,0,CW,CH);
+          var u=cv.toDataURL("image/png");
+          if(!u||u.length<64)return;
+          var sh=shields[n],old=sh[0];
+          var im=el("image",{preserveAspectRatio:"xMidYMid meet"});
+          im.setAttribute("href",u);
+          im.setAttributeNS("http://www.w3.org/1999/xlink","href",u);
+          var A=["width","height","x","y"],q,v;
+          for(q=0;q<A.length;q++){v=old.getAttribute(A[q]);if(v!==null)im.setAttribute(A[q],v);}
+          im.style.display=old.style.display;
+          if(!old.parentNode)return;
+          old.parentNode.replaceChild(im,old);
+          sh[0]=im;
+        }catch(x){return;}
+        n++;
+        /* stop on the browser's word if it gave one, otherwise on the clock,
+           so that a slice of this never eats a frame of somebody's drag */
+        if(dl&&dl.timeRemaining&&dl.timeRemaining()<3)break;
+        if(Date.now()-t0>30)break;
+      }
+      if(n<shields.length)soon(cut);
+    }
+    idle(cut);
+  };
+  try{img.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(sheet);}catch(x){}
+}
+
+var hovP=el("path",{"class":"o",fill:"none",stroke:"#ffe9a8","stroke-width":2.2,
+  "stroke-opacity":"0","stroke-linejoin":"round","pointer-events":"none"});
+gf.appendChild(hovP);
+function hover(t){
+  if(t){hovP.setAttribute("d",t.d);hovP.setAttribute("stroke-opacity",0.85);}
+  else hovP.setAttribute("stroke-opacity",0);
+}
+/* one listener on the group rather than one on each of a hundred and
+   eighty-three, and nothing at all to pay on a telephone, which never hovers */
+gf.addEventListener("mouseover",function(e){
+  var n=e.target,i=0;
+  while(n&&n!==gf&&!n.__t&&i++<4)n=n.parentNode;
+  hover(n&&n.__t);
+});
+gf.addEventListener("mouseleave",function(){hover(null);});
 
 var sc=1,tx0=0,ty0=0,sn=1,sa=1,scy=1,sw=1;
 var vp=document.getElementById("vp"),st=document.getElementById("stage");
@@ -3524,7 +3636,7 @@ function paintMap(){
   setA(e.s,"stroke","#3b3024",e.m.s);
   setA(e.s,"stroke-width",mine?2.6:1.15,e.m.s);
   setA(e.s,"stroke-opacity",mine?1:0.8,e.m.s);
-  setA(e.o2,"stroke-opacity",mine?1:0,e.m.o);
+  if(mine||e.o2)setA(outl(e),"stroke-opacity",mine?1:0,e.m.o);
   var dim=!!(G&&s.intel<1&&plain);
   if(e.dim!==dim){e.dim=dim;e.g.classList.toggle("dim",dim);}
  });
@@ -4376,10 +4488,15 @@ function selPaint(){
   var c=stCol(ix);
   if(selIx===ix){e.f.setAttribute("fill","#f3dc8c");e.f.setAttribute("fill-opacity",1);
    e.s.setAttribute("stroke","#3b3024");e.s.setAttribute("stroke-width",2.2);
-   e.o2.setAttribute("stroke-opacity",1);e.g.classList.add("on");}
+   outl(e).setAttribute("stroke-opacity",1);e.g.classList.add("on");}
   else{e.f.setAttribute("fill",stCol(ix));e.f.setAttribute("fill-opacity",selIx===null?0.88:0.62);
    e.s.setAttribute("stroke","#3b3024");e.s.setAttribute("stroke-width",1.15);
-   e.o2.setAttribute("stroke-opacity",0);e.g.classList.remove("on");}
+   if(e.o2)e.o2.setAttribute("stroke-opacity",0);e.g.classList.remove("on");}
+  /* paintMap keeps a note of the last value it wrote to each attribute and
+     skips a write that would not change it. These writes go round that note,
+     so it is torn up: without this a reign begun after a trip back to the
+     states of the Empire kept the selection screen's colours. */
+  e.m=null;
   e.g.classList.remove("dim");
  });
  var lg=$("legend");
@@ -7386,16 +7503,6 @@ function begin(natIx,recog){
  initGame(natIx,recog);closeModal();
  $("end").textContent="End Year";
  $("end").onclick=endYear;
- $("menub").onclick=menuModal;
- /* the tilde opens the cheats, as it does in every game that has them */
- addEventListener("keydown",function(e){
-  if(e.key!=="~"&&e.key!=="`")return;
-  var t=e.target&&e.target.tagName;
-  if(t==="INPUT"||t==="TEXTAREA"||t==="SELECT")return;
-  e.preventDefault();
-  if(!$("veil").hidden&&$("mbody").querySelector("[data-cht]"))closeModal();
-  else cheatModal();
- });
  tab="realm";buildTabs();buildOvBtns();paintMap();bar();showPane();save();
 }
 function endYear(){
@@ -7448,6 +7555,20 @@ function boot(){
  $("imparms2").innerHTML=armsSVG({f:"#d6a62c",ch:["eagle","#1e1c19"]},30);
  buildOvBtns();
  $("end").onclick=endYear;
+ /* The menu and the tilde are hung on the page once, here, rather than when a
+    campaign begins. Wired in begin() they answered only in the session that
+    started the reign: a reload came up in the saved game with a menu button
+    that did nothing, and begin() hung a second key listener every time it ran,
+    so the tilde opened the cheats and shut them again in the same keystroke. */
+ $("menub").onclick=menuModal;
+ addEventListener("keydown",function(e){
+  if(e.key!=="~"&&e.key!=="`")return;
+  var t=e.target&&e.target.tagName;
+  if(t==="INPUT"||t==="TEXTAREA"||t==="SELECT")return;
+  e.preventDefault();
+  if(!$("veil").hidden&&$("mbody").querySelector("[data-cht]"))closeModal();
+  else cheatModal();
+ });
  $("themeb").onclick=function(){
   var r=document.documentElement,cur=r.getAttribute("data-theme");
   var dark=cur?cur==="dark":matchMedia("(prefers-color-scheme:dark)").matches;
@@ -7457,6 +7578,8 @@ function boot(){
  try{var th=localStorage.getItem("rextheme");if(th)document.documentElement.setAttribute("data-theme",th);}catch(x){}
  if(load()){tab="realm";buildTabs();paintMap();bar();showPane();if(G.over)overModal();}
  else selStart();
+ /* once the map is up and the first frame is on the screen */
+ idle(shieldsToBitmaps);
 }
 boot();
 
